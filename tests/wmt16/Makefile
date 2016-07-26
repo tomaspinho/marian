@@ -21,16 +21,12 @@ $(DIR)/bleu.score: $(DIR)/test-$(SRC)$(TRG)-ref.$(TRG).tok $(DIR)/test-$(SRC)$(T
 %.$(TRG).tok: %.$(TRG).txt
 	$(MOSES_SCRIPTS)/tokenizer/tokenizer.perl -l $(TRG) -a < $< > $@
 
-%-out.$(TRG).txt: %-out.$(TRG).bpe
-	sed 's/\@\@ //g' $< | \
-	$(MOSES_SCRIPTS)/recaser/detruecase.perl | \
+%-out.$(TRG).txt: %-out.$(TRG).pre
+	$(MOSES_SCRIPTS)/recaser/detruecase.perl < $< | \
 	$(MOSES_SCRIPTS)/tokenizer/detokenizer.perl -l $(TRG) > $@
 
-%-out.$(TRG).bpe: %-src.$(SRC).bpe $(DIR)/config.yml
+%-out.$(TRG).pre: %-src.$(SRC).pre $(DIR)/config.yml
 	head -n $(NUMBER_OF_LINES) < $< | $(AMUNMT_BIN)/amun -c $(DIR)/config.yml > $@
-
-%.$(SRC).bpe: %.$(SRC).pre $(DIR)/$(SRC)$(TRG).bpe
-	$(AMUNMT_BIN)/bpe $(DIR)/$(SRC)$(TRG).bpe < $< > $@
 
 %.$(SRC).pre: %.$(SRC).txt $(DIR)/truecase-model.$(SRC)
 	$(MOSES_SCRIPTS)/tokenizer/normalize-punctuation.perl -l $(SRC) < $< | \
