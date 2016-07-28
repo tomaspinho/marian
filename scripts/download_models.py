@@ -56,13 +56,35 @@ def parse_args():
     return parser.parse_args()
 
 
-def download_model(src, trg, workdir, force=False):
+def make_workdir(path):
+    """ Create a directory. """
+    workdir = os.path.abspath(path)
+
+    try:
+        os.makedirs(workdir)
+    except OSError:
+        pass
+
+
+def download_model(model, workdir, force=False):
     """ download Rico Sennrich's WMT16 model: <src> to <trg>. """
-    download_file(src, trg, "model.npz", workdir, force)
-    download_file(src, trg, "vocab.{}.json".format(src), workdir, force)
-    download_file(src, trg, "vocab.{}.json".format(trg), workdir, force)
-    download_file(src, trg, "{}{}.bpe".format(src, trg), workdir, force)
-    download_file(src, trg, "truecase-model.{}".format(src), workdir, force)
+    make_workdir(workdir)
+    download_model_parts(model, workdir, force)
+    create_base_config(model, workdir)
+
+
+def download_model_parts(model, workdir, force=False):
+    src = model.split('-')[0]
+    trg = model.split('-')[1]
+
+    model_parts = ["model.npz",
+                   "vocab.{}.json".format(src),
+                   "vocab.{}.json".format(trg),
+                   "{}{}.bpe".format(src, trg),
+                   "truecase-model.{}".format(src)]
+
+    for part in model_parts:
+        download_file(src, trg, part, workdir, force)
 
 
 def download_file(src, trg, name, workdir, force=False):
@@ -91,20 +113,10 @@ def create_base_config(model, model_dir):
 def main():
     """ main """
     args = parse_args()
-    src = args.model.split('-')[0]
-    trg = args.model.split('-')[1]
-    workdir = os.path.abspath(args.workdir)
-    force = args.force
-
-    try:
-        os.makedirs(workdir)
-    except OSError:
-        pass
 
     print >> sys.stderr,  "Downloading {} to {}".format(args.model,
                                                         args.workdir)
-    download_model(src, trg, workdir, force)
-    create_base_config(args.model, workdir)
+    download_model(args.model, args.workdir, args.force)
 
 
 if __name__ == "__main__":
