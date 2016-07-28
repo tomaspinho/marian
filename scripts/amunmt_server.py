@@ -2,32 +2,47 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from flask import Flask
-from flask_sockets import Sockets
+import os
+import argparse
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../build/src')
 import libamunmt as nmt
 
-app = Flask(__name__)
-sockets = Sockets(app)
+from bottle import request, Bottle, abort
 
-print >> sys.stderr, sys.argv
+app = Bottle()
 
-nmt.init('-c {}'.format(sys.argv[1]))
 
-@sockets.route('/translate')
-def translate(ws):
-    while not ws.closed:
-        message = ws.receive()
+@app.route('/translate')
+def handle_websocket():
+        wsock = request.environ.get('wsgi.websocket')
+        if not wsock:
+            abort(400, 'Expected WebSocket request.')
 
-        if message:
-            inList = message.split("\n")
-            translation = nmt.translate(inList)
-            ws.send(translation)
+        while True:
+            try:
+                message = wsock.receive()
+                trans = nmt.translate(message.split('\n'))
+                wsock.send('\n'.join(trans))
+            except WebSocketError:
+                break
 
-if __name__ == '__main__':
-    from gevent import pywsgi
+
+def parse_args():
+    """ parse command arguments """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", dest="config")
+    parser.add_argument('-p', dest="port", default=8080, type=int)
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    nmt.init("-c {}".format(args.config))
+
+    from gevent.pywsgi import WSGIServer
+    from geventwebsocket import WebSocketError
     from geventwebsocket.handler import WebSocketHandler
-
-    server = pywsgi.WSGIServer(('', int(sys.argv[2])), app,
-                               handler_class=WebSocketHandler)
-    print >> sys.stderr, "Server is running"
+    server = WSGIServer(("0.0.0.0", args.port), app,
+                        handler_class=WebSocketHandler)
     server.serve_forever()
