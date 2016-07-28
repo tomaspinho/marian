@@ -14,10 +14,6 @@
 #include "decoder/printer.h"
 #include "decoder/sentence.h"
 
-extern "C"
-{
-  void openblas_set_num_threads(int num_threads);
-}
 
 History TranslationTask(const std::string& in, size_t taskCounter) {
   #ifdef __APPLE__
@@ -43,9 +39,6 @@ History TranslationTask(const std::string& in, size_t taskCounter) {
 
 void init(const std::string& options) {
   God::Init(options);
-  size_t threadOpenBLAS = God::Get<size_t>("threads-openblas");
-  LOG(info) << "Setting number of OpenBLAS threads to " << threadOpenBLAS;
-  openblas_set_num_threads(threadOpenBLAS);
 }
 
 boost::python::list translate(boost::python::list& in) {
