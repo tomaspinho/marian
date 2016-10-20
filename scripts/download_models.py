@@ -7,11 +7,13 @@ import os
 import requests
 from clint.textui import progress
 
-BASE_URL = "http://data.statmt.org/rsennrich/wmt16_systems/{}-{}/{}"
+WMT_URL = "http://data.statmt.org/rsennrich/wmt16_systems/{}-{}/{}"
+UN_URL = "http://odkrywka.wmi.amu.edu.pl/static/data/un/{}-{}/{}"
 
 CONFIG_TEMPLATE = """
 # Paths are relative to config file location
 relative-paths: yes
+
 
 # performance settings
 beam-size: 12
@@ -53,48 +55,33 @@ def parse_args():
     parser.add_argument("-w", dest="workdir", default='.')
     parser.add_argument('-m', dest="model", default='en-de')
     parser.add_argument('-f', dest="force", default=False)
+    parser.add_argument('-c', dest="category", default='un')
     return parser.parse_args()
 
 
-def make_workdir(path):
-    """ Create a directory. """
-    workdir = os.path.abspath(path)
-
-    try:
-        os.makedirs(workdir)
-    except OSError:
-        pass
-
-
-def download_model(model, workdir, force=False):
+def download_model(src, trg, workdir, category='wmt', force=False):
     """ download Rico Sennrich's WMT16 model: <src> to <trg>. """
-    make_workdir(workdir)
-    download_model_parts(model, workdir, force)
-    create_base_config(model, workdir)
+    download_file(src, trg, "model.npz", workdir, force)
+    download_file(src, trg, "vocab.{}.json".format(src), workdir, category,  force)
+    download_file(src, trg, "vocab.{}.json".format(trg), workdir, category, force)
+    download_file(src, trg, "{}{}.bpe".format(src, trg), workdir, category, force)
+    download_file(src, trg, "truecase-model.{}".format(src), workdir, category, force)
 
 
-def download_model_parts(model, workdir, force=False):
-    src = model.split('-')[0]
-    trg = model.split('-')[1]
-
-    model_parts = ["model.npz",
-                   "vocab.{}.json".format(src),
-                   "vocab.{}.json".format(trg),
-                   "{}{}.bpe".format(src, trg),
-                   "truecase-model.{}".format(src)]
-
-    for part in model_parts:
-        download_file(src, trg, part, workdir, force)
-
-
-def download_file(src, trg, name, workdir, force=False):
+def download_file(src, trg, name, workdir, category='wmt', force=False):
     path = os.path.join(workdir, name)
+
+    if category == 'wmt':
+        base_url = WMT_URL
+    else:
+        base_url = UN_URL
+
     if not os.path.exists(path):
-        full_url = BASE_URL.format(src, trg, name)
+        full_url = base_url.format(src, trg, name)
         print >> sys.stderr, "Downloading: {} to {}".format(full_url, path)
         download_with_progress(path, full_url)
     elif force:
-        full_url = BASE_URL.format(src, trg, name)
+        full_url = base_url.format(src, trg, name)
         print >> sys.stderr, "Force downloading: {}".format(full_url)
         download_with_progress(path, full_url)
     else:
@@ -113,10 +100,21 @@ def create_base_config(model, model_dir):
 def main():
     """ main """
     args = parse_args()
+    src = args.model.split('-')[0]
+    trg = args.model.split('-')[1]
+    cat = args.category
+    workdir = os.path.abspath(args.workdir)
+    force = args.force
+
+    try:
+        os.makedirs(workdir)
+    except OSError:
+        pass
 
     print >> sys.stderr,  "Downloading {} to {}".format(args.model,
                                                         args.workdir)
-    download_model(args.model, args.workdir, args.force)
+    download_model(src, trg, workdir, cat, force)
+    create_base_config(args.model, workdir)
 
 
 if __name__ == "__main__":
