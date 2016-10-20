@@ -61,7 +61,7 @@ def parse_args():
 
 def download_model(src, trg, workdir, category='wmt', force=False):
     """ download Rico Sennrich's WMT16 model: <src> to <trg>. """
-    download_file(src, trg, "model.npz", workdir, force)
+    download_file(src, trg, "model.npz", workdir, category, force)
     download_file(src, trg, "vocab.{}.json".format(src), workdir, category,  force)
     download_file(src, trg, "vocab.{}.json".format(trg), workdir, category, force)
     download_file(src, trg, "{}{}.bpe".format(src, trg), workdir, category, force)
@@ -70,6 +70,7 @@ def download_model(src, trg, workdir, category='wmt', force=False):
 
 def download_file(src, trg, name, workdir, category='wmt', force=False):
     path = os.path.join(workdir, name)
+    print "CAT: ", category
 
     if category == 'wmt':
         base_url = WMT_URL
@@ -103,6 +104,7 @@ def main():
     src = args.model.split('-')[0]
     trg = args.model.split('-')[1]
     cat = args.category
+    print ">>>: ", cat
     workdir = os.path.abspath(args.workdir)
     force = args.force
 
