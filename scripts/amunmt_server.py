@@ -23,6 +23,7 @@ def handle_websocket():
             try:
                 message = wsock.receive()
                 if message is not None:
+                    print("mess: ", message)
                     trans = nmt.translate(message.split('\n'))
                     print("trans: ", trans)
                     print("type: ", type(trans))
