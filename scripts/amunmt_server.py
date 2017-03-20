@@ -24,6 +24,8 @@ def handle_websocket():
                 message = wsock.receive()
                 if message is not None:
                     trans = nmt.translate(message.split('\n'))
+                    print("trans: ", trans)
+                    print("type: ", type(trans))
                     wsock.send('\n'.join(trans))
             except WebSocketError:
                 break
