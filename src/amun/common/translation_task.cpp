@@ -11,10 +11,10 @@ using namespace std;
 
 namespace amunmt {
 
-void TranslationTaskAndOutput(const God &god, SentencesPtr sentences) {
+void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
   OutputCollector &outputCollector = god.GetOutputCollector();
 
-  std::shared_ptr<Histories> histories = TranslationTask(god, sentences);
+  std::shared_ptr<Histories> histories = Run(god, sentences);
 
   for (size_t i = 0; i < histories->size(); ++i) {
     const History &history = *histories->at(i);
@@ -27,7 +27,7 @@ void TranslationTaskAndOutput(const God &god, SentencesPtr sentences) {
   }
 }
 
-std::shared_ptr<Histories> TranslationTask(const God &god, SentencesPtr sentences) {
+std::shared_ptr<Histories> TranslationTask::Run(const God &god, SentencesPtr sentences) {
   try {
     Search& search = god.GetSearch();
     auto histories = search.Translate(*sentences);
@@ -59,7 +59,7 @@ std::shared_ptr<Histories> TranslationTask(const God &god, SentencesPtr sentence
 
 }
 
-void TranslateMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, size_t miniSize, int miniWords)
+void TranslationTask::RunMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, size_t miniSize, int miniWords)
 {
   maxiBatch->SortByLength();
   while (maxiBatch->size()) {
@@ -67,7 +67,7 @@ void TranslateMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, size_t miniSi
     //cerr << "miniBatch=" << miniBatch->size() << " maxiBatch=" << maxiBatch->size() << endl;
 
     god.GetThreadPool().enqueue(
-        [&god,miniBatch]{ return TranslationTaskAndOutput(god, miniBatch); }
+        [&,miniBatch]{ return RunAndOutput(god, miniBatch); }
         );
   }
 

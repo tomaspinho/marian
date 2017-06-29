@@ -35,6 +35,7 @@ int main(int argc, char* argv[])
 
   SentencesPtr maxiBatch(new Sentences());
 
+  TranslationTask task;
   std::string line;
   std::size_t lineNum = 0;
 
@@ -42,18 +43,7 @@ int main(int argc, char* argv[])
     maxiBatch->push_back(SentencePtr(new Sentence(god, lineNum++, line)));
 
     if (maxiBatch->size() >= maxiSize) {
-      /*
-      maxiBatch->SortByLength();
-      while (maxiBatch->size()) {
-        SentencesPtr miniBatch = maxiBatch->NextMiniBatch(miniSize, miniWords);
-        //cerr << "miniBatch=" << miniBatch->size() << " maxiBatch=" << maxiBatch->size() << endl;
-
-        god.GetThreadPool().enqueue(
-            [&god,miniBatch]{ return TranslationTaskAndOutput(god, miniBatch); }
-            );
-      }
-      */
-      TranslateMaxiBatchAndOutput(god, maxiBatch, miniSize, miniWords);
+      task.RunMaxiBatchAndOutput(god, maxiBatch, miniSize, miniWords);
 
       maxiBatch.reset(new Sentences());
     }
@@ -62,13 +52,7 @@ int main(int argc, char* argv[])
 
   // last batch
   if (maxiBatch->size()) {
-    maxiBatch->SortByLength();
-    while (maxiBatch->size()) {
-      SentencesPtr miniBatch = maxiBatch->NextMiniBatch(miniSize, miniWords);
-      god.GetThreadPool().enqueue(
-          [&god,miniBatch]{ return TranslationTaskAndOutput(god, miniBatch); }
-          );
-    }
+    task.RunMaxiBatchAndOutput(god, maxiBatch, miniSize, miniWords);
   }
 
   god.Cleanup();
