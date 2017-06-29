@@ -48,29 +48,20 @@ class Encoder {
         RNN(const Weights& model)
         : gru_(model) {}
 
-        void InitializeState(size_t batchSize = 1) {
-          State_.NewSize(batchSize, gru_.GetStateLength());
-          mblas::Fill(State_, 0.0f);
-        }
-
-        void GetNextState(mblas::Matrix& NextState,
-                          const mblas::Matrix& State,
-                          const mblas::Matrix& Embd) {
-          gru_.GetNextState(NextState, State, Embd);
-        }
-
         template <class It>
         void Encode(It it, It end, mblas::Matrix& Context, size_t batchSize, bool invert,
                         const mblas::IMatrix *sentencesMask=nullptr)
         {
-          InitializeState(batchSize);
+          mblas::Matrix state(batchSize, gru_.GetStateLength(), 1, 1);
+          mblas::Matrix prevState(batchSize, gru_.GetStateLength(), 1, 1);
+          mblas::Fill(prevState, 0.0f);
 
-          mblas::Matrix prevState(State_);
           size_t n = std::distance(it, end);
           size_t i = 0;
 
           while(it != end) {
-            GetNextState(State_, prevState, *it++);
+            const mblas::Matrix& Embd = *it++;
+            gru_.GetNextState(state, prevState, Embd);
 	    
             //std::cerr << "invert=" << invert << std::endl;
             if(invert) {
@@ -78,18 +69,18 @@ class Encoder {
 
               //std::cerr << "1State_=" << State_.Debug(1) << std::endl;
               //std::cerr << "mapping=" << mblas::Debug(*mapping) << std::endl;
-              mblas::MapMatrix(State_, *sentencesMask, n - i - 1);
+              mblas::MapMatrix(state, *sentencesMask, n - i - 1);
               //std::cerr << "2State_=" << State_.Debug(1) << std::endl;
 
-              mblas::PasteRows(Context, State_, (n - i - 1), gru_.GetStateLength());
+              mblas::PasteRows(Context, state, (n - i - 1), gru_.GetStateLength());
             }
             else {
               //std::cerr << "1Context=" << Context.Debug(1) << std::endl;
-              mblas::PasteRows(Context, State_, i, 0);
+              mblas::PasteRows(Context, state, i, 0);
               //std::cerr << "2Context=" << Context.Debug(1) << std::endl;
             }
 
-            prevState.swap(State_);
+            prevState.swap(state);
             ++i;
           }
         }
@@ -100,7 +91,6 @@ class Encoder {
 
       private:
         const GRU<Weights> gru_;
-        mblas::Matrix State_;
         RNN(const RNN&) = delete;
     };
 
