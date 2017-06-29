@@ -300,10 +300,6 @@ class Decoder {
             b4.reset(&FilteredB4_);
           }
 
-          BEGIN_TIMER("GetProbs.NewSize");
-          Probs.NewSize(T1_.dim(0), w4->dim(1));
-          PAUSE_TIMER("GetProbs.NewSize");
-
           BEGIN_TIMER("GetProbs.Prod4");
           Prod(Probs, T1_, *w4);
           PAUSE_TIMER("GetProbs.Prod4");
