@@ -53,8 +53,7 @@ class Encoder {
                         const mblas::IMatrix *sentencesMask=nullptr)
         {
           mblas::Matrix state(batchSize, gru_.GetStateLength(), 1, 1);
-          mblas::Matrix prevState(batchSize, gru_.GetStateLength(), 1, 1);
-          mblas::Fill(prevState, 0.0f);
+          mblas::Matrix prevState(batchSize, gru_.GetStateLength(), 1, 1, true);
 
           size_t n = std::distance(it, end);
           size_t i = 0;
