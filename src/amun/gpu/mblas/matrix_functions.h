@@ -101,6 +101,8 @@ void copy_n(IteratorT1 inBegin, size_t size, IteratorT2 outBegin) {
 
 void Fill(Matrix& In, float value=0.0f);
 
+void Zero(Matrix& In);
+
 Matrix& Swap(Matrix& Out, Matrix& In);
 
 void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentencesMask);
