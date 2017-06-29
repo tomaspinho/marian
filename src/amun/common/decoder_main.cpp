@@ -27,8 +27,8 @@ int main(int argc, char* argv[])
   boost::timer::cpu_timer timer;
 
 
-  size_t miniSize = (god.Get<size_t>("cpu-threads") == 0) ? god.Get<size_t>("mini-batch") : 1;
   size_t maxiSize = (god.Get<size_t>("cpu-threads") == 0) ? god.Get<size_t>("maxi-batch") : 1;
+  size_t miniSize = (god.Get<size_t>("cpu-threads") == 0) ? god.Get<size_t>("mini-batch") : 1;
   int miniWords = god.Get<int>("mini-batch-words");
 
   LOG(info)->info("Reading input");
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     maxiBatch->push_back(SentencePtr(new Sentence(god, lineNum++, line)));
 
     if (maxiBatch->size() >= maxiSize) {
-
+      /*
       maxiBatch->SortByLength();
       while (maxiBatch->size()) {
         SentencesPtr miniBatch = maxiBatch->NextMiniBatch(miniSize, miniWords);
@@ -52,6 +52,8 @@ int main(int argc, char* argv[])
             [&god,miniBatch]{ return TranslationTaskAndOutput(god, miniBatch); }
             );
       }
+      */
+      TranslateMaxiBatchAndOutput(god, maxiBatch, miniSize, miniWords);
 
       maxiBatch.reset(new Sentences());
     }
