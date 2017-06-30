@@ -37,12 +37,22 @@ public:
       return instance_.handle_;
   }
 
-protected:
-  CublasHandler();
-  ~CublasHandler();
+  static cublasHandle_t &GetEncoderHandle() {
+      return instance_.handleEnc_;
+  }
 
+protected:
   static thread_local CublasHandler instance_;
   cublasHandle_t handle_;
+  cublasHandle_t handleEnc_;
+
+  CublasHandler();
+  CublasHandler(const CublasHandler&) = delete;
+
+  virtual ~CublasHandler();
+
+  void CreateHandle(cublasHandle_t &handle, const cudaStream_t &stream) const;
+
 };
 
 } // namespace mblas
