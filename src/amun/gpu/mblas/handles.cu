@@ -27,6 +27,7 @@ CublasHandler::CublasHandler()
 
 CublasHandler::~CublasHandler() {
   cublasDestroy(handle_);
+  cublasDestroy(handleEnc_);
 }
 
 void CublasHandler::CreateHandle(cublasHandle_t &handle, const cudaStream_t &stream) const
