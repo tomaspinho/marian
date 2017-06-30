@@ -84,6 +84,7 @@ cuda_add_executable(
   gpu/decoder/encoder_decoder_state.cu
   gpu/dl4mt/encoder.cu
   gpu/dl4mt/gru.cu
+  gpu/mblas/handles.cu
   gpu/mblas/matrix.cu
   gpu/mblas/matrix_functions.cu
   gpu/mblas/nth_element.cu

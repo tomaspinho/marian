@@ -14,54 +14,35 @@ public:
     return instance_.stream_;
   }
 
+  static const cudaStream_t& GetEncoderStream() {
+    return instance_.streamEnc_;
+  }
+
 protected:
-    static thread_local CudaStreamHandler instance_;
-    cudaStream_t stream_;
+  static thread_local CudaStreamHandler instance_;
+  cudaStream_t stream_;
+  cudaStream_t streamEnc_;
 
-    CudaStreamHandler()
-    {
-      HANDLE_ERROR( cudaStreamCreate(&stream_));
-      // cudaStreamCreateWithFlags(stream_.get(), cudaStreamNonBlocking);
-    }
+  CudaStreamHandler();
+  CudaStreamHandler(const CudaStreamHandler&) = delete;
 
-    CudaStreamHandler(const CudaStreamHandler&) = delete;
-
-    virtual ~CudaStreamHandler() {
-      HANDLE_ERROR(cudaStreamDestroy(stream_));
-    }
+  virtual ~CudaStreamHandler();
 };
 
-
+///////////////////////////////////////////////////////////////////////
 class CublasHandler
 {
-  public:
-    static cublasHandle_t &GetHandle() {
-        return instance_.handle_;
-    }
+public:
+  static cublasHandle_t &GetHandle() {
+      return instance_.handle_;
+  }
 
-  private:
-    CublasHandler()
-    {
-      cublasStatus_t stat;
-      stat = cublasCreate(&handle_);
-      if (stat != CUBLAS_STATUS_SUCCESS) {
-		  printf ("cublasCreate initialization failed\n");
-		  abort();
-      }
+protected:
+  CublasHandler();
+  ~CublasHandler();
 
-      stat = cublasSetStream(handle_, CudaStreamHandler::GetStream());
-      if (stat != CUBLAS_STATUS_SUCCESS) {
-		  printf ("cublasSetStream initialization failed\n");
-		  abort();
-      }
-    }
-
-    ~CublasHandler() {
-      cublasDestroy(handle_);
-    }
-
-    static thread_local CublasHandler instance_;
-    cublasHandle_t handle_;
+  static thread_local CublasHandler instance_;
+  cublasHandle_t handle_;
 };
 
 } // namespace mblas
