@@ -18,9 +18,9 @@ struct NthOut
   NthOut() {}
 
   __device__ __host__
-  NthOut(const NthOut &other)
-  :ind(other.ind)
-  ,score(other.score)
+  NthOut(uint init)
+  :ind(init)
+  ,score(init)
   {}
 
   __device__ __host__
@@ -29,6 +29,7 @@ struct NthOut
   ,score(vScore)
   {}
 
+  __device__ __host__
   NthOut& operator+=(const NthOut& rhs)
   {
     ind += rhs.ind;
@@ -65,14 +66,15 @@ class NthElement {
   private:
     const uint BLOCK_SIZE = 512;
 
-    DeviceVector<NthOut> d_out;
+    mblas::TMatrix<NthOut> d_out;
 
-    DeviceVector<NthOut> d_res;
-    HostVector<NthOut> h_res;
+    mblas::TMatrix<NthOut> d_res;
+    //HostVector<NthOut> h_res;
+    std::vector<NthOut> h_res;
 
-    DeviceVector<float> d_breakdown;
-    DeviceVector<uint> d_batchPosition;
-    DeviceVector<uint> d_cumBeamSizes;
+    mblas::TMatrix<float> d_breakdown;
+    mblas::TMatrix<uint> d_batchPosition;
+    mblas::TMatrix<uint> d_cumBeamSizes;
 
     uint maxBeamSize_, maxBatchSize_;
 
