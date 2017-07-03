@@ -51,9 +51,7 @@ int main(int argc, char* argv[])
   }
 
   // last batch
-  if (maxiBatch->size()) {
-    task.RunMaxiBatchAndOutput(god, maxiBatch, miniSize, miniWords);
-  }
+  task.RunMaxiBatchAndOutput(god, maxiBatch, miniSize, miniWords);
 
   god.Cleanup();
   LOG(info)->info("Total time: {}", timer.format());

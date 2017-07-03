@@ -11,6 +11,20 @@ using namespace std;
 
 namespace amunmt {
 
+void TranslationTask::RunMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, size_t miniSize, int miniWords)
+{
+  maxiBatch->SortByLength();
+  while (maxiBatch->size()) {
+    SentencesPtr miniBatch = maxiBatch->NextMiniBatch(miniSize, miniWords);
+    //cerr << "miniBatch=" << miniBatch->size() << " maxiBatch=" << maxiBatch->size() << endl;
+
+    god.GetThreadPool().enqueue(
+        [&,miniBatch]{ return RunAndOutput(god, miniBatch); }
+        );
+  }
+
+}
+
 void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
   OutputCollector &outputCollector = god.GetOutputCollector();
 
@@ -55,20 +69,6 @@ std::shared_ptr<Histories> TranslationTask::Run(const God &god, SentencesPtr sen
   {
     std::cerr << "Some other kind of error during some_function" << std::endl;
     abort();
-  }
-
-}
-
-void TranslationTask::RunMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, size_t miniSize, int miniWords)
-{
-  maxiBatch->SortByLength();
-  while (maxiBatch->size()) {
-    SentencesPtr miniBatch = maxiBatch->NextMiniBatch(miniSize, miniWords);
-    //cerr << "miniBatch=" << miniBatch->size() << " maxiBatch=" << maxiBatch->size() << endl;
-
-    god.GetThreadPool().enqueue(
-        [&,miniBatch]{ return RunAndOutput(god, miniBatch); }
-        );
   }
 
 }
