@@ -9,6 +9,7 @@
 
 namespace amunmt {
 
+class History;
 class Histories;
 class Filter;
 
@@ -17,7 +18,10 @@ class Search {
     Search(const God &god);
     virtual ~Search();
 
+    void TranslateAndOutput(const God &god, const Sentences& sentences);
     std::shared_ptr<Histories> Translate(const Sentences& sentences);
+
+    void Printer(const God &god, const History& history, std::ostream& out) const;
 
   protected:
     States NewStates() const;
@@ -31,6 +35,11 @@ class Search {
         Beam& prevHyps,
     		States& states,
     		States& nextStates);
+
+    std::vector<size_t> GetAlignment(const HypothesisPtr& hypothesis) const;
+
+    std::string GetAlignmentString(const std::vector<size_t>& alignment) const;
+    std::string GetSoftAlignmentString(const HypothesisPtr& hypothesis) const;
 
     Search(const Search&) = delete;
 

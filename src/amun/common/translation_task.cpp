@@ -26,6 +26,8 @@ void TranslationTask::RunMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, si
 }
 
 void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
+  Search& search = god.GetSearch();
+
   OutputCollector &outputCollector = god.GetOutputCollector();
 
   std::shared_ptr<Histories> histories = Run(god, sentences);
@@ -35,7 +37,7 @@ void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
     size_t lineNum = history.GetLineNum();
 
     std::stringstream strm;
-    Printer(god, history, strm);
+    search.Printer(god, history, strm);
 
     outputCollector.Write(lineNum, strm.str());
   }
