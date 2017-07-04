@@ -4,8 +4,8 @@
 
 #include "search.h"
 #include "output_collector.h"
-#include "printer.h"
 #include "history.h"
+#include "god.h"
 
 using namespace std;
 
