@@ -1421,6 +1421,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/src/amun/gpu/decoder/best_hyps.h</locationURI>
 		</link>
 		<link>
+			<name>src/amun/gpu/decoder/buffer.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/src/amun/gpu/decoder/buffer.h</locationURI>
+		</link>
+		<link>
 			<name>src/amun/gpu/decoder/class_language_model.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/src/amun/gpu/decoder/class_language_model.h</locationURI>
