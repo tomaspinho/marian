@@ -9,7 +9,6 @@
 #include "gpu/dl4mt/dl4mt.h"
 #include "gpu/decoder/encoder_decoder_state.h"
 #include "gpu/decoder/best_hyps.h"
-#include "buffer.h"
 
 using namespace std;
 
@@ -45,6 +44,13 @@ void EncoderDecoder::Encode(const Sentences& source) {
   PAUSE_TIMER("SetSource");
 }
 
+void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize) {
+  EDState& edState = state.get<EDState>();
+  decoder_->EmptyState(edState.GetStates(), *SourceContext_, batchSize, sentencesMask_);
+
+  decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
+}
+
 void EncoderDecoder::Decode(const State& in, State& out, const std::vector<uint>& beamSizes) {
   BEGIN_TIMER("Decode");
   const EDState& edIn = in.get<EDState>();
@@ -58,14 +64,6 @@ void EncoderDecoder::Decode(const State& in, State& out, const std::vector<uint>
                      beamSizes);
   PAUSE_TIMER("Decode");
 }
-
-void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize) {
-  EDState& edState = state.get<EDState>();
-  decoder_->EmptyState(edState.GetStates(), *SourceContext_, batchSize, sentencesMask_);
-
-  decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
-}
-
 
 void EncoderDecoder::AssembleBeamState(const State& in,
                                const Beam& beam,

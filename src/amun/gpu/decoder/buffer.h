@@ -6,10 +6,11 @@
 namespace amunmt {
 namespace GPU {
 
+template<class T>
 class Buffer
 {
 public:
-    void add(int num) {
+    void add(const T &num) {
         while (true) {
             std::unique_lock<std::mutex> locker(mu);
             cond.wait(locker, [this](){return buffer_.size() < size_;});
@@ -19,12 +20,12 @@ public:
             return;
         }
     }
-    int remove() {
+    T remove() {
         while (true)
         {
             std::unique_lock<std::mutex> locker(mu);
             cond.wait(locker, [this](){return buffer_.size() > 0;});
-            int back = buffer_.back();
+            T back = buffer_.back();
             buffer_.pop_back();
             locker.unlock();
             cond.notify_all();
@@ -36,7 +37,7 @@ private:
    std::mutex mu;
    std::condition_variable cond;
 
-    std::deque<int> buffer_;
+    std::deque<T> buffer_;
     const unsigned int size_ = 10;
 
 };

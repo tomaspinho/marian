@@ -9,6 +9,7 @@
 #include "gpu/types-gpu.h"
 #include "gpu/mblas/matrix.h"
 #include "gpu/mblas/handles.h"
+#include "buffer.h"
 
 
 namespace amunmt {
@@ -19,7 +20,13 @@ class Encoder;
 class Decoder;
 class Weights;
 
-////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+class EncDecParams
+{
+
+};
+
+/////////////////////////////////////////////////////////////////////////
 class EncoderDecoder : public Scorer {
   private:
     typedef EncoderDecoderState EDState;
@@ -63,6 +70,8 @@ class EncoderDecoder : public Scorer {
       // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
 
     std::unique_ptr<mblas::Matrix> SourceContext_;
+
+    Buffer< std::shared_ptr<EncDecParams> > encDecBuffer_;
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
