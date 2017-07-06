@@ -26,7 +26,9 @@ class Search {
   protected:
     States NewStates() const;
     void FilterTargetVocab(const Sentences& sentences);
-    States Encode(const Sentences& sentences);
+    void Encode(const Sentences& sentences);
+    States BeginSentenceState(const Sentences& sentences);
+
     void CleanAfterTranslation();
 
     bool CalcBeam(

@@ -61,7 +61,9 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
     FilterTargetVocab(sentences);
   }
 
-  States states = Encode(sentences);
+  Encode(sentences);
+  States states = BeginSentenceState(sentences);
+
   States nextStates = NewStates();
   std::vector<uint> beamSizes(sentences.size(), 1);
 
@@ -92,10 +94,17 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
   return histories;
 }
 
-States Search::Encode(const Sentences& sentences) {
-  States states;
+void Search::Encode(const Sentences& sentences)
+{
   for (auto& scorer : scorers_) {
     scorer->Encode(sentences);
+  }
+}
+
+States Search::BeginSentenceState(const Sentences& sentences)
+{
+  States states;
+  for (auto& scorer : scorers_) {
     auto state = scorer->NewState();
     scorer->BeginSentenceState(*state, sentences.size());
     states.emplace_back(state);
