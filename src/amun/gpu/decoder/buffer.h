@@ -1,5 +1,6 @@
 #pragma once
-#include <deque>
+//#include <deque>
+#include <queue>
 #include <mutex>
 #include <condition_variable>
 
@@ -10,11 +11,11 @@ template<class T>
 class Buffer
 {
 public:
-    void add(const T &num) {
+    void add(const T &val) {
         while (true) {
             std::unique_lock<std::mutex> locker(mu);
             cond.wait(locker, [this](){return buffer_.size() < size_;});
-            buffer_.push_back(num);
+            buffer_.push(val);
             locker.unlock();
             cond.notify_all();
             return;
@@ -25,11 +26,11 @@ public:
         {
             std::unique_lock<std::mutex> locker(mu);
             cond.wait(locker, [this](){return buffer_.size() > 0;});
-            T back = buffer_.back();
-            buffer_.pop_back();
+            T val = buffer_.front();
+            buffer_.pop();
             locker.unlock();
             cond.notify_all();
-            return back;
+            return val;
         }
     }
     Buffer() {}
@@ -37,7 +38,8 @@ private:
    std::mutex mu;
    std::condition_variable cond;
 
-    std::deque<T> buffer_;
+    //std::deque<T> buffer_;
+   std::queue<T> buffer_;
     const unsigned int size_ = 10;
 
 };
