@@ -276,6 +276,20 @@ typedef TMatrix<float> Matrix;
 typedef TMatrix<uint> IMatrix;
 
 
+/////////////////////////////////////////////////////////////////////////
+class EncParams
+{
+public:
+  EncParams() {}
+
+  Matrix sourceContext_;
+
+};
+
+typedef std::shared_ptr<EncParams> EncParamsPtr;
+
+/////////////////////////////////////////////////////////////////////////
+
 }  // namespace mblas
 }  // namespace GPU
 }

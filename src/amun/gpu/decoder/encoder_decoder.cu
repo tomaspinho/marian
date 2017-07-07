@@ -15,11 +15,6 @@ using namespace std;
 namespace amunmt {
 namespace GPU {
 
-EncDecParams::EncDecParams()
-:sourceContext_(new mblas::Matrix())
-{
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 EncoderDecoder::EncoderDecoder(
 		const God &god,
@@ -45,24 +40,24 @@ State* EncoderDecoder::NewState() const {
 void EncoderDecoder::Encode(const Sentences& source) {
   BEGIN_TIMER("SetSource");
 
-  EncDecParams *encParams = new EncDecParams();
+  mblas::EncParamsPtr encParams(new mblas::EncParams());
 
-  encoder_->Encode(source, tab_, *encParams->sourceContext_, sentencesMask_);
+  encoder_->Encode(source, tab_, encParams->sourceContext_, sentencesMask_);
 
-  encDecBuffer_.add(std::shared_ptr<EncDecParams>(encParams));
-  cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_->Debug(0) << endl;
+  encDecBuffer_.add(encParams);
+  cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
   PAUSE_TIMER("SetSource");
 }
 
 void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
 {
-  EncDecParamsPtr encParams = encDecBuffer_.remove();
-  cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_->Debug(0) << endl;
+  mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+  cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
   EDState& edState = state.get<EDState>();
 
-  decoder_->EmptyState(edState.GetStates(), encParams->sourceContext_, batchSize, sentencesMask_);
+  decoder_->EmptyState(edState.GetStates(), encParams, batchSize, sentencesMask_);
 
   decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
 }

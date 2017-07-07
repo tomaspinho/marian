@@ -21,18 +21,6 @@ class Decoder;
 class Weights;
 
 /////////////////////////////////////////////////////////////////////////
-class EncDecParams
-{
-public:
-  EncDecParams();
-
-  std::shared_ptr<mblas::Matrix> sourceContext_;
-
-};
-
-typedef std::shared_ptr<EncDecParams> EncDecParamsPtr;
-
-/////////////////////////////////////////////////////////////////////////
 class EncoderDecoder : public Scorer {
   private:
     typedef EncoderDecoderState EDState;
@@ -75,7 +63,7 @@ class EncoderDecoder : public Scorer {
     mblas::IMatrix sentencesMask_;
       // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
 
-    Buffer<EncDecParamsPtr> encDecBuffer_;
+    Buffer<mblas::EncParamsPtr> encDecBuffer_;
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };

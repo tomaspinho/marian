@@ -428,6 +428,8 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps
 
 void RandomizeMemory();
 
+/////////////////////////////////////////////////////////////////////////
+
 } // namespace mblas
 } // namespace GPU
 }
