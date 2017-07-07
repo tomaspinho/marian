@@ -283,6 +283,7 @@ public:
   EncParams() {}
 
   Matrix sourceContext_;
+  mblas::IMatrix sentencesMask_;
 
 };
 

@@ -42,7 +42,7 @@ void EncoderDecoder::Encode(const Sentences& source) {
 
   mblas::EncParamsPtr encParams(new mblas::EncParams());
 
-  encoder_->Encode(source, tab_, encParams->sourceContext_, sentencesMask_);
+  encoder_->Encode(source, tab_, sentencesMask_, encParams);
 
   encDecBuffer_.add(encParams);
   cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
