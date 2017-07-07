@@ -42,7 +42,7 @@ void EncoderDecoder::Encode(const Sentences& source) {
 
   mblas::EncParamsPtr encParams(new mblas::EncParams());
 
-  encoder_->Encode(source, tab_, sentencesMask_, encParams);
+  encoder_->Encode(source, tab_, encParams);
 
   encDecBuffer_.add(encParams);
   cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
@@ -57,7 +57,7 @@ void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
 
   EDState& edState = state.get<EDState>();
 
-  decoder_->EmptyState(edState.GetStates(), encParams, batchSize, sentencesMask_);
+  decoder_->EmptyState(edState.GetStates(), encParams, batchSize);
 
   decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
 }
@@ -70,7 +70,6 @@ void EncoderDecoder::Decode(const State& in, State& out, const std::vector<uint>
   decoder_->Decode(edOut.GetStates(),
                      edIn.GetStates(),
                      edIn.GetEmbeddings(),
-                     sentencesMask_,
                      beamSizes);
   PAUSE_TIMER("Decode");
 }
