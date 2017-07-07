@@ -15,6 +15,12 @@ using namespace std;
 namespace amunmt {
 namespace GPU {
 
+EncDecParams::EncDecParams()
+:sourceContext_(new mblas::Matrix())
+{
+}
+
+///////////////////////////////////////////////////////////////////////////////
 EncoderDecoder::EncoderDecoder(
 		const God &god,
 		const std::string& name,
@@ -25,8 +31,7 @@ EncoderDecoder::EncoderDecoder(
     model_(model),
     encoder_(new Encoder(model_)),
     decoder_(new Decoder(god, model_)),
-    indices_(god.Get<size_t>("beam-size")),
-    SourceContext_(new mblas::Matrix())
+    indices_(god.Get<size_t>("beam-size"))
 {}
 
 EncoderDecoder::~EncoderDecoder()
@@ -39,14 +44,25 @@ State* EncoderDecoder::NewState() const {
 
 void EncoderDecoder::Encode(const Sentences& source) {
   BEGIN_TIMER("SetSource");
-  encoder_->Encode(source, tab_, *SourceContext_, sentencesMask_);
-  //cerr << "GPU SourceContext_=" << SourceContext_.Debug(1) << endl;
+
+  EncDecParams *encParams = new EncDecParams();
+
+  encoder_->Encode(source, tab_, *encParams->sourceContext_, sentencesMask_);
+
+  encDecBuffer_.add(std::shared_ptr<EncDecParams>(encParams));
+  cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_->Debug(0) << endl;
+
   PAUSE_TIMER("SetSource");
 }
 
-void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize) {
+void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
+{
+  EncDecParamsPtr encParams = encDecBuffer_.remove();
+  cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_->Debug(0) << endl;
+
   EDState& edState = state.get<EDState>();
-  decoder_->EmptyState(edState.GetStates(), *SourceContext_, batchSize, sentencesMask_);
+
+  decoder_->EmptyState(edState.GetStates(), encParams->sourceContext_, batchSize, sentencesMask_);
 
   decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
 }
@@ -59,7 +75,6 @@ void EncoderDecoder::Decode(const State& in, State& out, const std::vector<uint>
   decoder_->Decode(edOut.GetStates(),
                      edIn.GetStates(),
                      edIn.GetEmbeddings(),
-                     *SourceContext_,
                      sentencesMask_,
                      beamSizes);
   PAUSE_TIMER("Decode");

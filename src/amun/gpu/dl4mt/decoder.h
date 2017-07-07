@@ -353,7 +353,6 @@ class Decoder {
     void Decode(mblas::Matrix& NextState,
                   const mblas::Matrix& State,
                   const mblas::Matrix& Embeddings,
-                  const mblas::Matrix& SourceContext,
                   const mblas::IMatrix &sentencesMask,
                   const std::vector<uint>& beamSizes)
     {
@@ -368,7 +367,7 @@ class Decoder {
       PAUSE_TIMER("GetHiddenState");
 
       BEGIN_TIMER("GetAlignedSourceContext");
-      GetAlignedSourceContext(AlignedSourceContext_, HiddenState_, SourceContext, sentencesMask, beamSizes);
+      GetAlignedSourceContext(AlignedSourceContext_, HiddenState_, *sourceContext_, sentencesMask, beamSizes);
       //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");
 
@@ -390,12 +389,13 @@ class Decoder {
     }
 
     void EmptyState(mblas::Matrix& State,
-                    const mblas::Matrix& SourceContext,
+                    std::shared_ptr<mblas::Matrix> sourceContext,
                     size_t batchSize,
                     const mblas::IMatrix &sentencesMask)
     {
-      rnn1_.InitializeState(State, SourceContext, batchSize, sentencesMask);
-      alignment_.Init(SourceContext);
+      sourceContext_ = sourceContext;
+      rnn1_.InitializeState(State, *sourceContext, batchSize, sentencesMask);
+      alignment_.Init(*sourceContext);
     }
 
     void EmptyEmbedding(mblas::Matrix& Embedding, size_t batchSize = 1) {
@@ -464,6 +464,8 @@ class Decoder {
     RNNFinal<Weights::DecGRU2> rnn2_;
     Alignment<Weights::DecAlignment> alignment_;
     Softmax<Weights::DecSoftmax> softmax_;
+
+    std::shared_ptr<mblas::Matrix> sourceContext_;
 
     Decoder(const Decoder&) = delete;
 };
