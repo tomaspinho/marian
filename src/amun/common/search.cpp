@@ -110,6 +110,9 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
   State *nextState = scorer.NewState();
   std::vector<uint> beamSizes(sentences.size(), 1);
 
+  std::shared_ptr<Histories> histories(new Histories(sentences, normalizeScore_));
+  Beam prevHyps = histories->GetFirstHyps();
+
   for (size_t decoderStep = 0; decoderStep < 3 * sentences.GetMaxLength(); ++decoderStep) {
     // decode
     scorer.Decode(*state, *nextState, beamSizes);
@@ -120,6 +123,27 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
         beamSize = maxBeamSize_;
       }
     }
+
+    size_t batchSize = beamSizes.size();
+    Beams beams(batchSize);
+    bestHyps_->CalcBeam(prevHyps, scorers_, filterIndices_, beams, beamSizes);
+    histories->Add(beams);
+
+    Beam survivors;
+    for (size_t batchId = 0; batchId < batchSize; ++batchId) {
+      for (auto& h : beams[batchId]) {
+        if (h->GetWord() != EOS_ID) {
+          survivors.push_back(h);
+        } else {
+          --beamSizes[batchId];
+        }
+      }
+    }
+
+    if (survivors.size() == 0) {
+      return false;
+    }
+
 
   }
 
