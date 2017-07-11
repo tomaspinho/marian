@@ -44,6 +44,8 @@ class BestHyps : public BestHypsBase
       nthElement_.getNBestList(beamSizes, Probs, outCosts, outKeys, isFirst);
     }
 
+    std::vector<SoftAlignmentPtr> GetAlignments(Scorer& scorer, size_t hypIndex);
+
     std::vector<SoftAlignmentPtr> GetAlignments(const std::vector<ScorerPtr>& scorers,
                                                 size_t hypIndex) {
       std::vector<SoftAlignmentPtr> alignments;
@@ -70,7 +72,7 @@ class BestHyps : public BestHypsBase
 
     void CalcBeam(
         const Beam& prevHyps,
-        const Scorer& scorer,
+        Scorer& scorer,
         const Words& filterIndices,
         std::vector<Beam>& beams,
         std::vector<uint>& beamSizes);
