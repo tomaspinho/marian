@@ -141,11 +141,19 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
     }
 
     if (survivors.size() == 0) {
-      return false;
+      return histories;
     }
 
+    scorer.AssembleBeamState(*nextState, survivors, *state);
+
+    prevHyps.swap(survivors);
 
   }
+
+  CleanAfterTranslation();
+
+  LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
+  return histories;
 
 }
 
