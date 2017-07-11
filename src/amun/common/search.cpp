@@ -126,7 +126,7 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
 
     size_t batchSize = beamSizes.size();
     Beams beams(batchSize);
-    bestHyps_->CalcBeam(prevHyps, scorers_, filterIndices_, beams, beamSizes);
+    bestHyps_->CalcBeam(prevHyps, scorer, filterIndices_, beams, beamSizes);
     histories->Add(beams);
 
     Beam survivors;

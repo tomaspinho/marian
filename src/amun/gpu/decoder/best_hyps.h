@@ -70,6 +70,14 @@ class BestHyps : public BestHypsBase
 
     void CalcBeam(
         const Beam& prevHyps,
+        const Scorer& scorer,
+        const Words& filterIndices,
+        std::vector<Beam>& beams,
+        std::vector<uint>& beamSizes);
+
+
+    void CalcBeam(
+        const Beam& prevHyps,
         const std::vector<ScorerPtr>& scorers,
         const Words& filterIndices,
         std::vector<Beam>& beams,
