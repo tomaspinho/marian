@@ -49,7 +49,8 @@ EncoderDecoderLoader::~EncoderDecoderLoader()
   }
 }
 
-ScorerPtr EncoderDecoderLoader::NewScorer(const God &god, const DeviceInfo &deviceInfo) const {
+ScorerPtr EncoderDecoderLoader::NewScorer(const God &god, const DeviceInfo &deviceInfo, const Search &search) const
+{
   size_t d = deviceInfo.deviceId;
 
   HANDLE_ERROR(cudaSetDevice(d));

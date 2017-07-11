@@ -54,7 +54,7 @@ void EncoderDecoderLoader::Load(const God &god)
   weights_.reset(weights);
 }
 
-ScorerPtr EncoderDecoderLoader::NewScorer(const God &god, const DeviceInfo &deviceInfo) const
+ScorerPtr EncoderDecoderLoader::NewScorer(const God &god, const DeviceInfo &deviceInfo, const Search &search) const
 {
   size_t d = deviceInfo.deviceId;
   size_t tab = Has("tab") ? Get<size_t>("tab") : 0;

@@ -32,7 +32,8 @@ void EncoderDecoderLoader::Load(const God&) {
   }
 }
 
-ScorerPtr EncoderDecoderLoader::NewScorer(const God &god, const DeviceInfo&) const {
+ScorerPtr EncoderDecoderLoader::NewScorer(const God &god, const DeviceInfo&, const Search &search) const
+{
   size_t tab = Has("tab") ? Get<size_t>("tab") : 0;
   std::string type = Get<std::string>("type");
   if (type == "nematus2") {

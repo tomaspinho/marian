@@ -8,6 +8,8 @@
 
 namespace amunmt {
 
+class Search;
+
 class Loader {
   public:
     Loader(const std::string& name,
@@ -28,7 +30,7 @@ class Loader {
       return config_[key].as<T>();
     }
 
-    virtual ScorerPtr NewScorer(const God &god, const DeviceInfo &deviceInfo) const = 0;
+    virtual ScorerPtr NewScorer(const God &god, const DeviceInfo &deviceInfo, const Search &search) const = 0;
     virtual BestHypsBasePtr GetBestHyps(const God &god, const DeviceInfo &deviceInfo) const = 0;
 
     const std::string& GetName() const {
