@@ -7,6 +7,7 @@
 
 #include "common/exception.h"
 #include "common/base_matrix.h"
+#include "common/sentences.h"
 #include "gpu/types-gpu.h"
 #include "handles.h"
 
@@ -284,6 +285,7 @@ public:
 
   Matrix sourceContext_;
   mblas::IMatrix sentencesMask_;
+  SentencesPtr sentences;
 
 };
 

@@ -60,6 +60,7 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   BEGIN_TIMER("SetSource");
 
   mblas::EncParamsPtr encParams(new mblas::EncParams());
+  encParams->sentences = source;
 
   encoder_->Encode(*source, tab_, encParams);
 
