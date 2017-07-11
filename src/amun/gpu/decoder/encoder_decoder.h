@@ -55,6 +55,8 @@ class EncoderDecoder : public Scorer {
 
     void Filter(const std::vector<size_t>& filterIds);
 
+    void Decode();
+
   private:
     const Weights& model_;
     std::unique_ptr<Encoder> encoder_;
@@ -63,6 +65,8 @@ class EncoderDecoder : public Scorer {
       // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
 
     Buffer<mblas::EncParamsPtr> encDecBuffer_;
+    std::unique_ptr<std::thread> decThread_;
+
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };

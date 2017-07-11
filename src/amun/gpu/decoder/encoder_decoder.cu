@@ -15,6 +15,16 @@ using namespace std;
 namespace amunmt {
 namespace GPU {
 
+void ttt()
+{
+  cerr << "ttt" << endl;
+}
+
+void EncoderDecoder::Decode()
+{
+  cerr << "Decode" << endl;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 EncoderDecoder::EncoderDecoder(
 		const God &god,
@@ -27,10 +37,15 @@ EncoderDecoder::EncoderDecoder(
     encoder_(new Encoder(model_)),
     decoder_(new Decoder(god, model_)),
     indices_(god.Get<size_t>("beam-size"))
-{}
+{
+  std::thread *thread = new std::thread( [&]{ Decode(); });
+  decThread_.reset(thread);
+
+}
 
 EncoderDecoder::~EncoderDecoder()
 {
+  decThread_->join();
 }
 
 State* EncoderDecoder::NewState() const {
