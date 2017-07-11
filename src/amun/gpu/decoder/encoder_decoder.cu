@@ -23,6 +23,10 @@ void ttt()
 void EncoderDecoder::Decode()
 {
   cerr << "Decode" << endl;
+
+  //mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+  //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -69,6 +73,8 @@ void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
 {
   mblas::EncParamsPtr encParams = encDecBuffer_.remove();
   cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+  cerr << "BeginSentenceState encParams->sentencesMask_=" << encParams->sentencesMask_.Debug(0) << endl;
+  cerr << "batchSize=" << batchSize << endl;
 
   EDState& edState = state.get<EDState>();
 
