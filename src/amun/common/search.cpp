@@ -53,7 +53,7 @@ void Search::TranslateAndOutput(const God &god, const Sentences& sentences)
   }
 
 }
-
+/*
 std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
   boost::timer::cpu_timer timer;
 
@@ -92,6 +92,37 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
 
   LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
   return histories;
+}
+*/
+
+std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
+  boost::timer::cpu_timer timer;
+  assert(scorers_.size() == 1);
+
+  Scorer &scorer = *scorers_[0];
+
+  scorer.Encode(sentences);
+
+  // begin decoding - create 1st decode states
+  State *state = scorer.NewState();
+  scorer.BeginSentenceState(*state, sentences.size());
+
+  State *nextState = scorer.NewState();
+  std::vector<uint> beamSizes(sentences.size(), 1);
+
+  for (size_t decoderStep = 0; decoderStep < 3 * sentences.GetMaxLength(); ++decoderStep) {
+    // decode
+    scorer.Decode(*state, *nextState, beamSizes);
+
+    // beams
+    if (decoderStep == 0) {
+      for (auto& beamSize : beamSizes) {
+        beamSize = maxBeamSize_;
+      }
+    }
+
+  }
+
 }
 
 void Search::Encode(const Sentences& sentences)
