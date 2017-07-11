@@ -102,7 +102,7 @@ std::shared_ptr<Histories> Search::Translate(const SentencesPtr sentences) {
 
   Scorer &scorer = *scorers_[0];
 
-  scorer.Encode(*sentences);
+  scorer.Encode(sentences);
 
   // begin decoding - create 1st decode states
   State *state = scorer.NewState();
@@ -158,7 +158,7 @@ std::shared_ptr<Histories> Search::Translate(const SentencesPtr sentences) {
 
 }
 
-void Search::Encode(const Sentences& sentences)
+void Search::Encode(const SentencesPtr sentences)
 {
   for (auto& scorer : scorers_) {
     scorer->Encode(sentences);

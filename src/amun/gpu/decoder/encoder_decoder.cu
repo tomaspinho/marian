@@ -56,12 +56,12 @@ State* EncoderDecoder::NewState() const {
   return new EDState();
 }
 
-void EncoderDecoder::Encode(const Sentences& source) {
+void EncoderDecoder::Encode(const SentencesPtr source) {
   BEGIN_TIMER("SetSource");
 
   mblas::EncParamsPtr encParams(new mblas::EncParams());
 
-  encoder_->Encode(source, tab_, encParams);
+  encoder_->Encode(*source, tab_, encParams);
 
   encDecBuffer_.add(encParams);
   cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;

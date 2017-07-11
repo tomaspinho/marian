@@ -5,12 +5,11 @@
 
 #include "common/hypothesis.h"
 #include "common/sentence.h"
+#include "common/sentences.h"
 #include "common/base_matrix.h"
 #include "yaml-cpp/node/node.h"
 
 namespace amunmt {
-
-class Sentences;
 
 class State {
   public:
@@ -49,7 +48,7 @@ class Scorer {
 
     virtual void AssembleBeamState(const State& in, const Beam& beam, State& out) = 0;
 
-    virtual void Encode(const Sentences& sources) = 0;
+    virtual void Encode(const SentencesPtr sources) = 0;
 
     virtual void Filter(const std::vector<size_t>&) = 0;
 
