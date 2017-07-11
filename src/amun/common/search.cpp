@@ -36,7 +36,7 @@ void Search::CleanAfterTranslation()
   }
 }
 
-void Search::TranslateAndOutput(const God &god, const Sentences& sentences)
+void Search::TranslateAndOutput(const God &god, const SentencesPtr sentences)
 {
   OutputCollector &outputCollector = god.GetOutputCollector();
 
@@ -95,25 +95,26 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
 }
 */
 
-std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
+std::shared_ptr<Histories> Search::Translate(const SentencesPtr sentences) {
   boost::timer::cpu_timer timer;
+  assert(sentences.get());
   assert(scorers_.size() == 1);
 
   Scorer &scorer = *scorers_[0];
 
-  scorer.Encode(sentences);
+  scorer.Encode(*sentences);
 
   // begin decoding - create 1st decode states
   State *state = scorer.NewState();
-  scorer.BeginSentenceState(*state, sentences.size());
+  scorer.BeginSentenceState(*state, sentences->size());
 
   State *nextState = scorer.NewState();
-  std::vector<uint> beamSizes(sentences.size(), 1);
+  std::vector<uint> beamSizes(sentences->size(), 1);
 
-  std::shared_ptr<Histories> histories(new Histories(sentences, normalizeScore_));
+  std::shared_ptr<Histories> histories(new Histories(*sentences, normalizeScore_));
   Beam prevHyps = histories->GetFirstHyps();
 
-  for (size_t decoderStep = 0; decoderStep < 3 * sentences.GetMaxLength(); ++decoderStep) {
+  for (size_t decoderStep = 0; decoderStep < 3 * sentences->GetMaxLength(); ++decoderStep) {
     // decode
     scorer.Decode(*state, *nextState, beamSizes);
 

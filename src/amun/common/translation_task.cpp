@@ -46,7 +46,7 @@ void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
 std::shared_ptr<Histories> TranslationTask::Run(const God &god, SentencesPtr sentences) {
   try {
     Search& search = god.GetSearch();
-    auto histories = search.Translate(*sentences);
+    auto histories = search.Translate(sentences);
 
     return histories;
   }

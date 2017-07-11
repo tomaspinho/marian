@@ -5,6 +5,7 @@
 
 #include "common/scorer.h"
 #include "common/sentence.h"
+#include "common/sentences.h"
 #include "common/base_best_hyps.h"
 
 namespace amunmt {
@@ -18,8 +19,8 @@ class Search {
     Search(const God &god);
     virtual ~Search();
 
-    void TranslateAndOutput(const God &god, const Sentences& sentences);
-    std::shared_ptr<Histories> Translate(const Sentences& sentences);
+    void TranslateAndOutput(const God &god, const SentencesPtr sentences);
+    std::shared_ptr<Histories> Translate(const SentencesPtr sentences);
 
     void Printer(const God &god, const History& history, std::ostream& out) const;
 
