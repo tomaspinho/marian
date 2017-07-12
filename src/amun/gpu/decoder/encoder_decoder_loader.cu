@@ -56,7 +56,7 @@ ScorerPtr EncoderDecoderLoader::NewScorer(const God &god, const DeviceInfo &devi
   HANDLE_ERROR(cudaSetDevice(d));
   size_t tab = Has("tab") ? Get<size_t>("tab") : 0;
   return ScorerPtr(new EncoderDecoder(god, name_, config_,
-                                      tab, *weights_[d]));
+                                      tab, *weights_[d], search));
 }
 
 BestHypsBasePtr EncoderDecoderLoader::GetBestHyps(const God &god, const DeviceInfo &deviceInfo) const {

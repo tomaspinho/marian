@@ -11,6 +11,8 @@
 
 namespace amunmt {
 
+class Search;
+
 class State {
   public:
 	State() {}
@@ -38,7 +40,8 @@ class Scorer {
   public:
     Scorer(const God &god,
            const std::string& name,
-           const YAML::Node& config, size_t tab);
+           const YAML::Node& config, size_t tab,
+           const Search &search);
 
     virtual ~Scorer() {}
 
@@ -68,13 +71,15 @@ class Scorer {
     const std::string& name_;
     const YAML::Node& config_;
     size_t tab_;
+    const Search &search_;
 };
 
 class SourceIndependentScorer : public Scorer {
   public:
     SourceIndependentScorer(const God &god, const std::string& name,
-                            const YAML::Node& config, size_t)
-    : Scorer(god, name, config, 0) {}
+                            const YAML::Node& config, size_t,
+                            const Search &search)
+    : Scorer(god, name, config, 0, search) {}
 
     virtual ~SourceIndependentScorer() {}
 

@@ -26,7 +26,8 @@ class EncoderDecoder : public CPUEncoderDecoderBase {
     			   const std::string& name,
                    const YAML::Node& config,
                    size_t tab,
-                   const Nematus::Weights& model);
+                   const Nematus::Weights& model,
+                   const Search &search);
 
     virtual void Decode(const State& in, State& out, const std::vector<uint>& beamSizes);
 
