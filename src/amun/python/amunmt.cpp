@@ -31,7 +31,7 @@ boost::python::list translate(boost::python::list& in)
   size_t maxiSize = god_.Get<size_t>("maxi-batch");
   int miniWords = god_.Get<int>("mini-batch-words");
 
-  std::vector<std::future< std::shared_ptr<Histories> >> results;
+  std::vector<std::future< HistoriesPtr >> results;
   SentencesPtr maxiBatch(new Sentences());
 
   for(int lineNum = 0; lineNum < boost::python::len(in); ++lineNum) {
@@ -73,7 +73,7 @@ boost::python::list translate(boost::python::list& in)
   // resort batch into line number order
   Histories allHistories;
   for (auto&& result : results) {
-    std::shared_ptr<Histories> histories = result.get();
+    HistoriesPtr histories = result.get();
     allHistories.Append(*histories);
   }
   allHistories.SortByLineNum();

@@ -40,7 +40,7 @@ void Search::TranslateAndOutput(const God &god, const SentencesPtr sentences)
 {
   OutputCollector &outputCollector = god.GetOutputCollector();
 
-  std::shared_ptr<Histories> histories = Translate(sentences);
+  HistoriesPtr histories = Translate(sentences);
 
   for (size_t i = 0; i < histories->size(); ++i) {
     const History &history = *histories->at(i);
@@ -54,7 +54,7 @@ void Search::TranslateAndOutput(const God &god, const SentencesPtr sentences)
 
 }
 /*
-std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
+HistoriesPtr Search::Translate(const Sentences& sentences) {
   boost::timer::cpu_timer timer;
 
   if (filter_) {
@@ -67,7 +67,7 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
   States nextStates = NewStates();
   std::vector<uint> beamSizes(sentences.size(), 1);
 
-  std::shared_ptr<Histories> histories(new Histories(sentences, normalizeScore_));
+  HistoriesPtr histories(new Histories(sentences, normalizeScore_));
   Beam prevHyps = histories->GetFirstHyps();
 
   for (size_t decoderStep = 0; decoderStep < 3 * sentences.GetMaxLength(); ++decoderStep) {
@@ -95,7 +95,7 @@ std::shared_ptr<Histories> Search::Translate(const Sentences& sentences) {
 }
 */
 
-std::shared_ptr<Histories> Search::Translate(const SentencesPtr sentences) {
+HistoriesPtr Search::Translate(const SentencesPtr sentences) {
   boost::timer::cpu_timer timer;
   assert(sentences.get());
   assert(scorers_.size() == 1);
@@ -111,7 +111,7 @@ std::shared_ptr<Histories> Search::Translate(const SentencesPtr sentences) {
   State *nextState = scorer.NewState();
   std::vector<uint> beamSizes(sentences->size(), 1);
 
-  std::shared_ptr<Histories> histories(new Histories(*sentences, normalizeScore_));
+  HistoriesPtr histories(new Histories(*sentences, normalizeScore_));
   Beam prevHyps = histories->GetFirstHyps();
 
   for (size_t decoderStep = 0; decoderStep < 3 * sentences->GetMaxLength(); ++decoderStep) {
@@ -177,7 +177,7 @@ States Search::BeginSentenceState(const Sentences& sentences)
 }
 
 bool Search::CalcBeam(
-    std::shared_ptr<Histories>& histories,
+    HistoriesPtr& histories,
     std::vector<uint>& beamSizes,
     Beam& prevHyps,
     States& states,

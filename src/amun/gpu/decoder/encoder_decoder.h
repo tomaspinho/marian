@@ -68,7 +68,7 @@ class EncoderDecoder : public Scorer {
     std::unique_ptr<std::thread> decThread_;
 
     void Decode();
-    std::shared_ptr<Histories> Decode(mblas::EncParamsPtr encParams);
+    HistoriesPtr Decode(mblas::EncParamsPtr encParams);
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };

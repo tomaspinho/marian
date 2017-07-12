@@ -20,17 +20,19 @@ void EncoderDecoder::Decode()
 {
   return;
 
+  while (true) {
+    mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+    assert(encParams.get());
+    assert(encParams->sentences.get());
+    cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
-  mblas::EncParamsPtr encParams = encDecBuffer_.remove();
-  assert(encParams.get());
-  assert(encParams->sentences.get());
-  cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+    Decode(encParams);
 
 
-
+  }
 }
 
-std::shared_ptr<Histories> EncoderDecoder::Decode(mblas::EncParamsPtr encParams)
+HistoriesPtr EncoderDecoder::Decode(mblas::EncParamsPtr encParams)
 {
   boost::timer::cpu_timer timer;
   cerr << "Decode" << endl;
@@ -42,7 +44,7 @@ std::shared_ptr<Histories> EncoderDecoder::Decode(mblas::EncParamsPtr encParams)
   State *nextState = NewState();
   std::vector<uint> beamSizes(encParams->sentences->size(), 1);
 
-  std::shared_ptr<Histories> histories(new Histories(*encParams->sentences, search_.NormalizeScore()));
+  HistoriesPtr histories(new Histories(*encParams->sentences, search_.NormalizeScore()));
   Beam prevHyps = histories->GetFirstHyps();
 
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {

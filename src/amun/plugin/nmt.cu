@@ -37,7 +37,7 @@ HypoState MosesPlugin::SetSource(const std::vector<size_t>& words) {
   Search &search = god_.GetSearch();
   size_t numScorers = search.GetScorers().size();
 
-  std::shared_ptr<Histories> histories(new Histories(god_, *ret.sentences));
+  HistoriesPtr histories(new Histories(god_, *ret.sentences));
 
   size_t batchSize = ret.sentences->size();
   Beam prevHyps(batchSize, HypothesisPtr(new Hypothesis()));

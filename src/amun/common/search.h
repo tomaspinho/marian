@@ -7,11 +7,10 @@
 #include "common/sentence.h"
 #include "common/sentences.h"
 #include "common/base_best_hyps.h"
+#include "history.h"
 
 namespace amunmt {
 
-class History;
-class Histories;
 class Filter;
 
 class Search {
@@ -20,7 +19,7 @@ class Search {
     virtual ~Search();
 
     void TranslateAndOutput(const God &god, const SentencesPtr sentences);
-    std::shared_ptr<Histories> Translate(const SentencesPtr sentences);
+    HistoriesPtr Translate(const SentencesPtr sentences);
 
     void Printer(const God &god, const History& history, std::ostream& out) const;
 
@@ -45,7 +44,7 @@ class Search {
     void CleanAfterTranslation();
 
     bool CalcBeam(
-    		std::shared_ptr<Histories>& histories,
+    		HistoriesPtr& histories,
     		std::vector<uint>& beamSizes,
         Beam& prevHyps,
     		States& states,

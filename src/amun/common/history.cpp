@@ -1,5 +1,4 @@
 #include "history.h"
-
 #include "sentences.h"
 
 namespace amunmt {
@@ -27,7 +26,7 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
 class LineNumOrderer
 {
   public:
-    bool operator()(const std::shared_ptr<History>& a, const std::shared_ptr<History>& b) const
+    bool operator()(const HistoryPtr& a, const HistoryPtr& b) const
     {
       return a->GetLineNum() < b->GetLineNum();
     }
@@ -43,7 +42,7 @@ void Histories::SortByLineNum()
 void Histories::Append(const Histories &other)
 {
   for (size_t i = 0; i < other.size(); ++i) {
-    std::shared_ptr<History> history = other.coll_[i];
+    HistoryPtr history = other.coll_[i];
     coll_.push_back(history);
   }
 }

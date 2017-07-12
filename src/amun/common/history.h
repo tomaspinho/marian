@@ -82,6 +82,9 @@ class History {
     size_t lineNo_;
     size_t maxLength_;
 };
+///////////////////////////////////////////////////////////////////////////////////////
+
+typedef std::shared_ptr<History> HistoryPtr;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -90,9 +93,8 @@ class Histories {
     Histories() {} // for all histories in translation task
     Histories(const Sentences& sentences, bool normalizeScore);
 
-    std::shared_ptr<History> at(size_t id) const {
-      return coll_.at(id);
-    }
+    HistoryPtr at(size_t id) const
+    { return coll_.at(id); }
 
     size_t size() const {
       return coll_.size();
@@ -118,8 +120,14 @@ class Histories {
     }
 
   protected:
-    std::vector<std::shared_ptr<History>> coll_;
+    std::vector<HistoryPtr> coll_;
     Histories(const Histories &) = delete;
 };
 
-}
+///////////////////////////////////////////////////////////////////////////////////////
+
+typedef std::shared_ptr<Histories> HistoriesPtr;
+
+} // namespace
+
+

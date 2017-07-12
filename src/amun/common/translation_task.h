@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "sentences.h"
+#include "history.h"
 
 namespace amunmt {
 
@@ -15,7 +16,7 @@ public:
 
 protected:
   void RunAndOutput(const God &god, SentencesPtr sentences);
-  std::shared_ptr<Histories> Run(const God &god, SentencesPtr sentences);
+  HistoriesPtr Run(const God &god, SentencesPtr sentences);
 
 };
 

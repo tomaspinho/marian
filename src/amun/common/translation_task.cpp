@@ -30,7 +30,7 @@ void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
 
   OutputCollector &outputCollector = god.GetOutputCollector();
 
-  std::shared_ptr<Histories> histories = Run(god, sentences);
+  HistoriesPtr histories = Run(god, sentences);
 
   for (size_t i = 0; i < histories->size(); ++i) {
     const History &history = *histories->at(i);
@@ -43,7 +43,7 @@ void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
   }
 }
 
-std::shared_ptr<Histories> TranslationTask::Run(const God &god, SentencesPtr sentences) {
+HistoriesPtr TranslationTask::Run(const God &god, SentencesPtr sentences) {
   try {
     Search& search = god.GetSearch();
     auto histories = search.Translate(sentences);
