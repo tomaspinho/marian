@@ -18,8 +18,7 @@ class Search {
     Search(const God &god);
     virtual ~Search();
 
-    void TranslateAndOutput(const God &god, const SentencesPtr sentences);
-    HistoriesPtr Translate(const SentencesPtr sentences);
+    void Translate(const God &god, const SentencesPtr sentences);
 
     void Printer(const God &god, const History& history, std::ostream& out) const;
 

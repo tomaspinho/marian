@@ -36,66 +36,9 @@ void Search::CleanAfterTranslation()
   }
 }
 
-void Search::TranslateAndOutput(const God &god, const SentencesPtr sentences)
+
+void Search::Translate(const God &god, const SentencesPtr sentences)
 {
-  OutputCollector &outputCollector = god.GetOutputCollector();
-
-  HistoriesPtr histories = Translate(sentences);
-
-  for (size_t i = 0; i < histories->size(); ++i) {
-    const History &history = *histories->at(i);
-    size_t lineNum = history.GetLineNum();
-
-    std::stringstream strm;
-    Printer(god, history, strm);
-
-    outputCollector.Write(lineNum, strm.str());
-  }
-
-}
-/*
-HistoriesPtr Search::Translate(const Sentences& sentences) {
-  boost::timer::cpu_timer timer;
-
-  if (filter_) {
-    FilterTargetVocab(sentences);
-  }
-
-  Encode(sentences);
-  States states = BeginSentenceState(sentences);
-
-  States nextStates = NewStates();
-  std::vector<uint> beamSizes(sentences.size(), 1);
-
-  HistoriesPtr histories(new Histories(sentences, normalizeScore_));
-  Beam prevHyps = histories->GetFirstHyps();
-
-  for (size_t decoderStep = 0; decoderStep < 3 * sentences.GetMaxLength(); ++decoderStep) {
-    for (size_t i = 0; i < scorers_.size(); i++) {
-      scorers_[i]->Decode(*states[i], *nextStates[i], beamSizes);
-    }
-
-    if (decoderStep == 0) {
-      for (auto& beamSize : beamSizes) {
-        beamSize = maxBeamSize_;
-      }
-    }
-    //cerr << "beamSizes=" << Debug(beamSizes, 1) << endl;
-
-    bool hasSurvivors = CalcBeam(histories, beamSizes, prevHyps, states, nextStates);
-    if (!hasSurvivors) {
-      break;
-    }
-  }
-
-  CleanAfterTranslation();
-
-  LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
-  return histories;
-}
-*/
-
-HistoriesPtr Search::Translate(const SentencesPtr sentences) {
   boost::timer::cpu_timer timer;
   assert(sentences.get());
   assert(scorers_.size() == 1);
@@ -114,8 +57,8 @@ HistoriesPtr Search::Translate(const SentencesPtr sentences) {
   HistoriesPtr histories(new Histories(*sentences, normalizeScore_));
   Beam prevHyps = histories->GetFirstHyps();
 
+  // decode
   for (size_t decoderStep = 0; decoderStep < 3 * sentences->GetMaxLength(); ++decoderStep) {
-    // decode
     scorer.Decode(*state, *nextState, beamSizes);
 
     // beams
@@ -142,7 +85,7 @@ HistoriesPtr Search::Translate(const SentencesPtr sentences) {
     }
 
     if (survivors.size() == 0) {
-      return histories;
+      break;
     }
 
     scorer.AssembleBeamState(*nextState, survivors, *state);
@@ -151,11 +94,23 @@ HistoriesPtr Search::Translate(const SentencesPtr sentences) {
 
   }
 
-  CleanAfterTranslation();
+  scorer.CleanUpAfterSentence();
+
+  // output
+  OutputCollector &outputCollector = god.GetOutputCollector();
+
+  for (size_t i = 0; i < histories->size(); ++i) {
+    const History &history = *histories->at(i);
+    size_t lineNum = history.GetLineNum();
+    cerr << "lineNum=" << lineNum << endl;
+
+    std::stringstream strm;
+    Printer(god, history, strm);
+
+    outputCollector.Write(lineNum, strm.str());
+  }
 
   LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
-  return histories;
-
 }
 
 void Search::Encode(const SentencesPtr sentences)

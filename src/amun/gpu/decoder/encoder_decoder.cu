@@ -47,7 +47,7 @@ void EncoderDecoder::DecodeAsync(const God &god)
 HistoriesPtr EncoderDecoder::DecodeAsync(mblas::EncParamsPtr encParams)
 {
   boost::timer::cpu_timer timer;
-  cerr << "Decode" << endl;
+  cerr << "DecodeAsync" << endl;
 
   // begin decoding - create 1st decode states
   State *state = NewState();

@@ -19,37 +19,17 @@ void TranslationTask::RunMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, si
     //cerr << "miniBatch=" << miniBatch->size() << " maxiBatch=" << maxiBatch->size() << endl;
 
     god.GetThreadPool().enqueue(
-        [&,miniBatch]{ return RunAndOutput(god, miniBatch); }
+        [&,miniBatch]{ return Run(god, miniBatch); }
         );
   }
 
 }
 
-void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
-  Search& search = god.GetSearch();
-
-  OutputCollector &outputCollector = god.GetOutputCollector();
-
-  HistoriesPtr histories = Run(god, sentences);
-
-  for (size_t i = 0; i < histories->size(); ++i) {
-    const History &history = *histories->at(i);
-    size_t lineNum = history.GetLineNum();
-    cerr << "lineNum=" << lineNum << endl;
-
-    std::stringstream strm;
-    search.Printer(god, history, strm);
-
-    outputCollector.Write(lineNum, strm.str());
-  }
-}
-
-HistoriesPtr TranslationTask::Run(const God &god, SentencesPtr sentences) {
+void TranslationTask::Run(const God &god, SentencesPtr sentences) {
   try {
     Search& search = god.GetSearch();
-    auto histories = search.Translate(sentences);
+    search.Translate(god, sentences);
 
-    return histories;
   }
 #ifdef CUDA
   catch(thrust::system_error &e)
