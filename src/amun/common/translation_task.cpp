@@ -35,6 +35,7 @@ void TranslationTask::RunAndOutput(const God &god, SentencesPtr sentences) {
   for (size_t i = 0; i < histories->size(); ++i) {
     const History &history = *histories->at(i);
     size_t lineNum = history.GetLineNum();
+    cerr << "lineNum=" << lineNum << endl;
 
     std::stringstream strm;
     search.Printer(god, history, strm);
