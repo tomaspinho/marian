@@ -16,9 +16,11 @@ using namespace std;
 namespace amunmt {
 namespace GPU {
 
-void EncoderDecoder::Decode()
+void EncoderDecoder::Decode(const God &god)
 {
   return;
+
+  OutputCollector &outputCollector = god.GetOutputCollector();
 
   while (true) {
     mblas::EncParamsPtr encParams = encDecBuffer_.remove();
@@ -26,7 +28,17 @@ void EncoderDecoder::Decode()
     assert(encParams->sentences.get());
     cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
-    Decode(encParams);
+    HistoriesPtr histories = Decode(encParams);
+
+    for (size_t i = 0; i < histories->size(); ++i) {
+      const History &history = *histories->at(i);
+      size_t lineNum = history.GetLineNum();
+
+      std::stringstream strm;
+      search_.Printer(god, history, strm);
+
+      outputCollector.Write(lineNum, strm.str());
+    }
 
 
   }
@@ -104,7 +116,7 @@ EncoderDecoder::EncoderDecoder(
     decoder_(new Decoder(god, model_)),
     indices_(god.Get<size_t>("beam-size"))
 {
-  std::thread *thread = new std::thread( [&]{ Decode(); });
+  std::thread *thread = new std::thread( [&]{ Decode(god); });
   decThread_.reset(thread);
 
 }

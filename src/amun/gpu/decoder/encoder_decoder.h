@@ -67,7 +67,7 @@ class EncoderDecoder : public Scorer {
     Buffer<mblas::EncParamsPtr> encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;
 
-    void Decode();
+    void Decode(const God &god);
     HistoriesPtr Decode(mblas::EncParamsPtr encParams);
 
     EncoderDecoder(const EncoderDecoder&) = delete;
