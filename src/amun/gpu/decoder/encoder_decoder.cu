@@ -3,6 +3,8 @@
 
 #include "common/god.h"
 #include "common/sentences.h"
+#include "common/history.h"
+#include "common/search.h"
 
 #include "encoder_decoder.h"
 #include "gpu/mblas/matrix_functions.h"
@@ -15,17 +17,72 @@ using namespace std;
 namespace amunmt {
 namespace GPU {
 
-void ttt()
-{
-  cerr << "ttt" << endl;
-}
-
 void EncoderDecoder::Decode()
 {
+  return;
+  boost::timer::cpu_timer timer;
+
   cerr << "Decode" << endl;
 
-  //mblas::EncParamsPtr encParams = encDecBuffer_.remove();
-  //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+  mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+  assert(encParams.get());
+  cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+
+  assert(encParams->sentences.get());
+
+  Encode(encParams->sentences);
+
+  // begin decoding - create 1st decode states
+  State *state = NewState();
+  BeginSentenceState(*state, encParams->sentences->size());
+
+  State *nextState = NewState();
+  std::vector<uint> beamSizes(encParams->sentences->size(), 1);
+
+  std::shared_ptr<Histories> histories(new Histories(*encParams->sentences, search_.NormalizeScore()));
+  Beam prevHyps = histories->GetFirstHyps();
+
+  for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
+    // decode
+    Decode(*state, *nextState, beamSizes);
+
+    // beams
+    if (decoderStep == 0) {
+      for (auto& beamSize : beamSizes) {
+        beamSize = search_.MaxBeamSize();
+      }
+    }
+
+    size_t batchSize = beamSizes.size();
+    Beams beams(batchSize);
+    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
+    histories->Add(beams);
+
+    Beam survivors;
+    for (size_t batchId = 0; batchId < batchSize; ++batchId) {
+      for (auto& h : beams[batchId]) {
+        if (h->GetWord() != EOS_ID) {
+          survivors.push_back(h);
+        } else {
+          --beamSizes[batchId];
+        }
+      }
+    }
+
+    if (survivors.size() == 0) {
+      //return histories;
+    }
+
+    AssembleBeamState(*nextState, survivors, *state);
+
+    prevHyps.swap(survivors);
+
+  }
+
+  //CleanAfterTranslation();
+
+  LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
+  //return histories;
 
 }
 

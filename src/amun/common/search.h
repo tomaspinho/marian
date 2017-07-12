@@ -24,6 +24,18 @@ class Search {
 
     void Printer(const God &god, const History& history, std::ostream& out) const;
 
+    size_t MaxBeamSize() const
+    { return maxBeamSize_; }
+
+    bool NormalizeScore() const
+    { return normalizeScore_; }
+
+    const Words &FilterIndices() const
+    { return filterIndices_; }
+
+    BestHypsBasePtr BestHyps() const
+    { return bestHyps_; }
+
   protected:
     States NewStates() const;
     void FilterTargetVocab(const Sentences& sentences);
