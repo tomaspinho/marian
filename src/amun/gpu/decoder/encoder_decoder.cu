@@ -3,7 +3,6 @@
 
 #include "common/god.h"
 #include "common/sentences.h"
-#include "common/history.h"
 #include "common/search.h"
 
 #include "encoder_decoder.h"
@@ -20,17 +19,21 @@ namespace GPU {
 void EncoderDecoder::Decode()
 {
   return;
-  boost::timer::cpu_timer timer;
 
-  cerr << "Decode" << endl;
 
   mblas::EncParamsPtr encParams = encDecBuffer_.remove();
   assert(encParams.get());
+  assert(encParams->sentences.get());
   cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
-  assert(encParams->sentences.get());
 
-  Encode(encParams->sentences);
+
+}
+
+std::shared_ptr<Histories> EncoderDecoder::Decode(mblas::EncParamsPtr encParams)
+{
+  boost::timer::cpu_timer timer;
+  cerr << "Decode" << endl;
 
   // begin decoding - create 1st decode states
   State *state = NewState();
@@ -70,7 +73,7 @@ void EncoderDecoder::Decode()
     }
 
     if (survivors.size() == 0) {
-      //return histories;
+      return histories;
     }
 
     AssembleBeamState(*nextState, survivors, *state);
@@ -82,8 +85,7 @@ void EncoderDecoder::Decode()
   //CleanAfterTranslation();
 
   LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
-  //return histories;
-
+  return histories;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

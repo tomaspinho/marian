@@ -6,6 +6,7 @@
 #include "common/scorer.h"
 #include "common/base_best_hyps.h"
 #include "common/threadpool.h"
+#include "common/history.h"
 #include "gpu/types-gpu.h"
 #include "gpu/mblas/matrix.h"
 #include "gpu/mblas/handles.h"
@@ -56,8 +57,6 @@ class EncoderDecoder : public Scorer {
 
     void Filter(const std::vector<size_t>& filterIds);
 
-    void Decode();
-
   private:
     const Weights& model_;
     std::unique_ptr<Encoder> encoder_;
@@ -68,6 +67,8 @@ class EncoderDecoder : public Scorer {
     Buffer<mblas::EncParamsPtr> encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;
 
+    void Decode();
+    std::shared_ptr<Histories> Decode(mblas::EncParamsPtr encParams);
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
