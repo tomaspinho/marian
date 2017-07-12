@@ -83,7 +83,7 @@ class SourceIndependentScorer : public Scorer {
 
     virtual ~SourceIndependentScorer() {}
 
-    virtual void SetSource(const Sentences&) {}
+    virtual void Encode(const SentencesPtr) {}
 };
 
 typedef std::shared_ptr<Scorer> ScorerPtr;
