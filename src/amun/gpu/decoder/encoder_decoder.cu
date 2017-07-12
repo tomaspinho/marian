@@ -82,7 +82,7 @@ std::shared_ptr<Histories> EncoderDecoder::Decode(mblas::EncParamsPtr encParams)
 
   }
 
-  //CleanAfterTranslation();
+  CleanUpAfterSentence();
 
   LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
   return histories;
