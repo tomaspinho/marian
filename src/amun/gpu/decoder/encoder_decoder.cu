@@ -28,23 +28,11 @@ void EncoderDecoder::DecodeAsync(const God &god)
     assert(encParams->sentences.get());
     cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
-    HistoriesPtr histories = DecodeAsync(encParams);
-
-    for (size_t i = 0; i < histories->size(); ++i) {
-      const History &history = *histories->at(i);
-      size_t lineNum = history.GetLineNum();
-
-      std::stringstream strm;
-      search_.Printer(god, history, strm);
-
-      outputCollector.Write(lineNum, strm.str());
-    }
-
-
+    DecodeAsync(god, encParams);
   }
 }
 
-HistoriesPtr EncoderDecoder::DecodeAsync(mblas::EncParamsPtr encParams)
+void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 {
   boost::timer::cpu_timer timer;
   cerr << "DecodeAsync" << endl;
@@ -87,7 +75,7 @@ HistoriesPtr EncoderDecoder::DecodeAsync(mblas::EncParamsPtr encParams)
     }
 
     if (survivors.size() == 0) {
-      return histories;
+      break;
     }
 
     AssembleBeamState(*nextState, survivors, *state);
@@ -98,8 +86,20 @@ HistoriesPtr EncoderDecoder::DecodeAsync(mblas::EncParamsPtr encParams)
 
   CleanUpAfterSentence();
 
+  // output
+  OutputCollector &outputCollector = god.GetOutputCollector();
+
+  for (size_t i = 0; i < histories->size(); ++i) {
+    const History &history = *histories->at(i);
+    size_t lineNum = history.GetLineNum();
+
+    std::stringstream strm;
+    search_.Printer(god, history, strm);
+
+    outputCollector.Write(lineNum, strm.str());
+  }
+
   LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
-  return histories;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ State* EncoderDecoder::NewState() const {
 }
 
 void EncoderDecoder::Encode(const SentencesPtr source) {
-  BEGIN_TIMER("SetSource");
+  BEGIN_TIMER("Encode");
 
   mblas::EncParamsPtr encParams(new mblas::EncParams());
   encParams->sentences = source;
@@ -141,7 +141,7 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   encDecBuffer_.add(encParams);
   cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
-  PAUSE_TIMER("SetSource");
+  PAUSE_TIMER("Encode");
 }
 
 void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
