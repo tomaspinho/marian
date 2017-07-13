@@ -11,7 +11,7 @@ using namespace std;
 
 namespace amunmt {
 
-void TranslationTask::RunMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, size_t miniSize, int miniWords)
+void TranslationTask::Run(God &god, SentencesPtr maxiBatch, size_t miniSize, int miniWords)
 {
   maxiBatch->SortByLength();
   while (maxiBatch->size()) {
@@ -23,6 +23,13 @@ void TranslationTask::RunMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, si
         );
   }
 
+}
+
+void TranslationTask::Exit(God &god)
+{
+  god.GetThreadPool().enqueue(
+      [&]{ return Run(god, SentencesPtr(new Sentences())); }
+      );
 }
 
 void TranslationTask::Run(const God &god, SentencesPtr sentences) {

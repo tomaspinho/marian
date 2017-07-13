@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     maxiBatch->push_back(SentencePtr(new Sentence(god, lineNum++, line)));
 
     if (maxiBatch->size() >= maxiSize) {
-      task.RunMaxiBatchAndOutput(god, maxiBatch, miniSize, miniWords);
+      task.Run(god, maxiBatch, miniSize, miniWords);
 
       maxiBatch.reset(new Sentences());
     }
@@ -50,7 +50,10 @@ int main(int argc, char* argv[])
   }
 
   // last batch
-  task.RunMaxiBatchAndOutput(god, maxiBatch, miniSize, miniWords);
+  task.Run(god, maxiBatch, miniSize, miniWords);
+
+  // empty batch to indicate end - async
+  task.Exit(god);
 
   god.Cleanup();
   LOG(info)->info("Total time: {}", timer.format());

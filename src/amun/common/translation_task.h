@@ -12,7 +12,8 @@ class Histories;
 class TranslationTask
 {
 public:
-  void RunMaxiBatchAndOutput(God &god, SentencesPtr maxiBatch, size_t miniSize, int miniWords);
+  void Run(God &god, SentencesPtr maxiBatch, size_t miniSize, int miniWords);
+  void Exit(God &god);
 
 protected:
   void Run(const God &god, SentencesPtr sentences);

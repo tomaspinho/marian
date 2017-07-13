@@ -18,40 +18,40 @@ namespace GPU {
 
 void EncoderDecoder::DecodeAsync(const God &god)
 {
-  try {
-    while (true) {
-      cerr << "DecodeAsync1 encDecBuffer_=" << encDecBuffer_.size() << endl;
-      mblas::EncParamsPtr encParams = encDecBuffer_.remove();
-      cerr << "DecodeAsync2 encDecBuffer_=" << encDecBuffer_.size() << endl;
-      assert(encParams.get());
-      assert(encParams->sentences.get());
-      //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
-      cerr << "DecodeAsync3" << endl;
+  while (true) {
+    mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+    assert(encParams.get());
+    assert(encParams->sentences.get());
+
+    if (encParams->sentences->size() == 0) {
+      return;
+    }
+
+    //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+    try {
       DecodeAsync(god, encParams);
-      cerr << "DecodeAsync4" << endl;
+    }
+    catch(thrust::system_error &e)
+    {
+      std::cerr << "CUDA error during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(std::bad_alloc &e)
+    {
+      std::cerr << "Bad memory allocation during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(std::runtime_error &e)
+    {
+      std::cerr << "Runtime error during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(...)
+    {
+      std::cerr << "Some other kind of error during some_function" << std::endl;
+      abort();
     }
   }
-  catch(thrust::system_error &e)
-  {
-    std::cerr << "CUDA error during some_function: " << e.what() << std::endl;
-    abort();
-  }
-  catch(std::bad_alloc &e)
-  {
-    std::cerr << "Bad memory allocation during some_function: " << e.what() << std::endl;
-    abort();
-  }
-  catch(std::runtime_error &e)
-  {
-    std::cerr << "Runtime error during some_function: " << e.what() << std::endl;
-    abort();
-  }
-  catch(...)
-  {
-    std::cerr << "Some other kind of error during some_function" << std::endl;
-    abort();
-  }
-
 }
 
 void EncoderDecoder::Decode(const God &god)
@@ -146,7 +146,7 @@ EncoderDecoder::EncoderDecoder(
   encoder_(new Encoder(model_)),
   decoder_(new Decoder(god, model_)),
   indices_(god.Get<size_t>("beam-size")),
-  encDecBuffer_(1)
+  encDecBuffer_(3)
 
 {
   std::thread *thread = new std::thread( [&]{ DecodeAsync(god); });
@@ -156,9 +156,7 @@ EncoderDecoder::EncoderDecoder(
 
 EncoderDecoder::~EncoderDecoder()
 {
-  cerr << "~EncoderDecoder1" << endl;
   decThread_->join();
-  cerr << "~EncoderDecoder2" << endl;
 }
 
 State* EncoderDecoder::NewState() const {
@@ -171,11 +169,11 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   mblas::EncParamsPtr encParams(new mblas::EncParams());
   encParams->sentences = source;
 
-  encoder_->Encode(*source, tab_, encParams);
+  if (source->size()) {
+    encoder_->Encode(*source, tab_, encParams);
+  }
 
-  cerr << "Encode1 encDecBuffer_=" << encDecBuffer_.size() << endl;
   encDecBuffer_.add(encParams);
-  cerr << "Encode2 encDecBuffer_=" << encDecBuffer_.size() << endl;
   //cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
   PAUSE_TIMER("Encode");
