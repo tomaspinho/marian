@@ -181,30 +181,23 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
   }
 }
 
-
-class LineNumOrderer
+void Histories::Add(const Beams& beams)
 {
-  public:
-    bool operator()(const HistoryPtr& a, const HistoryPtr& b) const
-    {
-      return a->GetLineNum() < b->GetLineNum();
+  for (size_t i = 0; i < size(); ++i) {
+    if (!beams[i].empty()) {
+      coll_[i]->Add(beams[i]);
     }
-};
-
-
-void Histories::SortByLineNum()
-{
-  std::sort(coll_.begin(), coll_.end(), LineNumOrderer());
-}
-
-
-void Histories::Append(const Histories &other)
-{
-  for (size_t i = 0; i < other.size(); ++i) {
-    HistoryPtr history = other.coll_[i];
-    coll_.push_back(history);
   }
 }
 
+Beam Histories::GetFirstHyps()
+{
+  Beam beam;
+  for (auto& history : coll_) {
+    beam.emplace_back(history->front()[0]);
+  }
+  return beam;
 }
+
+} // namespace
 

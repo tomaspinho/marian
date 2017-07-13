@@ -181,6 +181,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
     cerr << "beams=" << beams.size() << endl;
     cerr << "survivors=" << survivors.size() << endl;
+    cerr << "histories=" << histories.size() << endl;
 
     if (survivors.size() == 0) {
       break;
