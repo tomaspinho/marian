@@ -46,6 +46,7 @@ void Search::Translate(const God &god, const SentencesPtr sentences)
   Scorer &scorer = *scorers_[0];
 
   scorer.Encode(sentences);
+  //scorer.Decode(god);
 
   // begin decoding - create 1st decode states
   State *state = scorer.NewState();

@@ -26,6 +26,8 @@ class CPUEncoderDecoderBase : public Scorer {
     virtual void GetAttention(mblas::Matrix& Attention) = 0;
     virtual mblas::Matrix& GetAttention() = 0;
 
+    void Decode(const God &god);
+
   protected:
     mblas::Matrix SourceContext_;
 };

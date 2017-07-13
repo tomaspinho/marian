@@ -20,8 +20,6 @@ void EncoderDecoder::DecodeAsync(const God &god)
 {
   return;
 
-  OutputCollector &outputCollector = god.GetOutputCollector();
-
   while (true) {
     mblas::EncParamsPtr encParams = encDecBuffer_.remove();
     assert(encParams.get());
@@ -30,6 +28,15 @@ void EncoderDecoder::DecodeAsync(const God &god)
 
     DecodeAsync(god, encParams);
   }
+}
+
+void EncoderDecoder::Decode(const God &god)
+{
+  mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+  assert(encParams.get());
+  assert(encParams->sentences.get());
+
+  DecodeAsync(god, encParams);
 }
 
 void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)

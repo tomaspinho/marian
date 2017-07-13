@@ -24,6 +24,11 @@ State* CPUEncoderDecoderBase::NewState() const {
   return new EDState();
 }
 
+void CPUEncoderDecoderBase::Decode(const God &god)
+{
+  abort();
+}
+
 
 }
 }

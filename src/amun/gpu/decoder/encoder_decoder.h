@@ -57,6 +57,8 @@ class EncoderDecoder : public Scorer {
 
     void Filter(const std::vector<size_t>& filterIds);
 
+    void Decode(const God &god);
+
   private:
     const Weights& model_;
     std::unique_ptr<Encoder> encoder_;
