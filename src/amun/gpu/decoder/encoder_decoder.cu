@@ -16,123 +16,6 @@ using namespace std;
 namespace amunmt {
 namespace GPU {
 
-void EncoderDecoder::DecodeAsync(const God &god)
-{
-  while (true) {
-    mblas::EncParamsPtr encParams = encDecBuffer_.remove();
-    assert(encParams.get());
-    assert(encParams->sentences.get());
-
-    if (encParams->sentences->size() == 0) {
-      return;
-    }
-
-    //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
-    try {
-      DecodeAsync(god, encParams);
-    }
-    catch(thrust::system_error &e)
-    {
-      std::cerr << "CUDA error during some_function: " << e.what() << std::endl;
-      abort();
-    }
-    catch(std::bad_alloc &e)
-    {
-      std::cerr << "Bad memory allocation during some_function: " << e.what() << std::endl;
-      abort();
-    }
-    catch(std::runtime_error &e)
-    {
-      std::cerr << "Runtime error during some_function: " << e.what() << std::endl;
-      abort();
-    }
-    catch(...)
-    {
-      std::cerr << "Some other kind of error during some_function" << std::endl;
-      abort();
-    }
-  }
-}
-
-void EncoderDecoder::Decode(const God &god)
-{
-  mblas::EncParamsPtr encParams = encDecBuffer_.remove();
-  assert(encParams.get());
-  assert(encParams->sentences.get());
-
-  DecodeAsync(god, encParams);
-}
-
-void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
-{
-  boost::timer::cpu_timer timer;
-
-  // begin decoding - create 1st decode states
-  State *state = NewState();
-  BeginSentenceState(*state, encParams->sentences->size(), encParams);
-
-  State *nextState = NewState();
-  std::vector<uint> beamSizes(encParams->sentences->size(), 1);
-
-  HistoriesPtr histories(new Histories(*encParams->sentences, search_.NormalizeScore()));
-  Beam prevHyps = histories->GetFirstHyps();
-
-  // decode
-  for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
-    Decode(*state, *nextState, beamSizes);
-
-    // beams
-    if (decoderStep == 0) {
-      for (auto& beamSize : beamSizes) {
-        beamSize = search_.MaxBeamSize();
-      }
-    }
-
-    size_t batchSize = beamSizes.size();
-    Beams beams(batchSize);
-    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
-    histories->Add(beams);
-
-    Beam survivors;
-    for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      for (auto& h : beams[batchId]) {
-        if (h->GetWord() != EOS_ID) {
-          survivors.push_back(h);
-        } else {
-          --beamSizes[batchId];
-        }
-      }
-    }
-
-    if (survivors.size() == 0) {
-      break;
-    }
-
-    AssembleBeamState(*nextState, survivors, *state);
-
-    prevHyps.swap(survivors);
-
-  }
-
-  CleanUpAfterSentence();
-
-  // output
-  OutputCollector &outputCollector = god.GetOutputCollector();
-
-  for (size_t i = 0; i < histories->size(); ++i) {
-    const History &history = *histories->at(i);
-    size_t lineNum = history.GetLineNum();
-    //cerr << "lineNum=" << lineNum << endl;
-
-    std::stringstream strm;
-    search_.Printer(god, history, strm);
-
-    outputCollector.Write(lineNum, strm.str());
-  }
-
-  LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 EncoderDecoder::EncoderDecoder(
         const God &god,
@@ -208,6 +91,115 @@ void EncoderDecoder::Decode(const State& in, State& out, const std::vector<uint>
                      edIn.GetEmbeddings(),
                      beamSizes);
   PAUSE_TIMER("Decode");
+}
+
+
+void EncoderDecoder::DecodeAsync(const God &god)
+{
+  while (true) {
+    mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+    assert(encParams.get());
+    assert(encParams->sentences.get());
+
+    if (encParams->sentences->size() == 0) {
+      return;
+    }
+
+    //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+    try {
+      DecodeAsync(god, encParams);
+    }
+    catch(thrust::system_error &e)
+    {
+      std::cerr << "CUDA error during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(std::bad_alloc &e)
+    {
+      std::cerr << "Bad memory allocation during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(std::runtime_error &e)
+    {
+      std::cerr << "Runtime error during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(...)
+    {
+      std::cerr << "Some other kind of error during some_function" << std::endl;
+      abort();
+    }
+  }
+}
+
+void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
+{
+  boost::timer::cpu_timer timer;
+
+  // begin decoding - create 1st decode states
+  State *state = NewState();
+  BeginSentenceState(*state, encParams->sentences->size(), encParams);
+
+  State *nextState = NewState();
+  std::vector<uint> beamSizes(encParams->sentences->size(), 1);
+
+  HistoriesPtr histories(new Histories(*encParams->sentences, search_.NormalizeScore()));
+  Beam prevHyps = histories->GetFirstHyps();
+
+  // decode
+  for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
+    Decode(*state, *nextState, beamSizes);
+
+    // beams
+    if (decoderStep == 0) {
+      for (auto& beamSize : beamSizes) {
+        beamSize = search_.MaxBeamSize();
+      }
+    }
+
+    size_t batchSize = beamSizes.size();
+    Beams beams(batchSize);
+    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
+    histories->Add(beams);
+
+    Beam survivors;
+    for (size_t batchId = 0; batchId < batchSize; ++batchId) {
+      for (auto& h : beams[batchId]) {
+        if (h->GetWord() != EOS_ID) {
+          survivors.push_back(h);
+        } else {
+          --beamSizes[batchId];
+        }
+      }
+    }
+
+    if (survivors.size() == 0) {
+      break;
+    }
+
+    AssembleBeamState(*nextState, survivors, *state);
+
+    prevHyps.swap(survivors);
+
+  }
+
+  CleanUpAfterSentence();
+
+  // output
+  OutputCollector &outputCollector = god.GetOutputCollector();
+
+  for (size_t i = 0; i < histories->size(); ++i) {
+    const History &history = *histories->at(i);
+    size_t lineNum = history.GetLineNum();
+    //cerr << "lineNum=" << lineNum << endl;
+
+    std::stringstream strm;
+    search_.Printer(god, history, strm);
+
+    outputCollector.Write(lineNum, strm.str());
+  }
+
+  LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
 }
 
 void EncoderDecoder::AssembleBeamState(const State& in,
