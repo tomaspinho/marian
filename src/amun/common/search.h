@@ -47,11 +47,6 @@ class Search {
     		States& states,
     		States& nextStates);
 
-    std::vector<size_t> GetAlignment(const HypothesisPtr& hypothesis) const;
-
-    std::string GetAlignmentString(const std::vector<size_t>& alignment) const;
-    std::string GetSoftAlignmentString(const HypothesisPtr& hypothesis) const;
-
     Search(const Search&) = delete;
 
   protected:

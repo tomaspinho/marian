@@ -48,6 +48,8 @@ NBestList History::NBest(size_t n) const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+// helper functions
+
 std::vector<size_t> GetAlignment(const HypothesisPtr& hypothesis)
 {
   std::vector<SoftAlignment> aligns;
@@ -109,6 +111,7 @@ std::string GetSoftAlignmentString(const HypothesisPtr& hypothesis)
 
   return alignString.str();
 }
+////////////////////////////////////////////////////////////////////////////////////////
 
 void History::Printer(const God &god, std::ostream& out) const
 {
