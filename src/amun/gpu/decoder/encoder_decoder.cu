@@ -143,12 +143,15 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   State *nextState = NewState();
   std::vector<uint> beamSizes(encParams->sentences->size(), 1);
 
-  HistoriesPtr histories(new Histories(*encParams->sentences, search_.NormalizeScore()));
-  Beam prevHyps = histories->GetFirstHyps();
+  Histories histories(*encParams->sentences, search_.NormalizeScore());
+  Beam prevHyps = histories.GetFirstHyps();
 
   // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
+    cerr << "\ndecoderStep=" << decoderStep << endl;
+    cerr << "beamSizes0=" << Debug(beamSizes, 2) << endl;
     Decode(*state, *nextState, beamSizes);
+    //cerr << "beamSizes1=" << Debug(beamSizes, 2) << endl;
 
     // beams
     if (decoderStep == 0) {
@@ -157,14 +160,16 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
       }
     }
 
+    //cerr << "beamSizes2=" << Debug(beamSizes, 2) << endl;
     size_t batchSize = beamSizes.size();
     Beams beams(batchSize);
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
-    histories->Add(beams);
+    //cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
+    histories.Add(beams);
 
     Beam survivors;
     for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      for (auto& h : beams[batchId]) {
+      for (const HypothesisPtr& h : beams[batchId]) {
         if (h->GetWord() != EOS_ID) {
           survivors.push_back(h);
         } else {
@@ -172,6 +177,8 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
         }
       }
     }
+
+    //cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
 
     if (survivors.size() == 0) {
       break;
@@ -188,8 +195,8 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   // output
   OutputCollector &outputCollector = god.GetOutputCollector();
 
-  for (size_t i = 0; i < histories->size(); ++i) {
-    const History &history = *histories->at(i);
+  for (size_t i = 0; i < histories.size(); ++i) {
+    const History &history = *histories.at(i);
     size_t lineNum = history.GetLineNum();
     //cerr << "lineNum=" << lineNum << endl;
 
