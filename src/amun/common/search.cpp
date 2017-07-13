@@ -27,6 +27,9 @@ Search::~Search() {
     cudaSetDevice(deviceInfo_.deviceId);
   }
 #endif
+
+  // scorers must be deleted 1st. async decoding
+  scorers_.clear();
 }
 
 void Search::CleanAfterTranslation()
