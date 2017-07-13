@@ -20,8 +20,6 @@ class Search {
 
     void Translate(const God &god, const SentencesPtr sentences);
 
-    void Printer(const God &god, const History& history, std::ostream& out) const;
-
     size_t MaxBeamSize() const
     { return maxBeamSize_; }
 

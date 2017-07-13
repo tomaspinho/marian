@@ -216,7 +216,7 @@ void EncoderDecoder::Output(const God &god, const History &history)
   //cerr << "lineNum=" << lineNum << endl;
 
   std::stringstream strm;
-  search_.Printer(god, history, strm);
+  history.Printer(god, strm);
 
   outputCollector.Write(lineNum, strm.str());
 }

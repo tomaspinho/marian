@@ -8,6 +8,7 @@
 namespace amunmt {
 
 class Sentences;
+class God;
 
 class History {
   private:
@@ -44,6 +45,8 @@ class History {
 
     size_t GetLineNum() const
     { return lineNo_; }
+
+    void Printer(const God &god, std::ostream& out) const;
 
   private:
     std::vector<Beam> history_;
