@@ -39,16 +39,13 @@ void Search::CleanAfterTranslation()
 
 void Search::Translate(const God &god, const SentencesPtr sentences)
 {
-  boost::timer::cpu_timer timer;
   assert(sentences.get());
   assert(scorers_.size() == 1);
 
   Scorer &scorer = *scorers_[0];
 
   scorer.Encode(sentences);
-  scorer.Decode(god);
-
-  LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
+  //scorer.Decode(god);
 }
 
 void Search::Encode(const SentencesPtr sentences)

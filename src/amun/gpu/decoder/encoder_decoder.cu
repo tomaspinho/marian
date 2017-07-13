@@ -18,15 +18,39 @@ namespace GPU {
 
 void EncoderDecoder::DecodeAsync(const God &god)
 {
-  return;
+  //return;
 
   while (true) {
+    cerr << "DecodeAsync encDecBuffer_=" << encDecBuffer_.size() << endl;
     mblas::EncParamsPtr encParams = encDecBuffer_.remove();
     assert(encParams.get());
     assert(encParams->sentences.get());
-    cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+    //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
-    DecodeAsync(god, encParams);
+    try {
+      DecodeAsync(god, encParams);
+    }
+    catch(thrust::system_error &e)
+    {
+      std::cerr << "CUDA error during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(std::bad_alloc &e)
+    {
+      std::cerr << "Bad memory allocation during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(std::runtime_error &e)
+    {
+      std::cerr << "Runtime error during some_function: " << e.what() << std::endl;
+      abort();
+    }
+    catch(...)
+    {
+      std::cerr << "Some other kind of error during some_function" << std::endl;
+      abort();
+    }
+
   }
 }
 
@@ -98,7 +122,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   for (size_t i = 0; i < histories->size(); ++i) {
     const History &history = *histories->at(i);
     size_t lineNum = history.GetLineNum();
-    cerr << "lineNum=" << lineNum << endl;
+    //cerr << "lineNum=" << lineNum << endl;
 
     std::stringstream strm;
     search_.Printer(god, history, strm);
@@ -123,14 +147,14 @@ EncoderDecoder::EncoderDecoder(
     decoder_(new Decoder(god, model_)),
     indices_(god.Get<size_t>("beam-size"))
 {
-  //std::thread *thread = new std::thread( [&]{ DecodeAsync(god); });
-  //decThread_.reset(thread);
+  std::thread *thread = new std::thread( [&]{ DecodeAsync(god); });
+  decThread_.reset(thread);
 
 }
 
 EncoderDecoder::~EncoderDecoder()
 {
-  //decThread_->join();
+  decThread_->join();
 }
 
 State* EncoderDecoder::NewState() const {
@@ -145,8 +169,9 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 
   encoder_->Encode(*source, tab_, encParams);
 
+  cerr << "Encode encDecBuffer_=" << encDecBuffer_.size() << endl;
   encDecBuffer_.add(encParams);
-  cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+  //cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
 
   PAUSE_TIMER("Encode");
 }
@@ -159,9 +184,9 @@ void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
 
 void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, mblas::EncParamsPtr encParams)
 {
-  cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
-  cerr << "BeginSentenceState encParams->sentencesMask_=" << encParams->sentencesMask_.Debug(0) << endl;
-  cerr << "batchSize=" << batchSize << endl;
+  //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+  //cerr << "BeginSentenceState encParams->sentencesMask_=" << encParams->sentencesMask_.Debug(0) << endl;
+  //cerr << "batchSize=" << batchSize << endl;
 
   EDState& edState = state.get<EDState>();
 

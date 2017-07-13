@@ -44,7 +44,7 @@ private:
 
     //std::deque<T> buffer_;
    std::queue<T> buffer_;
-    const unsigned int size_ = 10;
+    const unsigned int size_ = 3;
 
 };
 
