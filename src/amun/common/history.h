@@ -73,7 +73,7 @@ class Histories {
       return coll_.size();
     }
 
-    void Add(const Beams& beams);
+    void Add(const God &god, const Beams& beams);
 
     Beam GetFirstHyps();
 

@@ -40,13 +40,6 @@ class Search {
 
     void CleanAfterTranslation();
 
-    bool CalcBeam(
-    		HistoriesPtr& histories,
-    		std::vector<uint>& beamSizes,
-        Beam& prevHyps,
-    		States& states,
-    		States& nextStates);
-
     Search(const Search&) = delete;
 
   protected:

@@ -148,7 +148,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
   // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
-    cerr << "\ndecoderStep=" << decoderStep << endl;
+    //cerr << "\ndecoderStep=" << decoderStep << endl;
     //cerr << "beamSizes0=" << Debug(beamSizes, 2) << endl;
     Decode(*state, *nextState, beamSizes);
     //cerr << "beamSizes1=" << Debug(beamSizes, 2) << endl;
@@ -165,7 +165,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     Beams beams(batchSize);
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
     //cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
-    histories.Add(beams);
+    histories.Add(god, beams);
 
     Beam survivors;
     for (size_t batchId = 0; batchId < batchSize; ++batchId) {
@@ -178,11 +178,12 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
       }
     }
 
+    /*
     cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
     cerr << "beams=" << beams.size() << endl;
     cerr << "survivors=" << survivors.size() << endl;
     cerr << "histories=" << histories.size() << endl;
-
+    */
     if (survivors.size() == 0) {
       break;
     }

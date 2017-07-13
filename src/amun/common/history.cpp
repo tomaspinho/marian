@@ -181,11 +181,34 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
   }
 }
 
-void Histories::Add(const Beams& beams)
+void Histories::Add(const God &god, const Beams& beams)
 {
+  assert(size() == beams.size());
+
   for (size_t i = 0; i < size(); ++i) {
-    if (!beams[i].empty()) {
-      coll_[i]->Add(beams[i]);
+    const Beam &beam = beams[i];
+    HistoryPtr &history = coll_[i];
+
+    if (beam.empty()) {
+      /*
+      if (history) {
+        size_t lineNum = history->GetLineNum();
+        std::cerr << "lineNum=" << lineNum << std::endl;
+
+        std::stringstream strm;
+
+        history->Printer(god, strm);
+
+        OutputCollector &outputCollector = god.GetOutputCollector();
+        outputCollector.Write(lineNum, strm.str());
+
+        history.reset();
+      }
+      */
+    }
+    else {
+      assert(history);
+      history->Add(beam);
     }
   }
 }

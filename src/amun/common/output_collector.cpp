@@ -42,6 +42,7 @@ void OutputCollector::Write(long sourceId, const std::string& output)
       }
       else {
         // not the next. stop iterating
+        //cerr << "nextId_=" << nextId_ << " " << currId << endl;
         assert(nextId_ < currId);
         break;
       }
