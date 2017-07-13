@@ -149,7 +149,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
     cerr << "\ndecoderStep=" << decoderStep << endl;
-    cerr << "beamSizes0=" << Debug(beamSizes, 2) << endl;
+    //cerr << "beamSizes0=" << Debug(beamSizes, 2) << endl;
     Decode(*state, *nextState, beamSizes);
     //cerr << "beamSizes1=" << Debug(beamSizes, 2) << endl;
 
@@ -178,7 +178,8 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
       }
     }
 
-    //cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
+    cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
+    cerr << "survivors=" << survivors.size() << endl;
 
     if (survivors.size() == 0) {
       break;
@@ -193,20 +194,30 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   CleanUpAfterSentence();
 
   // output
-  OutputCollector &outputCollector = god.GetOutputCollector();
-
-  for (size_t i = 0; i < histories.size(); ++i) {
-    const History &history = *histories.at(i);
-    size_t lineNum = history.GetLineNum();
-    //cerr << "lineNum=" << lineNum << endl;
-
-    std::stringstream strm;
-    search_.Printer(god, history, strm);
-
-    outputCollector.Write(lineNum, strm.str());
-  }
+  Output(god, histories);
 
   LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
+}
+
+void EncoderDecoder::Output(const God &god, const Histories &histories)
+{
+  for (size_t i = 0; i < histories.size(); ++i) {
+    const History &history = *histories.at(i);
+    Output(god, history);
+  }
+}
+
+void EncoderDecoder::Output(const God &god, const History &history)
+{
+  OutputCollector &outputCollector = god.GetOutputCollector();
+
+  size_t lineNum = history.GetLineNum();
+  //cerr << "lineNum=" << lineNum << endl;
+
+  std::stringstream strm;
+  search_.Printer(god, history, strm);
+
+  outputCollector.Write(lineNum, strm.str());
 }
 
 void EncoderDecoder::AssembleBeamState(const State& in,
