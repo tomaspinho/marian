@@ -141,11 +141,13 @@ EncoderDecoder::EncoderDecoder(
         size_t tab,
         const Weights& model,
         const Search &search)
-  : Scorer(god, name, config, tab, search),
-    model_(model),
-    encoder_(new Encoder(model_)),
-    decoder_(new Decoder(god, model_)),
-    indices_(god.Get<size_t>("beam-size"))
+: Scorer(god, name, config, tab, search),
+  model_(model),
+  encoder_(new Encoder(model_)),
+  decoder_(new Decoder(god, model_)),
+  indices_(god.Get<size_t>("beam-size")),
+  encDecBuffer_(1)
+
 {
   std::thread *thread = new std::thread( [&]{ DecodeAsync(god); });
   decThread_.reset(thread);

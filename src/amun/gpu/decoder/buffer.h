@@ -33,7 +33,9 @@ public:
             return val;
         }
     }
-    Buffer() {}
+    Buffer(unsigned int maxSize)
+    :size_(maxSize)
+    {}
 
     size_t size() const
     { return buffer_.size(); }
@@ -44,7 +46,7 @@ private:
 
     //std::deque<T> buffer_;
    std::queue<T> buffer_;
-    const unsigned int size_ = 3;
+    const unsigned int size_;
 
 };
 
