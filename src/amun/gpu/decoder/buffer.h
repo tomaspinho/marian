@@ -34,6 +34,10 @@ public:
         }
     }
     Buffer() {}
+
+    size_t size() const
+    { return buffer_.size(); }
+
 private:
    std::mutex mu;
    std::condition_variable cond;

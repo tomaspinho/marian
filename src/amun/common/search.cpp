@@ -46,70 +46,7 @@ void Search::Translate(const God &god, const SentencesPtr sentences)
   Scorer &scorer = *scorers_[0];
 
   scorer.Encode(sentences);
-  //scorer.Decode(god);
-
-  // begin decoding - create 1st decode states
-  State *state = scorer.NewState();
-  scorer.BeginSentenceState(*state, sentences->size());
-
-  State *nextState = scorer.NewState();
-  std::vector<uint> beamSizes(sentences->size(), 1);
-
-  HistoriesPtr histories(new Histories(*sentences, normalizeScore_));
-  Beam prevHyps = histories->GetFirstHyps();
-
-  // decode
-  for (size_t decoderStep = 0; decoderStep < 3 * sentences->GetMaxLength(); ++decoderStep) {
-    scorer.Decode(*state, *nextState, beamSizes);
-
-    // beams
-    if (decoderStep == 0) {
-      for (auto& beamSize : beamSizes) {
-        beamSize = maxBeamSize_;
-      }
-    }
-
-    size_t batchSize = beamSizes.size();
-    Beams beams(batchSize);
-    bestHyps_->CalcBeam(prevHyps, scorer, filterIndices_, beams, beamSizes);
-    histories->Add(beams);
-
-    Beam survivors;
-    for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      for (auto& h : beams[batchId]) {
-        if (h->GetWord() != EOS_ID) {
-          survivors.push_back(h);
-        } else {
-          --beamSizes[batchId];
-        }
-      }
-    }
-
-    if (survivors.size() == 0) {
-      break;
-    }
-
-    scorer.AssembleBeamState(*nextState, survivors, *state);
-
-    prevHyps.swap(survivors);
-
-  }
-
-  scorer.CleanUpAfterSentence();
-
-  // output
-  OutputCollector &outputCollector = god.GetOutputCollector();
-
-  for (size_t i = 0; i < histories->size(); ++i) {
-    const History &history = *histories->at(i);
-    size_t lineNum = history.GetLineNum();
-    cerr << "lineNum=" << lineNum << endl;
-
-    std::stringstream strm;
-    Printer(god, history, strm);
-
-    outputCollector.Write(lineNum, strm.str());
-  }
+  scorer.Decode(god);
 
   LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
 }

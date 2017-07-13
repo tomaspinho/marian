@@ -42,11 +42,10 @@ void EncoderDecoder::Decode(const God &god)
 void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 {
   boost::timer::cpu_timer timer;
-  cerr << "DecodeAsync" << endl;
 
   // begin decoding - create 1st decode states
   State *state = NewState();
-  BeginSentenceState(*state, encParams->sentences->size());
+  BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
   State *nextState = NewState();
   std::vector<uint> beamSizes(encParams->sentences->size(), 1);
@@ -54,8 +53,8 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   HistoriesPtr histories(new Histories(*encParams->sentences, search_.NormalizeScore()));
   Beam prevHyps = histories->GetFirstHyps();
 
+  // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
-    // decode
     Decode(*state, *nextState, beamSizes);
 
     // beams
@@ -99,6 +98,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   for (size_t i = 0; i < histories->size(); ++i) {
     const History &history = *histories->at(i);
     size_t lineNum = history.GetLineNum();
+    cerr << "lineNum=" << lineNum << endl;
 
     std::stringstream strm;
     search_.Printer(god, history, strm);
@@ -106,7 +106,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     outputCollector.Write(lineNum, strm.str());
   }
 
-  LOG(progress)->info("Search took {}", timer.format(3, "%ws"));
+  LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -123,14 +123,14 @@ EncoderDecoder::EncoderDecoder(
     decoder_(new Decoder(god, model_)),
     indices_(god.Get<size_t>("beam-size"))
 {
-  std::thread *thread = new std::thread( [&]{ DecodeAsync(god); });
-  decThread_.reset(thread);
+  //std::thread *thread = new std::thread( [&]{ DecodeAsync(god); });
+  //decThread_.reset(thread);
 
 }
 
 EncoderDecoder::~EncoderDecoder()
 {
-  decThread_->join();
+  //decThread_->join();
 }
 
 State* EncoderDecoder::NewState() const {
@@ -154,6 +154,11 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
 {
   mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+  BeginSentenceState(state, batchSize, encParams);
+}
+
+void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, mblas::EncParamsPtr encParams)
+{
   cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
   cerr << "BeginSentenceState encParams->sentencesMask_=" << encParams->sentencesMask_.Debug(0) << endl;
   cerr << "batchSize=" << batchSize << endl;

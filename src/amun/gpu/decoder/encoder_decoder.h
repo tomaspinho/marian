@@ -71,6 +71,7 @@ class EncoderDecoder : public Scorer {
 
     void DecodeAsync(const God &god);
     void DecodeAsync(const God &god, mblas::EncParamsPtr encParams);
+    void BeginSentenceState(State& state, size_t batchSize, mblas::EncParamsPtr encParams);
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
