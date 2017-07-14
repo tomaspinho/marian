@@ -64,12 +64,22 @@ typedef std::shared_ptr<History> HistoryPtr;
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class Histories {
-  public:
+  typedef std::vector<HistoryPtr> Coll;
+
+public:
     Histories() {} // for all histories in translation task
     Histories(const Sentences& sentences, bool normalizeScore);
 
-    HistoryPtr at(size_t id) const
-    { return coll_.at(id); }
+    //! iterators
+    typedef Coll::iterator iterator;
+    typedef Coll::const_iterator const_iterator;
+
+    const_iterator begin() const {
+      return coll_.begin();
+    }
+    const_iterator end() const {
+      return coll_.end();
+    }
 
     size_t size() const {
       return coll_.size();
@@ -81,8 +91,8 @@ class Histories {
 
     void OutputRemaining(const God &god);
 
-  protected:
-    std::vector<HistoryPtr> coll_;
+protected:
+    Coll coll_;
     Histories(const Histories &) = delete;
 };
 
