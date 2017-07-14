@@ -46,7 +46,7 @@ class History {
     size_t GetLineNum() const
     { return lineNo_; }
 
-    void Printer(const God &god, std::ostream& out) const;
+    void Output(const God &god, std::ostream& out) const;
 
   private:
     std::vector<Beam> history_;
@@ -73,7 +73,7 @@ class Histories {
       return coll_.size();
     }
 
-    void Add(const God &god, const Beams& beams);
+    void AddAndOutput(const God &god, const Beams& beams);
 
     Beam GetFirstHyps();
 

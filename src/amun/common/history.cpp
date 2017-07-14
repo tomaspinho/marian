@@ -113,7 +113,7 @@ std::string GetSoftAlignmentString(const HypothesisPtr& hypothesis)
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void History::Printer(const God &god, std::ostream& out) const
+void History::Output(const God &god, std::ostream& out) const
 {
   auto bestTranslation = Top();
   std::vector<std::string> bestSentenceWords = god.Postprocess(god.GetTargetVocab()(bestTranslation.first));
@@ -181,7 +181,7 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
   }
 }
 
-void Histories::Add(const God &god, const Beams& beams)
+void Histories::AddAndOutput(const God &god, const Beams& beams)
 {
   assert(size() == beams.size());
 
@@ -196,7 +196,7 @@ void Histories::Add(const God &god, const Beams& beams)
 
         std::stringstream strm;
 
-        history->Printer(god, strm);
+        history->Output(god, strm);
 
         OutputCollector &outputCollector = god.GetOutputCollector();
         outputCollector.Write(lineNum, strm.str());
@@ -231,7 +231,7 @@ void Histories::OutputRemaining(const God &god)
 
       std::stringstream strm;
 
-      history->Printer(god, strm);
+      history->Output(god, strm);
 
       OutputCollector &outputCollector = god.GetOutputCollector();
       outputCollector.Write(lineNum, strm.str());
