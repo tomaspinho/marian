@@ -49,8 +49,7 @@ NBestList History::NBest(size_t n) const {
 
 void History::Output(const God &god) const
 {
-  std::cerr << "lineNo_=" << lineNo_ << std::endl;
-
+  //std::cerr << "lineNo_=" << lineNo_ << std::endl;
   std::stringstream strm;
 
   Output(god, strm);
