@@ -64,12 +64,13 @@ typedef std::shared_ptr<History> HistoryPtr;
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class Histories {
-  typedef std::vector<HistoryPtr> Coll;
+  typedef std::unordered_map<size_t, HistoryPtr> Coll;
 
 public:
     Histories() {} // for all histories in translation task
     Histories(const Sentences& sentences, bool normalizeScore);
 
+    /*
     //! iterators
     typedef Coll::iterator iterator;
     typedef Coll::const_iterator const_iterator;
@@ -80,6 +81,7 @@ public:
     const_iterator end() const {
       return coll_.end();
     }
+    */
 
     size_t size() const {
       return coll_.size();

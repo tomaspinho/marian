@@ -217,7 +217,8 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
 Beam Histories::GetFirstHyps()
 {
   Beam beam;
-  for (auto& history : coll_) {
+  for (const Coll::value_type &ele: coll_) {
+    const HistoryPtr &history = ele.second;
     beam.emplace_back(history->front()[0]);
   }
   return beam;
