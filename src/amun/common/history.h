@@ -46,6 +46,8 @@ class History {
     size_t GetLineNum() const
     { return lineNo_; }
 
+    void Output(const God &god) const;
+
     void Output(const God &god, std::ostream& out) const;
 
   private:

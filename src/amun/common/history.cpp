@@ -47,6 +47,19 @@ NBestList History::NBest(size_t n) const {
   return nbest;
 }
 
+void History::Output(const God &god) const
+{
+  std::cerr << "lineNo_=" << lineNo_ << std::endl;
+
+  std::stringstream strm;
+
+  Output(god, strm);
+
+  OutputCollector &outputCollector = god.GetOutputCollector();
+  outputCollector.Write(lineNo_, strm.str());
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // helper functions
 
@@ -191,16 +204,7 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
 
     if (beam.empty()) {
       if (history) {
-        size_t lineNum = history->GetLineNum();
-        std::cerr << "lineNum=" << lineNum << std::endl;
-
-        std::stringstream strm;
-
-        history->Output(god, strm);
-
-        OutputCollector &outputCollector = god.GetOutputCollector();
-        outputCollector.Write(lineNum, strm.str());
-
+        history->Output(god);
         history.reset();
       }
     }
@@ -226,15 +230,7 @@ void Histories::OutputRemaining(const God &god)
     HistoryPtr &history = coll_[i];
 
     if (history) {
-      size_t lineNum = history->GetLineNum();
-      std::cerr << "lineNum=" << lineNum << std::endl;
-
-      std::stringstream strm;
-
-      history->Output(god, strm);
-
-      OutputCollector &outputCollector = god.GetOutputCollector();
-      outputCollector.Write(lineNum, strm.str());
+      history->Output(god);
     }
   }
 }

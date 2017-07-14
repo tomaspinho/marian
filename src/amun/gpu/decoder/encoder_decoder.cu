@@ -204,26 +204,6 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
 }
 
-void EncoderDecoder::Output(const God &god, const Histories &histories)
-{
-  for (size_t i = 0; i < histories.size(); ++i) {
-    const History &history = *histories.at(i);
-    Output(god, history);
-  }
-}
-
-void EncoderDecoder::Output(const God &god, const History &history)
-{
-  OutputCollector &outputCollector = god.GetOutputCollector();
-
-  size_t lineNum = history.GetLineNum();
-  //cerr << "lineNum=" << lineNum << endl;
-
-  std::stringstream strm;
-  history.Printer(god, strm);
-
-  outputCollector.Write(lineNum, strm.str());
-}
 
 void EncoderDecoder::AssembleBeamState(const State& in,
                                const Beam& beam,
