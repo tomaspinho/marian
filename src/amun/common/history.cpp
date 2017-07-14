@@ -190,7 +190,6 @@ void Histories::Add(const God &god, const Beams& beams)
     HistoryPtr &history = coll_[i];
 
     if (beam.empty()) {
-      /*
       if (history) {
         size_t lineNum = history->GetLineNum();
         std::cerr << "lineNum=" << lineNum << std::endl;
@@ -204,7 +203,6 @@ void Histories::Add(const God &god, const Beams& beams)
 
         history.reset();
       }
-      */
     }
     else {
       assert(history);
@@ -221,6 +219,26 @@ Beam Histories::GetFirstHyps()
   }
   return beam;
 }
+
+void Histories::OutputRemaining(const God &god)
+{
+  for (size_t i = 0; i < size(); ++i) {
+    HistoryPtr &history = coll_[i];
+
+    if (history) {
+      size_t lineNum = history->GetLineNum();
+      std::cerr << "lineNum=" << lineNum << std::endl;
+
+      std::stringstream strm;
+
+      history->Printer(god, strm);
+
+      OutputCollector &outputCollector = god.GetOutputCollector();
+      outputCollector.Write(lineNum, strm.str());
+    }
+  }
+}
+
 
 } // namespace
 

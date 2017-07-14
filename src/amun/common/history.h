@@ -77,6 +77,8 @@ class Histories {
 
     Beam GetFirstHyps();
 
+    void OutputRemaining(const God &god);
+
   protected:
     std::vector<HistoryPtr> coll_;
     Histories(const Histories &) = delete;

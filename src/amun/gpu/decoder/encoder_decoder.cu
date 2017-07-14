@@ -192,12 +192,14 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     prevHyps.swap(survivors);
 
-  }
+  } // for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
+
+  histories.OutputRemaining(god);
 
   CleanUpAfterSentence();
 
   // output
-  Output(god, histories);
+  //Output(god, histories);
 
   LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
 }
