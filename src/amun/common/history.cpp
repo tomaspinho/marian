@@ -206,10 +206,12 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
     HistoryPtr &history = coll_[i];
 
     if (beam.empty()) {
+      /*
       if (history) {
         history->Output(god);
         history.reset();
       }
+      */
     }
     else {
       assert(history);
