@@ -7,7 +7,7 @@ namespace amunmt {
 
 History::History(size_t lineNo, bool normalizeScore, size_t maxLength)
   : normalize_(normalizeScore),
-    lineNo_(lineNo),
+    lineNum_(lineNo),
    maxLength_(maxLength)
 {
   Add({HypothesisPtr(new Hypothesis(lineNo))});
@@ -53,13 +53,13 @@ NBestList History::NBest(size_t n) const {
 
 void History::Output(const God &god) const
 {
-  //std::cerr << "lineNo_=" << lineNo_ << std::endl;
+  //std::cerr << "lineNum_=" << lineNum_ << std::endl;
   std::stringstream strm;
 
   Output(god, strm);
 
   OutputCollector &outputCollector = god.GetOutputCollector();
-  outputCollector.Write(lineNo_, strm.str());
+  outputCollector.Write(lineNum_, strm.str());
 
 }
 

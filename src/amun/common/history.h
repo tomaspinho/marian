@@ -44,7 +44,7 @@ class History {
     }
 
     size_t GetLineNum() const
-    { return lineNo_; }
+    { return lineNum_; }
 
     void Output(const God &god) const;
 
@@ -54,7 +54,7 @@ class History {
     std::vector<Beam> history_;
     std::priority_queue<HypothesisCoord> topHyps_;
     bool normalize_;
-    size_t lineNo_;
+    size_t lineNum_;
     size_t maxLength_;
 };
 ///////////////////////////////////////////////////////////////////////////////////////
