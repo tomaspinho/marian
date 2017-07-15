@@ -13,13 +13,17 @@ History::History(size_t lineNo, bool normalizeScore, size_t maxLength)
   Add({HypothesisPtr(new Hypothesis(lineNo))});
 }
 
-void History::Add(const Beam& beam) {
+void History::Add(const Beam& beam)
+{
+  //std::cerr << "beam=" << beam.size() << std::endl;
   if (beam.back()->GetPrevHyp() != nullptr) {
-    for (size_t j = 0; j < beam.size(); ++j)
-      if(beam.at(j)->GetWord() == EOS_ID || size() == maxLength_ ) {
-        float cost = normalize_ ? beam.at(j)->GetCost() / history_.size() : beam.at(j)->GetCost();
+    for (size_t j = 0; j < beam.size(); ++j) {
+      HypothesisPtr hyp = beam.at(j);
+      if(hyp->GetWord() == EOS_ID || size() == maxLength_ ) {
+        float cost = normalize_ ? hyp->GetCost() / history_.size() : hyp->GetCost();
         topHyps_.push({ history_.size(), j, cost });
       }
+    }
   }
   history_.push_back(beam);
 }
