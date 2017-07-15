@@ -98,8 +98,9 @@ public:
 
   Beam() {}
 
-  Beam(std::initializer_list<HypothesisPtr> il)
-  :coll_(il)
+  Beam(size_t lineNum, std::initializer_list<HypothesisPtr> il)
+  :lineNum_(lineNum)
+  ,coll_(il)
   {}
 
   size_t size() const
@@ -128,6 +129,7 @@ public:
   }
 
 protected:
+  size_t lineNum_;
   Coll coll_;
 };
 

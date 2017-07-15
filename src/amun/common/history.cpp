@@ -10,7 +10,8 @@ History::History(const Sentence &sentence, bool normalizeScore, size_t maxLength
 sentence_(sentence),
 maxLength_(maxLength)
 {
-  Add({HypothesisPtr(new Hypothesis(sentence))});
+  Beam beam(sentence.GetLineNum(), {HypothesisPtr(new Hypothesis(sentence))});
+  Add(beam);
 }
 
 void History::Add(const Beam& beam)
