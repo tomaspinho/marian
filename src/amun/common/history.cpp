@@ -15,10 +15,14 @@ History::History(size_t lineNo, bool normalizeScore, size_t maxLength)
 
 void History::Add(const Beam& beam)
 {
-  //std::cerr << "beam=" << beam.size() << std::endl;
+  std::cerr << "beam=" << beam.size() << " " << lineNum_  << " "; //<< std::endl;
   if (beam.back()->GetPrevHyp() != nullptr) {
     for (size_t j = 0; j < beam.size(); ++j) {
       HypothesisPtr hyp = beam.at(j);
+      size_t lineNum = hyp->GetLineNum();
+      //assert(lineNum_ == lineNum);
+      std::cerr << lineNum << " ";
+
       if(hyp->GetWord() == EOS_ID || size() == maxLength_ ) {
         float cost = normalize_ ? hyp->GetCost() / history_.size() : hyp->GetCost();
         topHyps_.push({ history_.size(), j, cost });
@@ -26,6 +30,8 @@ void History::Add(const Beam& beam)
     }
   }
   history_.push_back(beam);
+
+  std::cerr << std::endl;
 }
 
 NBestList History::NBest(size_t n) const {
@@ -195,6 +201,7 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
     size_t lineNum = sentence.GetLineNum();
     History *history = new History(lineNum, normalizeScore, 3 * sentence.size());
     coll_[i].reset(history);
+    //coll_[lineNum].reset(history);
   }
 }
 
@@ -215,6 +222,17 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
     }
     else {
       HistoryPtr &history = coll_[i];
+      /*
+      size_t lineNum = beam.at(0)->GetLineNum();
+      for (size_t beamInd = 1; beamInd < beam.size(); ++beamInd) {
+        assert(lineNum == beam.at(beamInd)->GetLineNum());
+      }
+      std::cerr << "beam=" << beam.size() << " " << lineNum << std::endl;
+
+      Coll::iterator iter = coll_.find(lineNum);
+      assert(iter != coll_.end());
+      HistoryPtr &history = iter->second;
+      */
       assert(history);
       history->Add(beam);
     }
