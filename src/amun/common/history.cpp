@@ -10,7 +10,7 @@ History::History(size_t lineNo, bool normalizeScore, size_t maxLength)
     lineNo_(lineNo),
    maxLength_(maxLength)
 {
-  Add({HypothesisPtr(new Hypothesis())});
+  Add({HypothesisPtr(new Hypothesis(lineNo))});
 }
 
 void History::Add(const Beam& beam) {

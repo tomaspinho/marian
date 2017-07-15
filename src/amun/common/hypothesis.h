@@ -11,28 +11,35 @@ typedef std::shared_ptr<Hypothesis> HypothesisPtr;
 
 class Hypothesis {
   public:
-    Hypothesis()
-     : prevHyp_(nullptr),
+    Hypothesis(size_t lineNum)
+     : lineNum_(lineNum),
+       prevHyp_(nullptr),
        prevIndex_(0),
        word_(0),
        cost_(0.0)
     {}
 
-    Hypothesis(const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost)
-      : prevHyp_(prevHyp),
+    Hypothesis(size_t lineNum, const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost)
+      : lineNum_(lineNum),
+        prevHyp_(prevHyp),
         prevIndex_(prevIndex),
         word_(word),
         cost_(cost)
     {}
 
-    Hypothesis(const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost,
+    Hypothesis(size_t lineNum, const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost,
                std::vector<SoftAlignmentPtr> alignment)
-      : prevHyp_(prevHyp),
+      : lineNum_(lineNum),
+        prevHyp_(prevHyp),
         prevIndex_(prevIndex),
         word_(word),
         cost_(cost),
         alignments_(alignment)
     {}
+
+    size_t GetLineNum() const {
+      return lineNum_;
+    }
 
     const HypothesisPtr GetPrevHyp() const {
       return prevHyp_;
@@ -63,6 +70,7 @@ class Hypothesis {
     }
 
   private:
+    size_t lineNum_;
     const HypothesisPtr prevHyp_;
     const size_t prevIndex_;
     const size_t word_;

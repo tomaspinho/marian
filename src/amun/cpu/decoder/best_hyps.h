@@ -128,9 +128,11 @@ class BestHyps : public BestHypsBase
             }
           }
 
-          hyp.reset(new Hypothesis(prevHyps.at(hypIndex), wordIndex, hypIndex, cost, alignments));
+          HypothesisPtr prevHyp = prevHyps.at(hypIndex);
+          hyp.reset(new Hypothesis(prevHyp->GetLineNum(), prevHyp, wordIndex, hypIndex, cost, alignments));
         } else {
-          hyp.reset(new Hypothesis(prevHyps.at(hypIndex), wordIndex, hypIndex, cost));
+          HypothesisPtr prevHyp = prevHyps.at(hypIndex);
+          hyp.reset(new Hypothesis(prevHyp->GetLineNum(), prevHyp, wordIndex, hypIndex, cost));
         }
 
         if (returnNBestList_) {

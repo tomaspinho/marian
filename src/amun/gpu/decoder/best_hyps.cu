@@ -60,12 +60,13 @@ void BestHyps::CalcBeam
     size_t hypIndex  = bestKeys[i] / Probs.dim(1);
     float cost = bestCosts[i];
 
+    HypothesisPtr prevHyp = prevHyps.at(hypIndex);
     HypothesisPtr hyp;
     if (returnAttentionWeights_) {
-      hyp.reset(new Hypothesis(prevHyps.at(hypIndex), wordIndex, hypIndex, cost,
+      hyp.reset(new Hypothesis(prevHyp->GetLineNum(), prevHyp, wordIndex, hypIndex, cost,
                                GetAlignments(scorer, hypIndex)));
     } else {
-      hyp.reset(new Hypothesis(prevHyps.at(hypIndex), wordIndex, hypIndex, cost));
+      hyp.reset(new Hypothesis(prevHyp->GetLineNum(), prevHyp, wordIndex, hypIndex, cost));
     }
 
     if(returnNBestList_) {
