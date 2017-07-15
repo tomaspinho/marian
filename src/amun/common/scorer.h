@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 
+#include "common/beam.h"
 #include "common/hypothesis.h"
 #include "common/sentence.h"
 #include "common/sentences.h"
