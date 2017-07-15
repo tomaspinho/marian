@@ -4,6 +4,7 @@
 #include "common/god.h"
 #include "common/sentences.h"
 #include "common/search.h"
+#include "common/histories.h"
 
 #include "encoder_decoder.h"
 #include "gpu/mblas/matrix_functions.h"
