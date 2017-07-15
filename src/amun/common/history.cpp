@@ -5,12 +5,12 @@
 
 namespace amunmt {
 
-History::History(size_t lineNo, bool normalizeScore, size_t maxLength)
+History::History(size_t lineNum, bool normalizeScore, size_t maxLength)
   : normalize_(normalizeScore),
-    lineNum_(lineNo),
+    lineNum_(lineNum),
    maxLength_(maxLength)
 {
-  Add({HypothesisPtr(new Hypothesis(lineNo))});
+  Add({HypothesisPtr(new Hypothesis(lineNum))});
 }
 
 void History::Add(const Beam& beam)
