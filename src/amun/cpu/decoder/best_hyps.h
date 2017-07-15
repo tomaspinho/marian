@@ -113,6 +113,8 @@ class BestHyps : public BestHypsBase
         }
 
         size_t hypIndex  = bestKeys[i] / Probs.columns();
+        HypothesisPtr prevHyp = prevHyps.at(hypIndex);
+
         float cost = bestCosts[i];
 
         HypothesisPtr hyp;
@@ -128,11 +130,9 @@ class BestHyps : public BestHypsBase
             }
           }
 
-          HypothesisPtr prevHyp = prevHyps.at(hypIndex);
-          hyp.reset(new Hypothesis(prevHyp->GetLineNum(), prevHyp, wordIndex, hypIndex, cost, alignments));
+          hyp.reset(new Hypothesis(prevHyp, wordIndex, hypIndex, cost, alignments));
         } else {
-          HypothesisPtr prevHyp = prevHyps.at(hypIndex);
-          hyp.reset(new Hypothesis(prevHyp->GetLineNum(), prevHyp, wordIndex, hypIndex, cost));
+          hyp.reset(new Hypothesis(prevHyp, wordIndex, hypIndex, cost));
         }
 
         if (returnNBestList_) {

@@ -19,17 +19,17 @@ class Hypothesis {
        cost_(0.0)
     {}
 
-    Hypothesis(size_t lineNum, const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost)
-      : lineNum_(lineNum),
+    Hypothesis(const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost)
+      : lineNum_(prevHyp->GetLineNum()),
         prevHyp_(prevHyp),
         prevIndex_(prevIndex),
         word_(word),
         cost_(cost)
     {}
 
-    Hypothesis(size_t lineNum, const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost,
+    Hypothesis(const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost,
                std::vector<SoftAlignmentPtr> alignment)
-      : lineNum_(lineNum),
+      : lineNum_(prevHyp->GetLineNum()),
         prevHyp_(prevHyp),
         prevIndex_(prevIndex),
         word_(word),

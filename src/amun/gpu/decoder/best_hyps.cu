@@ -63,10 +63,10 @@ void BestHyps::CalcBeam
     HypothesisPtr prevHyp = prevHyps.at(hypIndex);
     HypothesisPtr hyp;
     if (returnAttentionWeights_) {
-      hyp.reset(new Hypothesis(prevHyp->GetLineNum(), prevHyp, wordIndex, hypIndex, cost,
+      hyp.reset(new Hypothesis(prevHyp, wordIndex, hypIndex, cost,
                                GetAlignments(scorer, hypIndex)));
     } else {
-      hyp.reset(new Hypothesis(prevHyp->GetLineNum(), prevHyp, wordIndex, hypIndex, cost));
+      hyp.reset(new Hypothesis(prevHyp, wordIndex, hypIndex, cost));
     }
 
     if(returnNBestList_) {
