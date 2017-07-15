@@ -69,15 +69,15 @@ void History::Output(const God &god) const
     }
     std::cerr << ") ";
   }
-  std::cerr << std::endl;
 
   std::stringstream strm;
-
   Output(god, strm);
+  std::string str = strm.str();
 
   OutputCollector &outputCollector = god.GetOutputCollector();
-  outputCollector.Write(lineNum_, strm.str());
+  outputCollector.Write(lineNum_, str);
 
+  std::cerr << str << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

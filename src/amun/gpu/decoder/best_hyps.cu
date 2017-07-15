@@ -88,6 +88,8 @@ void BestHyps::CalcBeam(const Beam& prevHyps,
       hyp->GetCostBreakdown()[0] -= sum;
     }
 
+    //std::cerr << "i=" << i << " batchMap=" << batchMap[i] << std::endl;
+
     beams[batchMap[i]].push_back(hyp);
 
   }
