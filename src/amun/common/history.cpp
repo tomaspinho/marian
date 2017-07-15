@@ -5,17 +5,17 @@
 
 namespace amunmt {
 
-History::History(size_t lineNum, bool normalizeScore, size_t maxLength)
-  : normalize_(normalizeScore),
-    lineNum_(lineNum),
-   maxLength_(maxLength)
+History::History(const Sentence &sentence, bool normalizeScore, size_t maxLength)
+: normalize_(normalizeScore),
+sentence_(sentence),
+maxLength_(maxLength)
 {
-  Add({HypothesisPtr(new Hypothesis(lineNum))});
+  Add({HypothesisPtr(new Hypothesis(sentence))});
 }
 
 void History::Add(const Beam& beam)
 {
-  std::cerr << "beam=" << beam.size() << " " << lineNum_  << " "; //<< std::endl;
+  std::cerr << "beam=" << beam.size() << " " << GetLineNum()  << " "; //<< std::endl;
   if (beam.back()->GetPrevHyp() != nullptr) {
     for (size_t j = 0; j < beam.size(); ++j) {
       HypothesisPtr hyp = beam.at(j);
@@ -59,7 +59,7 @@ NBestList History::NBest(size_t n) const {
 
 void History::Output(const God &god) const
 {
-  std::cerr << "lineNum_=" << lineNum_ << " ";
+  std::cerr << "lineNum_=" << GetLineNum() << " ";
   for (size_t i = 0; i < history_.size(); ++i) {
     std::cerr << "(";
     const Beam &beam = history_[i];
@@ -75,7 +75,7 @@ void History::Output(const God &god) const
   std::string str = strm.str();
 
   OutputCollector &outputCollector = god.GetOutputCollector();
-  outputCollector.Write(lineNum_, str);
+  outputCollector.Write(GetLineNum(), str);
 
   std::cerr << str << std::endl;
 }

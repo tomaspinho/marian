@@ -2,6 +2,7 @@
 #include <memory>
 #include "common/types.h"
 #include "common/soft_alignment.h"
+#include "common/sentence.h"
 
 namespace amunmt {
 
@@ -11,8 +12,8 @@ typedef std::shared_ptr<Hypothesis> HypothesisPtr;
 
 class Hypothesis {
   public:
-    Hypothesis(size_t lineNum)
-     : lineNum_(lineNum),
+    Hypothesis(const Sentence &sentence)
+     : sentence_(sentence),
        prevHyp_(nullptr),
        prevIndex_(0),
        word_(0),
@@ -20,7 +21,7 @@ class Hypothesis {
     {}
 
     Hypothesis(const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost)
-      : lineNum_(prevHyp->GetLineNum()),
+      : sentence_(prevHyp->sentence_),
         prevHyp_(prevHyp),
         prevIndex_(prevIndex),
         word_(word),
@@ -29,7 +30,7 @@ class Hypothesis {
 
     Hypothesis(const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost,
                std::vector<SoftAlignmentPtr> alignment)
-      : lineNum_(prevHyp->GetLineNum()),
+      : sentence_(prevHyp->sentence_),
         prevHyp_(prevHyp),
         prevIndex_(prevIndex),
         word_(word),
@@ -38,7 +39,7 @@ class Hypothesis {
     {}
 
     size_t GetLineNum() const {
-      return lineNum_;
+      return sentence_.GetLineNum();
     }
 
     const HypothesisPtr GetPrevHyp() const {
@@ -70,8 +71,8 @@ class Hypothesis {
     }
 
   private:
-    size_t lineNum_;
     const HypothesisPtr prevHyp_;
+    const Sentence &sentence_;
     const size_t prevIndex_;
     const size_t word_;
     const float cost_;

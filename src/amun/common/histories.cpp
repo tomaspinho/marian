@@ -11,7 +11,7 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
   for (size_t i = 0; i < sentences.size(); ++i) {
     const Sentence &sentence = *sentences.at(i).get();
     size_t lineNum = sentence.GetLineNum();
-    History *history = new History(lineNum, normalizeScore, 3 * sentence.size());
+    History *history = new History(sentence, normalizeScore, 3 * sentence.size());
     //coll_[i].reset(history);
     coll_[lineNum].reset(history);
     std::cerr << "sentence=" << lineNum << " " << sentence.size() << std::endl;

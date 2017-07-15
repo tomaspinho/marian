@@ -25,7 +25,7 @@ class History {
     History(const History&) = delete;
 
   public:
-    History(size_t lineNum, bool normalizeScore, size_t maxLength);
+    History(const Sentence &sentence, bool normalizeScore, size_t maxLength);
 
     void Add(const Beam& beam);
 
@@ -44,7 +44,7 @@ class History {
     }
 
     size_t GetLineNum() const
-    { return lineNum_; }
+    { return sentence_.GetLineNum(); }
 
     void Output(const God &god) const;
 
@@ -54,7 +54,7 @@ class History {
     std::vector<Beam> history_;
     std::priority_queue<HypothesisCoord> topHyps_;
     bool normalize_;
-    size_t lineNum_;
+    const Sentence &sentence_;
     size_t maxLength_;
 };
 ///////////////////////////////////////////////////////////////////////////////////////
