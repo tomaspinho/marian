@@ -59,7 +59,18 @@ NBestList History::NBest(size_t n) const {
 
 void History::Output(const God &god) const
 {
-  //std::cerr << "lineNum_=" << lineNum_ << std::endl;
+  std::cerr << "lineNum_=" << lineNum_ << " ";
+  for (size_t i = 0; i < history_.size(); ++i) {
+    std::cerr << "(";
+    const Beam &beam = history_[i];
+
+    for (size_t j = 0; j < beam.size(); ++j) {
+      std::cerr << beam.at(j)->GetLineNum() << ",";
+    }
+    std::cerr << ") ";
+  }
+  std::cerr << std::endl;
+
   std::stringstream strm;
 
   Output(god, strm);
