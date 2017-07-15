@@ -16,8 +16,8 @@ History::History(size_t lineNo, bool normalizeScore, size_t maxLength)
 void History::Add(const Beam& beam) {
   if (beam.back()->GetPrevHyp() != nullptr) {
     for (size_t j = 0; j < beam.size(); ++j)
-      if(beam[j]->GetWord() == EOS_ID || size() == maxLength_ ) {
-        float cost = normalize_ ? beam[j]->GetCost() / history_.size() : beam[j]->GetCost();
+      if(beam.at(j)->GetWord() == EOS_ID || size() == maxLength_ ) {
+        float cost = normalize_ ? beam.at(j)->GetCost() / history_.size() : beam.at(j)->GetCost();
         topHyps_.push({ history_.size(), j, cost });
       }
   }
@@ -35,14 +35,14 @@ NBestList History::NBest(size_t n) const {
     size_t j  = bestHypCoord.j;
 
     Words targetWords;
-    HypothesisPtr bestHyp = history_[start][j];
+    HypothesisPtr bestHyp = history_[start].at(j);
     while(bestHyp->GetPrevHyp() != nullptr) {
       targetWords.push_back(bestHyp->GetWord());
       bestHyp = bestHyp->GetPrevHyp();
     }
 
     std::reverse(targetWords.begin(), targetWords.end());
-    nbest.emplace_back(targetWords, history_[bestHypCoord.i][bestHypCoord.j]);
+    nbest.emplace_back(targetWords, history_[bestHypCoord.i].at(bestHypCoord.j));
   }
   return nbest;
 }
@@ -219,7 +219,7 @@ Beam Histories::GetFirstHyps()
   Beam beam;
   for (const Coll::value_type &ele: coll_) {
     const HistoryPtr &history = ele.second;
-    beam.emplace_back(history->front()[0]);
+    beam.push_back(history->front().at(0));
   }
   return beam;
 }

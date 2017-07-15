@@ -57,7 +57,7 @@ class BestHyps : public BestHypsBase
 
       mblas::ArrayMatrix Costs(Probs.rows(), 1);
       for (size_t i = 0; i < prevHyps.size(); ++i) {
-        Costs.data()[i] = prevHyps[i]->GetCost();
+        Costs.data()[i] = prevHyps.at(i)->GetCost();
       }
 
       Probs *= weights_.at(scorers[0]->GetName());
@@ -128,9 +128,9 @@ class BestHyps : public BestHypsBase
             }
           }
 
-          hyp.reset(new Hypothesis(prevHyps[hypIndex], wordIndex, hypIndex, cost, alignments));
+          hyp.reset(new Hypothesis(prevHyps.at(hypIndex), wordIndex, hypIndex, cost, alignments));
         } else {
-          hyp.reset(new Hypothesis(prevHyps[hypIndex], wordIndex, hypIndex, cost));
+          hyp.reset(new Hypothesis(prevHyps.at(hypIndex), wordIndex, hypIndex, cost));
         }
 
         if (returnNBestList_) {
@@ -142,9 +142,9 @@ class BestHyps : public BestHypsBase
             } else {
               float cost = 0;
               if (j < scorers.size()) {
-                if (prevHyps[hypIndex]->GetCostBreakdown().size() < scorers.size())
-                  const_cast<HypothesisPtr&>(prevHyps[hypIndex])->GetCostBreakdown().resize(scorers.size(), 0.0);
-                cost = breakDowns[j][i] + const_cast<HypothesisPtr&>(prevHyps[hypIndex])->GetCostBreakdown()[j];
+                if (prevHyps.at(hypIndex)->GetCostBreakdown().size() < scorers.size())
+                  const_cast<HypothesisPtr&>(prevHyps.at(hypIndex))->GetCostBreakdown().resize(scorers.size(), 0.0);
+                cost = breakDowns[j][i] + const_cast<HypothesisPtr&>(prevHyps.at(hypIndex))->GetCostBreakdown()[j];
               }
               sum += weights_.at(scorers[j]->GetName()) * cost;
               hyp->GetCostBreakdown()[j] = cost;

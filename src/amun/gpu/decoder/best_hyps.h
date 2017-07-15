@@ -149,10 +149,10 @@ class BestHyps : public BestHypsBase
 
         HypothesisPtr hyp;
         if (returnAttentionWeights_) {
-          hyp.reset(new Hypothesis(prevHyps[hypIndex], wordIndex, hypIndex, cost,
+          hyp.reset(new Hypothesis(prevHyps.at(hypIndex), wordIndex, hypIndex, cost,
                                    GetAlignments(scorers, hypIndex)));
         } else {
-          hyp.reset(new Hypothesis(prevHyps[hypIndex], wordIndex, hypIndex, cost));
+          hyp.reset(new Hypothesis(prevHyps.at(hypIndex), wordIndex, hypIndex, cost));
         }
 
         if(returnNBestList_) {
@@ -164,9 +164,9 @@ class BestHyps : public BestHypsBase
             else {
               float cost = 0;
               if (j < scorers.size()) {
-                  if (prevHyps[hypIndex]->GetCostBreakdown().size() < scorers.size())
-                    const_cast<HypothesisPtr&>(prevHyps[hypIndex])->GetCostBreakdown().resize(scorers.size(), 0.0f);
-                  cost = breakDowns[j][i] + const_cast<HypothesisPtr&>(prevHyps[hypIndex])->GetCostBreakdown()[j];
+                  if (prevHyps.at(hypIndex)->GetCostBreakdown().size() < scorers.size())
+                    const_cast<HypothesisPtr&>(prevHyps.at(hypIndex))->GetCostBreakdown().resize(scorers.size(), 0.0f);
+                  cost = breakDowns[j][i] + const_cast<HypothesisPtr&>(prevHyps.at(hypIndex))->GetCostBreakdown()[j];
               }
               sum += weights_.at(scorers[j]->GetName()) * cost;
               hyp->GetCostBreakdown()[j] = cost;

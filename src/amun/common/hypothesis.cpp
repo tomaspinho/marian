@@ -13,7 +13,7 @@ std::string Debug(const Beam &vec, size_t verbosity)
 
   if (verbosity) {
     for (size_t i = 0; i < vec.size(); ++i) {
-      const HypothesisPtr &hypo = vec[i];
+      const HypothesisPtr &hypo = vec.at(i);
       strm << " " << hypo->GetWord();
     }
   }
