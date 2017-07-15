@@ -192,7 +192,8 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
 {
   for (size_t i = 0; i < sentences.size(); ++i) {
     const Sentence &sentence = *sentences.at(i).get();
-    History *history = new History(sentence.GetLineNum(), normalizeScore, 3 * sentence.size());
+    size_t lineNum = sentence.GetLineNum();
+    History *history = new History(lineNum, normalizeScore, 3 * sentence.size());
     coll_[i].reset(history);
   }
 }
@@ -203,7 +204,6 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
 
   for (size_t i = 0; i < size(); ++i) {
     const Beam &beam = beams[i];
-    HistoryPtr &history = coll_[i];
 
     if (beam.empty()) {
       /*
@@ -214,13 +214,14 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
       */
     }
     else {
+      HistoryPtr &history = coll_[i];
       assert(history);
       history->Add(beam);
     }
   }
 }
 
-Beam Histories::GetFirstHyps()
+Beam Histories::GetFirstHyps() const
 {
   Beam beam;
   for (const Coll::value_type &ele: coll_) {
@@ -230,10 +231,10 @@ Beam Histories::GetFirstHyps()
   return beam;
 }
 
-void Histories::OutputRemaining(const God &god)
+void Histories::OutputRemaining(const God &god) const
 {
-  for (size_t i = 0; i < size(); ++i) {
-    HistoryPtr &history = coll_[i];
+  for (const Coll::value_type &ele: coll_) {
+    const HistoryPtr &history = ele.second;
 
     if (history) {
       history->Output(god);

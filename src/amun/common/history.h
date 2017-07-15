@@ -89,9 +89,9 @@ public:
 
     void AddAndOutput(const God &god, const Beams& beams);
 
-    Beam GetFirstHyps();
+    Beam GetFirstHyps() const;
 
-    void OutputRemaining(const God &god);
+    void OutputRemaining(const God &god) const;
 
 protected:
     Coll coll_;
