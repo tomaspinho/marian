@@ -15,10 +15,10 @@ BestHyps::BestHyps(const God &god)
         Costs(god.Get<size_t>("beam-size") * god.Get<size_t>("mini-batch"))
 {}
 
-void BestHyps::CalcBeam(const Beam& prevHyps,
+void BestHyps::CalcBeam(const Hypotheses& prevHyps,
                         Scorer& scorer,
                         const Words& filterIndices,
-                        std::vector<Beam>& beams,
+                        Beams &beams,
                         std::vector<uint>& beamSizes)
 {
   BEGIN_TIMER("CalcBeam");
@@ -90,7 +90,7 @@ void BestHyps::CalcBeam(const Beam& prevHyps,
 
     //std::cerr << "i=" << i << " batchMap=" << batchMap[i] << std::endl;
 
-    beams[batchMap[i]].push_back(hyp);
+    beams.at(batchMap[i]).push_back(hyp);
 
   }
 
@@ -98,10 +98,10 @@ void BestHyps::CalcBeam(const Beam& prevHyps,
 
 }
 
-void BestHyps::CalcBeam(const Beam& prevHyps,
+void BestHyps::CalcBeam(const Hypotheses& prevHyps,
                         const std::vector<ScorerPtr>& scorers,
                         const Words& filterIndices,
-                        std::vector<Beam>& beams,
+                        Beams &beams,
                         std::vector<uint>& beamSizes)
 {
   BEGIN_TIMER("CalcBeam");
@@ -196,7 +196,7 @@ void BestHyps::CalcBeam(const Beam& prevHyps,
       hyp->GetCostBreakdown()[0] /= weights_.at(scorers[0]->GetName());
     }
 
-    beams[batchMap[i]].push_back(hyp);
+    beams.at(batchMap[i]).push_back(hyp);
   }
 
   PAUSE_TIMER("CalcBeam");

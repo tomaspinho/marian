@@ -49,11 +49,11 @@ void EncoderDecoder::Encode(const SentencesPtr sources) {
 
 
 void EncoderDecoder::AssembleBeamState(const State& in,
-                                       const Beam& beam,
+                                       const Hypotheses& hypos,
                                        State& out) {
   std::vector<size_t> beamWords;
   std::vector<size_t> beamStateIds;
-  for(auto h : beam) {
+  for(auto h : hypos) {
       beamWords.push_back(h->GetWord());
       beamStateIds.push_back(h->GetPrevStateIndex());
   }

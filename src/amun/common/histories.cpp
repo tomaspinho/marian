@@ -23,7 +23,7 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
   assert(size() == beams.size());
 
   for (size_t i = 0; i < size(); ++i) {
-    const Beam &beam = beams[i];
+    const Beam &beam = beams.at(i);
 
     if (beam.empty()) {
       /*
@@ -52,14 +52,15 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
   }
 }
 
-Beam Histories::GetFirstHyps() const
+Hypotheses Histories::GetFirstHyps() const
 {
-  Beam beam;
+  Hypotheses hypos;
   for (const Coll::value_type &ele: coll_) {
     const HistoryPtr &history = ele.second;
-    beam.push_back(history->front().at(0));
+    HypothesisPtr hypo = history->front().at(0);
+    hypos.push_back(hypo);
   }
-  return beam;
+  return hypos;
 }
 
 void Histories::OutputRemaining(const God &god) const

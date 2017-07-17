@@ -145,7 +145,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   std::vector<uint> beamSizes(encParams->sentences->size(), 1);
 
   Histories histories(*encParams->sentences, search_.NormalizeScore());
-  Beam prevHyps = histories.GetFirstHyps();
+  Hypotheses prevHyps = histories.GetFirstHyps();
 
   // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
@@ -168,9 +168,10 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     //cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
     histories.AddAndOutput(god, beams);
 
-    Beam survivors;
+    Hypotheses survivors;
     for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      for (const HypothesisPtr& h : beams[batchId]) {
+      const Beam &beam = beams.at(batchId);
+      for (const HypothesisPtr& h : beam) {
         if (h->GetWord() != EOS_ID) {
           survivors.push_back(h);
         } else {
@@ -207,11 +208,11 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
 
 void EncoderDecoder::AssembleBeamState(const State& in,
-                               const Beam& beam,
+                               const Hypotheses& hypos,
                                State& out) {
   std::vector<size_t> beamWords;
   std::vector<uint> beamStateIds;
-  for (const HypothesisPtr &h : beam) {
+  for (const HypothesisPtr &h : hypos) {
      beamWords.push_back(h->GetWord());
      beamStateIds.push_back(h->GetPrevStateIndex());
   }

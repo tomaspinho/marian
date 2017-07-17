@@ -37,7 +37,7 @@ public:
 
     void AddAndOutput(const God &god, const Beams& beams);
 
-    Beam GetFirstHyps() const;
+    Hypotheses GetFirstHyps() const;
 
     void OutputRemaining(const God &god) const;
 

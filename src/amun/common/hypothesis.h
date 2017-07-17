@@ -9,6 +9,7 @@ namespace amunmt {
 class Hypothesis;
 
 typedef std::shared_ptr<Hypothesis> HypothesisPtr;
+typedef std::vector<HypothesisPtr> Hypotheses;
 
 class Hypothesis {
   public:

@@ -18,7 +18,9 @@ public:
   const_iterator end() const
   { return coll_.end(); }
 
-  Beam() {}
+  Beam(size_t lineNum)
+  :lineNum_(lineNum)
+  {}
 
   Beam(size_t lineNum, std::initializer_list<HypothesisPtr> il)
   :lineNum_(lineNum)
@@ -55,11 +57,29 @@ protected:
   Coll coll_;
 };
 
-//typedef std::vector<HypothesisPtr> Beam;
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef std::vector<Beam> Beams;
+class Beams
+{
+  typedef std::shared_ptr<Beam> BeamPtr;
+  typedef std::vector<BeamPtr> Coll;
+public:
+  Beams(size_t size);
+
+  size_t size() const
+  { return coll_.size(); }
+
+  const Beam &at(size_t ind) const
+  { return *coll_.at(ind); }
+
+  Beam &at(size_t ind)
+  { return *coll_.at(ind); }
+
+protected:
+  Coll coll_;
+};
+
+//typedef std::vector<Beam> Beams;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
