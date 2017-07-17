@@ -5,32 +5,16 @@ using namespace std;
 
 namespace amunmt {
 
-std::string Debug(const Beam &vec, size_t verbosity)
+std::string Beam::Debug(size_t verbosity) const
 {
   std::stringstream strm;
 
-  strm << "size=" << vec.size();
+  strm << "size=" << size();
 
   if (verbosity) {
-    for (size_t i = 0; i < vec.size(); ++i) {
-      const HypothesisPtr &hypo = vec.at(i);
+    for (size_t i = 0; i < size(); ++i) {
+      const HypothesisPtr &hypo = coll_[i];
       strm << " " << hypo->GetWord();
-    }
-  }
-
-  return strm.str();
-}
-
-std::string Debug(const Beams &vec, size_t verbosity)
-{
-  std::stringstream strm;
-
-  strm << "size=" << vec.size();
-
-  if (verbosity) {
-    for (size_t i = 0; i < vec.size(); ++i) {
-      const Beam &beam = vec.at(i);
-      strm << endl << "\t" << Debug(beam, verbosity);
     }
   }
 
@@ -45,6 +29,22 @@ Beams::Beams(size_t size)
     Beam *beam = new Beam(999);
     coll_[i].reset(beam);
   }
+}
+
+std::string Beams::Debug(size_t verbosity) const
+{
+  std::stringstream strm;
+
+  strm << "size=" << size();
+
+  if (verbosity) {
+    for (size_t i = 0; i < size(); ++i) {
+      const Beam &beam = *coll_[i];
+      strm << endl << "\t" << beam.Debug(verbosity);
+    }
+  }
+
+  return strm.str();
 }
 
 

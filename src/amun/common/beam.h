@@ -52,6 +52,8 @@ public:
     coll_.swap(other.coll_);
   }
 
+  std::string Debug(size_t verbosity = 1) const;
+
 protected:
   size_t lineNum_;
   Coll coll_;
@@ -74,6 +76,8 @@ public:
 
   Beam &at(size_t ind)
   { return *coll_.at(ind); }
+
+  std::string Debug(size_t verbosity = 1) const;
 
 protected:
   Coll coll_;
