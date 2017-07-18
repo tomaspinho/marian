@@ -22,7 +22,7 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
 
 void Histories::AddAndOutput(const God &god, const Beams& beams)
 {
-  assert(size() == beams.size());
+  assert(size() <= beams.size());
 
   for (size_t i = 0; i < size(); ++i) {
     const Beam &beam = beams.at(i);
@@ -39,9 +39,6 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
       //HistoryPtr &history = coll_[i];
 
       size_t lineNum = beam.GetLineNum();
-      for (size_t beamInd = 1; beamInd < beam.size(); ++beamInd) {
-        assert(lineNum == beam.at(beamInd)->GetLineNum());
-      }
       //std::cerr << "beam=" << beam.size() << " " << lineNum << std::endl;
 
       Coll::iterator iter = coll_.find(lineNum);
@@ -52,9 +49,13 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
       history->Add(beam);
 
       if (beam.size() == 1 && beam.at(0)->GetWord() == EOS_ID) {
-        std::cerr << "beam.size() == 1=" << lineNum << std::endl;
+        //std::cerr << "beam.size() == 1=" << lineNum << std::endl;
         history->Output(god);
-        history.reset();
+
+        size_t before = coll_.size();
+        coll_.erase(iter);
+        size_t after = coll_.size();
+        cerr << "before=" << before << " " << after << endl;
       }
     }
   }
@@ -70,7 +71,9 @@ Hypotheses Histories::GetFirstHyps() const
 
     Coll::const_iterator iter = coll_.find(lineNum);
     assert(iter != coll_.end());
+
     const HistoryPtr &history = iter->second;
+    assert(history);
 
     HypothesisPtr hypo = history->front().at(0);
     hypos.push_back(hypo);
@@ -81,16 +84,14 @@ Hypotheses Histories::GetFirstHyps() const
 
 void Histories::OutputRemaining(const God &god) const
 {
+  cerr << "OutputRemaining1" << endl;
   for (const Coll::value_type &ele: coll_) {
     const HistoryPtr &history = ele.second;
+    assert(history);
 
-    if (history) {
-      history->Output(god);
-    }
-    else {
-      cerr << "NONE\n";
-    }
+    history->Output(god);
   }
+  cerr << "OutputRemaining2" << endl;
 }
 
 

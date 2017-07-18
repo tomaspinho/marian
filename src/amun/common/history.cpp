@@ -3,6 +3,8 @@
 #include "sentences.h"
 #include "god.h"
 
+using namespace std;
+
 namespace amunmt {
 
 History::History(const Sentence &sentence, bool normalizeScore, size_t maxLength)
@@ -58,6 +60,17 @@ NBestList History::NBest(size_t n) const {
   return nbest;
 }
 
+Result History::Top() const
+{
+  cerr << "Top1=" << history_.size() << endl;
+  NBestList nBest(NBest(1));
+  cerr << "Top2=" << nBest.size() << endl;
+  Result ret(nBest[0]);
+  cerr << "Top3" << endl;
+
+  return ret;
+}
+
 void History::Output(const God &god) const
 {
   std::cerr << "lineNum_=" << GetLineNum() << " ";
@@ -66,17 +79,25 @@ void History::Output(const God &god) const
     const Beam &beam = history_[i];
 
     for (size_t j = 0; j < beam.size(); ++j) {
-      std::cerr << beam.at(j)->GetLineNum() << ",";
+      HypothesisPtr hypo = beam.at(j);
+      assert(hypo);
+
+      std::cerr << hypo->GetLineNum() << ",";
     }
     std::cerr << ") ";
   }
 
   std::stringstream strm;
+  std::cerr << "Output1" << std::endl;
   Output(god, strm);
+  std::cerr << "Output2" << std::endl;
   std::string str = strm.str();
 
+  std::cerr << "Output3" << std::endl;
   OutputCollector &outputCollector = god.GetOutputCollector();
+  std::cerr << "Output4" << std::endl;
   outputCollector.Write(GetLineNum(), str);
+  std::cerr << "Output5" << std::endl;
 
   std::cerr << str << std::endl;
 }
@@ -149,7 +170,9 @@ std::string GetSoftAlignmentString(const HypothesisPtr& hypothesis)
 
 void History::Output(const God &god, std::ostream& out) const
 {
+  std::cerr << "BAA1" << std::endl;
   auto bestTranslation = Top();
+  std::cerr << "BAA2" << std::endl;
   std::vector<std::string> bestSentenceWords = god.Postprocess(god.GetTargetVocab()(bestTranslation.first));
 
   std::string best = Join(bestSentenceWords);

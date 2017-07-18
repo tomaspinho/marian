@@ -40,9 +40,7 @@ class History {
 
     NBestList NBest(size_t n) const;
 
-    Result Top() const {
-      return NBest(1)[0];
-    }
+    Result Top() const;
 
     size_t GetLineNum() const
     { return sentence_.GetLineNum(); }
