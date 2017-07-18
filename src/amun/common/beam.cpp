@@ -5,6 +5,17 @@ using namespace std;
 
 namespace amunmt {
 
+void Beam::Add(const HypothesisPtr &hypo)
+{
+  if (coll_.empty()) {
+    lineNum_ = hypo->GetLineNum();
+  }
+  else {
+    assert(lineNum_ == hypo->GetLineNum());
+  }
+  coll_.push_back(hypo);
+}
+
 std::string Beam::Debug(size_t verbosity) const
 {
   std::stringstream strm;

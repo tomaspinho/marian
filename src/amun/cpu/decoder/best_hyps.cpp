@@ -145,7 +145,7 @@ void BestHyps::CalcBeam(
       hyp->GetCostBreakdown()[0] -= sum;
       hyp->GetCostBreakdown()[0] /= weights_.at(scorers[0]->GetName());
     }
-    beams.at(0).push_back(hyp);
+    beams.at(0).Add(hyp);
   }
 }
 

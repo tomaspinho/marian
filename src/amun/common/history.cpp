@@ -16,7 +16,7 @@ maxLength_(maxLength)
 
 void History::Add(const Beam& beam)
 {
-  std::cerr << "beam=" << beam.size() << " " << GetLineNum()  << " "; //<< std::endl;
+  //std::cerr << "beam=" << beam.size() << " " << GetLineNum()  << " "; //<< std::endl;
   if (beam.back()->GetPrevHyp() != nullptr) {
     for (size_t j = 0; j < beam.size(); ++j) {
       HypothesisPtr hyp = beam.at(j);

@@ -14,7 +14,7 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
     History *history = new History(sentence, normalizeScore, 3 * sentence.size());
     coll_[i].reset(history);
     //coll_[lineNum].reset(history);
-    std::cerr << "sentence=" << lineNum << " " << sentence.size() << std::endl;
+    //std::cerr << "sentence=" << lineNum << " " << sentence.size() << std::endl;
   }
 }
 

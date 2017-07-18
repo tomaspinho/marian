@@ -90,7 +90,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
 
     //std::cerr << "i=" << i << " batchMap=" << batchMap[i] << std::endl;
 
-    beams.at(batchMap[i]).push_back(hyp);
+    beams.at(batchMap[i]).Add(hyp);
 
   }
 
@@ -196,7 +196,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
       hyp->GetCostBreakdown()[0] /= weights_.at(scorers[0]->GetName());
     }
 
-    beams.at(batchMap[i]).push_back(hyp);
+    beams.at(batchMap[i]).Add(hyp);
   }
 
   PAUSE_TIMER("CalcBeam");

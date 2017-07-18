@@ -27,13 +27,13 @@ public:
   ,coll_(il)
   {}
 
+  size_t GetLineNum() const
+  { return lineNum_; }
+
   size_t size() const
   { return coll_.size(); }
 
   const HypothesisPtr &at(size_t ind) const
-  { return coll_.at(ind); }
-
-  HypothesisPtr &at(size_t ind)
   { return coll_.at(ind); }
 
   const HypothesisPtr &back() const
@@ -42,10 +42,7 @@ public:
   bool empty() const
   { return coll_.empty(); }
 
-  void push_back(const HypothesisPtr &hypo)
-  {
-    coll_.push_back(hypo);
-  }
+  void Add(const HypothesisPtr &hypo);
 
   void swap (Beam &other)
   {
