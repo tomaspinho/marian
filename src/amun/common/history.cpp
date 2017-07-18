@@ -21,7 +21,7 @@ void History::Add(const Beam& beam)
     for (size_t j = 0; j < beam.size(); ++j) {
       HypothesisPtr hyp = beam.at(j);
       size_t lineNum = hyp->GetLineNum();
-      assert(GetLineNum() == lineNum);
+      //assert(GetLineNum() == lineNum);
       std::cerr << lineNum << " ";
 
       if(hyp->GetWord() == EOS_ID || size() == maxLength_ ) {
