@@ -22,7 +22,7 @@ void History::Add(const Beam& beam)
       HypothesisPtr hyp = beam.at(j);
       size_t lineNum = hyp->GetLineNum();
       //assert(GetLineNum() == lineNum);
-      std::cerr << lineNum << " ";
+      //std::cerr << lineNum << " ";
 
       if(hyp->GetWord() == EOS_ID || size() == maxLength_ ) {
         float cost = normalize_ ? hyp->GetCost() / history_.size() : hyp->GetCost();
@@ -32,7 +32,7 @@ void History::Add(const Beam& beam)
   }
   history_.push_back(beam);
 
-  std::cerr << std::endl;
+  //std::cerr << std::endl;
 }
 
 NBestList History::NBest(size_t n) const {
