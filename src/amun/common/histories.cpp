@@ -14,8 +14,8 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
     const Sentence &sentence = *sentences.at(i).get();
     size_t lineNum = sentence.GetLineNum();
     History *history = new History(sentence, normalizeScore, 3 * sentence.size());
-    coll_[i].reset(history);
-    //coll_[lineNum].reset(history);
+    //coll_[i].reset(history);
+    coll_[lineNum].reset(history);
     std::cerr << "sentence=" << lineNum << " " << sentence.size() << std::endl;
   }
 }
@@ -36,9 +36,9 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
       */
     }
     else {
-      HistoryPtr &history = coll_[i];
+      //HistoryPtr &history = coll_[i];
 
-      /*
+
       size_t lineNum = beam.at(0)->GetLineNum();
       for (size_t beamInd = 1; beamInd < beam.size(); ++beamInd) {
         assert(lineNum == beam.at(beamInd)->GetLineNum());
@@ -48,7 +48,7 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
       Coll::iterator iter = coll_.find(lineNum);
       assert(iter != coll_.end());
       HistoryPtr &history = iter->second;
-      */
+
       assert(history);
       history->Add(beam);
     }
@@ -59,13 +59,14 @@ Hypotheses Histories::GetFirstHyps() const
 {
   cerr << "GetFirstHyps=";
 
+  Hypotheses hypos;
+
+  /*
   typedef std::map<size_t, HistoryPtr> OrderedMap;
   OrderedMap orderedMap;
   for (const Coll::value_type &ele: coll_) {
     orderedMap[ele.first] = ele.second;
   }
-
-  Hypotheses hypos;
 
   for (const OrderedMap::value_type &ele: orderedMap) {
     const HistoryPtr &history = ele.second;
@@ -73,11 +74,21 @@ Hypotheses Histories::GetFirstHyps() const
     cerr << ele.first << "=" << hypo->GetLineNum() << " ";
     hypos.push_back(hypo);
   }
+  */
 
   cerr << "sentences_=";
   for (size_t i = 0; i < sentences_.size(); ++i) {
     SentencePtr sentence = sentences_.at(i);
-    cerr << sentence->GetLineNum() << " ";
+    size_t lineNum = sentence->GetLineNum();
+    cerr << lineNum << " ";
+
+    Coll::const_iterator iter = coll_.find(lineNum);
+    assert(iter != coll_.end());
+    const HistoryPtr &history = iter->second;
+
+    HypothesisPtr hypo = history->front().at(0);
+    cerr << iter->first << "=" << hypo->GetLineNum() << " ";
+    hypos.push_back(hypo);
   }
 
   cerr << endl;
