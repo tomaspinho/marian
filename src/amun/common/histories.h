@@ -13,7 +13,8 @@ class Sentences;
 class God;
 
 class Histories {
-  typedef std::map<size_t, HistoryPtr> Coll;
+  typedef std::unordered_map<size_t, HistoryPtr> Coll;
+  //typedef std::map<size_t, HistoryPtr> Coll;
 
 public:
     Histories() {} // for all histories in translation task

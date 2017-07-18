@@ -3,6 +3,8 @@
 #include "sentences.h"
 #include "god.h"
 
+using namespace std;
+
 namespace amunmt {
 
 Histories::Histories(const Sentences& sentences, bool normalizeScore)
@@ -55,12 +57,23 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
 
 Hypotheses Histories::GetFirstHyps() const
 {
-  Hypotheses hypos;
+  cerr << "GetFirstHyps=";
+
+  typedef std::map<size_t, HistoryPtr> OrderedMap;
+  OrderedMap orderedMap;
   for (const Coll::value_type &ele: coll_) {
+    orderedMap[ele.first] = ele.second;
+  }
+
+  Hypotheses hypos;
+
+  for (const OrderedMap::value_type &ele: orderedMap) {
     const HistoryPtr &history = ele.second;
     HypothesisPtr hypo = history->front().at(0);
+    cerr << ele.first << "=" << hypo->GetLineNum() << " ";
     hypos.push_back(hypo);
   }
+  cerr << endl;
   return hypos;
 }
 
