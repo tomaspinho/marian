@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <algorithm>
+#include <map>
 
 #include "history.h"
 #include "hypothesis.h"
@@ -12,7 +13,7 @@ class Sentences;
 class God;
 
 class Histories {
-  typedef std::unordered_map<size_t, HistoryPtr> Coll;
+  typedef std::map<size_t, HistoryPtr> Coll;
 
 public:
     Histories() {} // for all histories in translation task
