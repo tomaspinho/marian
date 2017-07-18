@@ -17,7 +17,6 @@ class Histories {
   //typedef std::map<size_t, HistoryPtr> Coll;
 
 public:
-    Histories() {} // for all histories in translation task
     Histories(const Sentences& sentences, bool normalizeScore);
 
     /*
@@ -45,6 +44,8 @@ public:
 
 protected:
     Coll coll_;
+    const Sentences &sentences_;
+
     Histories(const Histories &) = delete;
 };
 

@@ -8,7 +8,7 @@ using namespace std;
 namespace amunmt {
 
 Histories::Histories(const Sentences& sentences, bool normalizeScore)
-// : coll_(sentences.size())
+:sentences_(sentences)
 {
   for (size_t i = 0; i < sentences.size(); ++i) {
     const Sentence &sentence = *sentences.at(i).get();
@@ -73,6 +73,13 @@ Hypotheses Histories::GetFirstHyps() const
     cerr << ele.first << "=" << hypo->GetLineNum() << " ";
     hypos.push_back(hypo);
   }
+
+  cerr << "sentences_=";
+  for (size_t i = 0; i < sentences_.size(); ++i) {
+    SentencePtr sentence = sentences_.at(i);
+    cerr << sentence->GetLineNum() << " ";
+  }
+
   cerr << endl;
   return hypos;
 }
