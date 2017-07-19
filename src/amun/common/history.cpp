@@ -38,79 +38,46 @@ void History::Add(const Beam& beam)
 }
 
 NBestList History::NBest(size_t n) const {
-  cerr << "NBest1=" << topHyps_.size() << endl;
   NBestList nbest;
   auto topHypsCopy = topHyps_;
   while (nbest.size() < n && !topHypsCopy.empty()) {
-    cerr << "NBest2=" << endl;
     auto bestHypCoord = topHypsCopy.top();
     topHypsCopy.pop();
 
     size_t start = bestHypCoord.i;
     size_t j  = bestHypCoord.j;
 
-    cerr << "NBest3=" << endl;
     Words targetWords;
     HypothesisPtr bestHyp = history_[start].at(j);
-    cerr << "NBest4=" << endl;
     while(bestHyp->GetPrevHyp() != nullptr) {
-      cerr << "NBest5=" << endl;
       targetWords.push_back(bestHyp->GetWord());
       bestHyp = bestHyp->GetPrevHyp();
     }
 
-    cerr << "NBest6=" << endl;
     std::reverse(targetWords.begin(), targetWords.end());
     nbest.emplace_back(targetWords, history_[bestHypCoord.i].at(bestHypCoord.j));
-    cerr << "NBest7=" << endl;
   }
-  cerr << "NBest8=" << endl;
+
   return nbest;
 }
 
 Result History::Top() const
 {
-  cerr << "Top1=" << sentence_.GetLineNum() << " " << history_.size() << endl;
   NBestList nBest(NBest(1));
   assert(nBest.size() == 1);
 
-  cerr << "Top2=" << nBest.size() << endl;
   Result ret(nBest[0]);
-  cerr << "Top3" << endl;
-
   return ret;
 }
 
 void History::Output(const God &god) const
 {
-  // debug
-  std::cerr << "Output1 lineNum_=" << GetLineNum() << " ";
-  for (size_t i = 0; i < history_.size(); ++i) {
-    std::cerr << "(";
-    const Beam &beam = history_[i];
-
-    for (size_t j = 0; j < beam.size(); ++j) {
-      HypothesisPtr hypo = beam.at(j);
-      assert(hypo);
-
-      std::cerr << hypo->GetLineNum() << ",";
-    }
-    std::cerr << ") ";
-  }
-
   std::stringstream strm;
-  std::cerr << "Output2" << std::endl;
   Output(god, strm);
-  std::cerr << "Output3" << std::endl;
   std::string str = strm.str();
 
-  std::cerr << "Output4" << std::endl;
   OutputCollector &outputCollector = god.GetOutputCollector();
-  std::cerr << "Output5" << std::endl;
   outputCollector.Write(GetLineNum(), str);
-  std::cerr << "Output6" << std::endl;
-
-  std::cerr << str << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

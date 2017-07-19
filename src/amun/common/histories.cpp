@@ -28,7 +28,7 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
     const Beam &beam = beams.at(i);
 
     if (beam.empty()) {
-      //cerr << "empty beam???" << endl;
+      //cerr << "empty beam???=" << beam.GetLineNum() << endl;
       //assert(false);
       /*
       if (history) {
@@ -39,9 +39,8 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
     }
     else {
       //HistoryPtr &history = coll_[i];
-
       size_t lineNum = beam.GetLineNum();
-      std::cerr << "beam=" << lineNum << " " << beam.size() << std::endl;
+      //std::cerr << "beam=" << lineNum << " " << beam.size() << std::endl;
 
       Coll::iterator iter = coll_.find(lineNum);
       assert(iter != coll_.end());
@@ -63,12 +62,7 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
       if (end) {
         //std::cerr << "beam.size() == 1=" << lineNum << std::endl;
         history->Output(god);
-
-        size_t before = coll_.size();
-        history.reset();
         coll_.erase(iter);
-        size_t after = coll_.size();
-        //cerr << "before=" << before << " " << after << endl;
       }
     }
   }
@@ -76,7 +70,6 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
 
 Hypotheses Histories::GetFirstHyps() const
 {
-  cerr << "GetFirstHyps" << endl;
   Hypotheses hypos;
 
   for (size_t i = 0; i < sentences_.size(); ++i) {
@@ -98,14 +91,12 @@ Hypotheses Histories::GetFirstHyps() const
 
 void Histories::OutputRemaining(const God &god) const
 {
-  cerr << "OutputRemaining1" << endl;
   for (const Coll::value_type &ele: coll_) {
     const HistoryPtr &history = ele.second;
     assert(history);
 
     history->Output(god);
   }
-  cerr << "OutputRemaining2" << endl;
 }
 
 
