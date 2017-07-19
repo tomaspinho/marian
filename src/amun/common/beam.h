@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "hypothesis.h"
+#include "sentences.h"
 
 namespace amunmt {
 
@@ -73,7 +74,7 @@ public:
   const_iterator end() const
   { return coll_.end(); }
 
-  Beams(size_t size);
+  Beams(SentencesPtr sentences);
 
   size_t size() const
   { return coll_.size(); }

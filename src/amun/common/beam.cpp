@@ -33,9 +33,10 @@ std::string Beam::Debug(size_t verbosity) const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-Beams::Beams(size_t size)
-:coll_(size)
+Beams::Beams(SentencesPtr sentences)
+:coll_(sentences->size())
 {
+  size_t size = sentences->size();
   for (size_t i = 0; i < size; ++i) {
     Beam *beam = new Beam(999);
     coll_[i].reset(beam);
