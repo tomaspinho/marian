@@ -165,7 +165,8 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     size_t batchSize = beamSizes.size();
     Beams beams(batchSize);
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
-    //cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
+    cerr << "batchSize=" << batchSize << endl;
+    cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
     histories.AddAndOutput(god, beams);
 
     Hypotheses survivors;

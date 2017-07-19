@@ -92,8 +92,6 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Debug(const Beam &vec, size_t verbosity = 1);
-std::string Debug(const Beams &vec, size_t verbosity = 1);
 
 }
 
