@@ -163,6 +163,8 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     //cerr << "beamSizes2=" << Debug(beamSizes, 2) << endl;
     size_t batchSize = beamSizes.size();
+    assert(batchSize == encParams->sentences->size());
+
     Beams beams(encParams->sentences);
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
     cerr << "batchSize=" << batchSize << endl;
@@ -171,7 +173,10 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     Hypotheses survivors;
     for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      const BeamPtr beam = beams.Get(batchId);
+      SentencePtr sentence = encParams->sentences->at(batchId);
+      size_t lineNum = sentence->GetLineNum();
+
+      const BeamPtr beam = beams.Get(lineNum);
       //assert(beam);
 
       if (beam) {

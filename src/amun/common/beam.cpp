@@ -63,7 +63,9 @@ BeamPtr Beams::at(size_t ind)
 
 void Beams::Add(size_t ind, HypothesisPtr &hypo)
 {
-  BeamPtr beam = at(ind);
+  assert(hypo);
+  size_t lineNum = hypo->GetLineNum();
+  BeamPtr beam = at(lineNum);
   assert(beam);
   beam->Add(hypo);
 }
