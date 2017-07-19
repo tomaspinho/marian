@@ -38,7 +38,7 @@ void History::Add(const Beam& beam)
 }
 
 NBestList History::NBest(size_t n) const {
-  cerr << "NBest1=" << endl;
+  cerr << "NBest1=" << topHyps_.size() << endl;
   NBestList nbest;
   auto topHypsCopy = topHyps_;
   while (nbest.size() < n && !topHypsCopy.empty()) {
@@ -83,7 +83,8 @@ Result History::Top() const
 
 void History::Output(const God &god) const
 {
-  std::cerr << "lineNum_=" << GetLineNum() << " ";
+  // debug
+  std::cerr << "Output1 lineNum_=" << GetLineNum() << " ";
   for (size_t i = 0; i < history_.size(); ++i) {
     std::cerr << "(";
     const Beam &beam = history_[i];
@@ -98,16 +99,16 @@ void History::Output(const God &god) const
   }
 
   std::stringstream strm;
-  std::cerr << "Output1" << std::endl;
-  Output(god, strm);
   std::cerr << "Output2" << std::endl;
+  Output(god, strm);
+  std::cerr << "Output3" << std::endl;
   std::string str = strm.str();
 
-  std::cerr << "Output3" << std::endl;
-  OutputCollector &outputCollector = god.GetOutputCollector();
   std::cerr << "Output4" << std::endl;
-  outputCollector.Write(GetLineNum(), str);
+  OutputCollector &outputCollector = god.GetOutputCollector();
   std::cerr << "Output5" << std::endl;
+  outputCollector.Write(GetLineNum(), str);
+  std::cerr << "Output6" << std::endl;
 
   std::cerr << str << std::endl;
 }
@@ -180,9 +181,9 @@ std::string GetSoftAlignmentString(const HypothesisPtr& hypothesis)
 
 void History::Output(const God &god, std::ostream& out) const
 {
-  std::cerr << "BAA1" << std::endl;
+  //std::cerr << "BAA1" << std::endl;
   auto bestTranslation = Top();
-  std::cerr << "BAA2" << std::endl;
+  //std::cerr << "BAA2" << std::endl;
   std::vector<std::string> bestSentenceWords = god.Postprocess(god.GetTargetVocab()(bestTranslation.first));
 
   std::string best = Join(bestSentenceWords);
