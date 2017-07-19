@@ -7,12 +7,7 @@ namespace amunmt {
 
 void Beam::Add(const HypothesisPtr &hypo)
 {
-  if (coll_.empty()) {
-    lineNum_ = hypo->GetLineNum();
-  }
-  else {
-    assert(lineNum_ == hypo->GetLineNum());
-  }
+  assert(lineNum_ == hypo->GetLineNum());
   coll_.push_back(hypo);
 }
 

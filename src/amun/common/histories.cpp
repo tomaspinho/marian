@@ -25,47 +25,33 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
   assert(size() <= beams.size());
 
   for (const Beams::Coll::value_type &ele: beams) {
-  //for (size_t i = 0; i < beams.size(); ++i) {
-  //  const Beam &beam = beams.at(i);
     const Beam &beam = *ele.second;
+    assert(!beam.empty());
 
-    if (beam.empty()) {
-      cerr << "empty beam???=" << beam.GetLineNum() << endl;
-      assert(false);
-      /*
-      if (history) {
-        history->Output(god);
-        history.reset();
+    size_t lineNum = beam.GetLineNum();
+    //std::cerr << "beam=" << lineNum << " " << beam.size() << std::endl;
+
+    Coll::iterator iter = coll_.find(lineNum);
+    assert(iter != coll_.end());
+    HistoryPtr &history = iter->second;
+    assert(history);
+
+    history->Add(beam);
+
+    // output if all hyps is eod
+    bool end = true;
+    for (size_t hypoInd = 0; hypoInd <  beam.size(); ++hypoInd) {
+      const HypothesisPtr &hypo = beam.at(hypoInd);
+      if (hypo->GetWord() != EOS_ID) {
+        end = false;
+        break;
       }
-      */
     }
-    else {
-      //HistoryPtr &history = coll_[i];
-      size_t lineNum = beam.GetLineNum();
-      //std::cerr << "beam=" << lineNum << " " << beam.size() << std::endl;
 
-      Coll::iterator iter = coll_.find(lineNum);
-      assert(iter != coll_.end());
-      HistoryPtr &history = iter->second;
-      assert(history);
-
-      history->Add(beam);
-
-      // output if all hyps is eod
-      bool end = true;
-      for (size_t hypoInd = 0; hypoInd <  beam.size(); ++hypoInd) {
-        const HypothesisPtr &hypo = beam.at(hypoInd);
-        if (hypo->GetWord() != EOS_ID) {
-          end = false;
-          break;
-        }
-      }
-
-      if (end) {
-        //std::cerr << "beam.size() == 1=" << lineNum << std::endl;
-        history->Output(god);
-        coll_.erase(iter);
-      }
+    if (end) {
+      //std::cerr << "beam.size() == 1=" << lineNum << std::endl;
+      history->Output(god);
+      coll_.erase(iter);
     }
   }
 }
