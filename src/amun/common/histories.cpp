@@ -28,6 +28,8 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
     const Beam &beam = beams.at(i);
 
     if (beam.empty()) {
+      cerr << "empty beam???" << endl;
+      assert(false);
       /*
       if (history) {
         history->Output(god);
@@ -48,7 +50,17 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
 
       history->Add(beam);
 
-      if (beam.size() == 1 && beam.at(0)->GetWord() == EOS_ID) {
+      // output if all hyps is eod
+      bool end = true;
+      for (size_t hypoInd = 0; hypoInd <  beam.size(); ++hypoInd) {
+        const HypothesisPtr &hypo = beam.at(hypoInd);
+        if (hypo->GetWord() != EOS_ID) {
+          end = false;
+          break;
+        }
+      }
+
+      if (end) {
         //std::cerr << "beam.size() == 1=" << lineNum << std::endl;
         history->Output(god);
 

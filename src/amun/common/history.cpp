@@ -38,32 +38,42 @@ void History::Add(const Beam& beam)
 }
 
 NBestList History::NBest(size_t n) const {
+  cerr << "NBest1=" << endl;
   NBestList nbest;
   auto topHypsCopy = topHyps_;
   while (nbest.size() < n && !topHypsCopy.empty()) {
+    cerr << "NBest2=" << endl;
     auto bestHypCoord = topHypsCopy.top();
     topHypsCopy.pop();
 
     size_t start = bestHypCoord.i;
     size_t j  = bestHypCoord.j;
 
+    cerr << "NBest3=" << endl;
     Words targetWords;
     HypothesisPtr bestHyp = history_[start].at(j);
+    cerr << "NBest4=" << endl;
     while(bestHyp->GetPrevHyp() != nullptr) {
+      cerr << "NBest5=" << endl;
       targetWords.push_back(bestHyp->GetWord());
       bestHyp = bestHyp->GetPrevHyp();
     }
 
+    cerr << "NBest6=" << endl;
     std::reverse(targetWords.begin(), targetWords.end());
     nbest.emplace_back(targetWords, history_[bestHypCoord.i].at(bestHypCoord.j));
+    cerr << "NBest7=" << endl;
   }
+  cerr << "NBest8=" << endl;
   return nbest;
 }
 
 Result History::Top() const
 {
-  cerr << "Top1=" << history_.size() << endl;
+  cerr << "Top1=" << sentence_.GetLineNum() << " " << history_.size() << endl;
   NBestList nBest(NBest(1));
+  assert(nBest.size() == 1);
+
   cerr << "Top2=" << nBest.size() << endl;
   Result ret(nBest[0]);
   cerr << "Top3" << endl;
