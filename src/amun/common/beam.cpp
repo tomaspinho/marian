@@ -42,9 +42,20 @@ Beams::Beams(size_t size)
   }
 }
 
+const Beam &Beams::Get(size_t ind) const
+{
+  return *coll_.at(ind);
+}
+
 Beam &Beams::at(size_t ind)
 {
   return *coll_.at(ind);
+}
+
+void Beams::Add(size_t ind, HypothesisPtr &hypo)
+{
+  Beam &beam = at(ind);
+  beam.Add(hypo);
 }
 
 

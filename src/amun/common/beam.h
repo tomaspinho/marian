@@ -76,12 +76,16 @@ public:
   size_t size() const
   { return coll_.size(); }
 
-  Beam &at(size_t ind);
+  const Beam &Get(size_t ind) const;
+
+  void Add(size_t ind, HypothesisPtr &hypo);
 
   std::string Debug(size_t verbosity = 1) const;
 
 protected:
   Coll coll_;
+
+  Beam &at(size_t ind);
 };
 
 //typedef std::vector<Beam> Beams;
