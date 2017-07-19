@@ -91,7 +91,7 @@ public:
 protected:
   Coll coll_;
 
-  Beam &at(size_t ind);
+  BeamPtr at(size_t ind);
 };
 
 //typedef std::vector<Beam> Beams;
