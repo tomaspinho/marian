@@ -34,7 +34,7 @@ std::string Beam::Debug(size_t verbosity) const
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 Beams::Beams(SentencesPtr sentences)
-:coll_(sentences->size())
+//:coll_(sentences->size())
 {
   size_t size = sentences->size();
   for (size_t i = 0; i < size; ++i) {
@@ -67,8 +67,8 @@ std::string Beams::Debug(size_t verbosity) const
   strm << "size=" << size();
 
   if (verbosity) {
-    for (size_t i = 0; i < size(); ++i) {
-      const Beam &beam = *coll_[i];
+    for (const Coll::value_type &ele: coll_) {
+      const Beam &beam = *ele.second;
       strm << endl << "\t" << beam.Debug(verbosity);
     }
   }

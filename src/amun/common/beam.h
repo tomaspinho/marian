@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <map>
+#include <unordered_map>
 #include <string>
 #include "hypothesis.h"
 #include "sentences.h"
@@ -65,7 +67,8 @@ typedef std::shared_ptr<Beam> BeamPtr;
 class Beams
 {
 public:
-  typedef std::vector<BeamPtr> Coll;
+  //typedef std::vector<BeamPtr> Coll;
+  typedef std::unordered_map<size_t, BeamPtr> Coll;
   typedef Coll::const_iterator const_iterator;
 
   const_iterator begin() const

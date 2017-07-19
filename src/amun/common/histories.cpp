@@ -27,7 +27,7 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
   for (const Beams::Coll::value_type &ele: beams) {
   //for (size_t i = 0; i < beams.size(); ++i) {
   //  const Beam &beam = beams.at(i);
-    const Beam &beam = *ele;
+    const Beam &beam = *ele.second;
 
     if (beam.empty()) {
       //cerr << "empty beam???=" << beam.GetLineNum() << endl;
