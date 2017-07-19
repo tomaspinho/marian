@@ -61,18 +61,22 @@ protected:
 class Beams
 {
   typedef std::shared_ptr<Beam> BeamPtr;
-  typedef std::vector<BeamPtr> Coll;
 public:
+  typedef std::vector<BeamPtr> Coll;
+  typedef Coll::const_iterator const_iterator;
+
+  const_iterator begin() const
+  { return coll_.begin(); }
+
+  const_iterator end() const
+  { return coll_.end(); }
+
   Beams(size_t size);
 
   size_t size() const
   { return coll_.size(); }
 
-  const Beam &at(size_t ind) const
-  { return *coll_.at(ind); }
-
-  Beam &at(size_t ind)
-  { return *coll_.at(ind); }
+  Beam &at(size_t ind);
 
   std::string Debug(size_t verbosity = 1) const;
 

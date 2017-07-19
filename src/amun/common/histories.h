@@ -15,6 +15,7 @@ class God;
 class Histories {
   typedef std::unordered_map<size_t, HistoryPtr> Coll;
   //typedef std::map<size_t, HistoryPtr> Coll;
+  // 1st = line num, 2nd = history (beams and top) for this particular sentence
 
 public:
     Histories(const Sentences& sentences, bool normalizeScore);

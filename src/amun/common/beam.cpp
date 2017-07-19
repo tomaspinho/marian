@@ -42,6 +42,12 @@ Beams::Beams(size_t size)
   }
 }
 
+Beam &Beams::at(size_t ind)
+{
+  return *coll_.at(ind);
+}
+
+
 std::string Beams::Debug(size_t verbosity) const
 {
   std::stringstream strm;
