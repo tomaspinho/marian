@@ -34,23 +34,31 @@ std::string Beam::Debug(size_t verbosity) const
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 Beams::Beams(SentencesPtr sentences)
-//:coll_(sentences->size())
 {
-  size_t size = sentences->size();
-  for (size_t i = 0; i < size; ++i) {
-    Beam *beam = new Beam(999);
-    coll_[i].reset(beam);
-  }
 }
 
 const BeamPtr Beams::Get(size_t ind) const
 {
-  return coll_.at(ind);
+  Coll::const_iterator iter = coll_.find(ind);
+  if (iter == coll_.end()) {
+    return BeamPtr();
+  }
+  else {
+    return iter->second;
+  }
 }
 
 BeamPtr Beams::at(size_t ind)
 {
-  return coll_.at(ind);
+  Coll::const_iterator iter = coll_.find(ind);
+  if (iter == coll_.end()) {
+    BeamPtr beam(new Beam(ind));
+    coll_[ind] = beam;
+    return beam;
+  }
+  else {
+    return iter->second;
+  }
 }
 
 void Beams::Add(size_t ind, HypothesisPtr &hypo)

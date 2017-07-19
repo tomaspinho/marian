@@ -30,8 +30,8 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
     const Beam &beam = *ele.second;
 
     if (beam.empty()) {
-      //cerr << "empty beam???=" << beam.GetLineNum() << endl;
-      //assert(false);
+      cerr << "empty beam???=" << beam.GetLineNum() << endl;
+      assert(false);
       /*
       if (history) {
         history->Output(god);
