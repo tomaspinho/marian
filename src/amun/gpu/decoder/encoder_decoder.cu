@@ -171,8 +171,10 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     Hypotheses survivors;
     for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      const Beam &beam = beams.Get(batchId);
-      for (const HypothesisPtr& h : beam) {
+      const BeamPtr beam = beams.Get(batchId);
+      assert(beam);
+
+      for (const HypothesisPtr& h : *beam) {
         if (h->GetWord() != EOS_ID) {
           survivors.push_back(h);
         } else {

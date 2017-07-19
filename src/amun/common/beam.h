@@ -57,10 +57,12 @@ protected:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef std::shared_ptr<Beam> BeamPtr;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Beams
 {
-  typedef std::shared_ptr<Beam> BeamPtr;
 public:
   typedef std::vector<BeamPtr> Coll;
   typedef Coll::const_iterator const_iterator;
@@ -76,7 +78,7 @@ public:
   size_t size() const
   { return coll_.size(); }
 
-  const Beam &Get(size_t ind) const;
+  const BeamPtr Get(size_t ind) const;
 
   void Add(size_t ind, HypothesisPtr &hypo);
 

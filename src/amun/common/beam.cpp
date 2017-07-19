@@ -42,9 +42,9 @@ Beams::Beams(size_t size)
   }
 }
 
-const Beam &Beams::Get(size_t ind) const
+const BeamPtr Beams::Get(size_t ind) const
 {
-  return *coll_.at(ind);
+  return coll_.at(ind);
 }
 
 Beam &Beams::at(size_t ind)
