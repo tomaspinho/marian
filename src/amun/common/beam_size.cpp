@@ -12,6 +12,13 @@ BeamSize::BeamSize(SentencesPtr sentences)
 
 }
 
+void BeamSize::Init(uint val)
+{
+  for (uint& beamSize : vec_) {
+    beamSize = val;
+  }
+}
+
 std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;

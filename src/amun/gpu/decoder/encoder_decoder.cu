@@ -164,6 +164,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     // beams
     if (decoderStep == 0) {
+      bs.Init(search_.MaxBeamSize());
       for (uint& beamSize : beamSizes) {
         beamSize = search_.MaxBeamSize();
       }

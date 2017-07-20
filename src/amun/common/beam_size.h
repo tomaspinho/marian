@@ -12,6 +12,8 @@ public:
   size_t size() const
   { return vec_.size(); }
 
+  void Init(uint val);
+
   std::string Debug(size_t verbosity = 1) const;
 
 protected:
