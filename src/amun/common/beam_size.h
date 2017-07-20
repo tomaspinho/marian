@@ -14,10 +14,14 @@ public:
 
   void Init(uint val);
 
+  uint GetTotal() const
+  { return total_; }
+
   std::string Debug(size_t verbosity = 1) const;
 
 protected:
   std::vector<uint> vec_;
+  uint total_;
 
 };
 

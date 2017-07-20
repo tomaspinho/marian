@@ -5,7 +5,6 @@
 #include "common/sentences.h"
 #include "common/search.h"
 #include "common/histories.h"
-#include "common/beam_size.h"
 
 #include "encoder_decoder.h"
 #include "gpu/mblas/matrix_functions.h"
@@ -172,7 +171,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
 
     Beams beams;
-    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
+    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes, bs);
 
     histories.AddAndOutput(god, beams);
 

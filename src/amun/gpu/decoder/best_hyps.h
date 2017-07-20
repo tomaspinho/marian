@@ -26,7 +26,9 @@ class BestHyps : public BestHypsBase
       SetColumn(Prob, UNK_ID, std::numeric_limits<float>::lowest());
     }
 
-    void FindBests(const std::vector<uint>& beamSizes, mblas::Matrix& Probs,
+    void FindBests(const std::vector<uint>& beamSizes,
+                   const BeamSize &bs,
+                   mblas::Matrix& Probs,
                    std::vector<float>& outCosts,
                    std::vector<unsigned>& outKeys,
                    const bool isFirst) {
@@ -42,7 +44,8 @@ class BestHyps : public BestHypsBase
         Scorer& scorer,
         const Words& filterIndices,
         Beams &beams,
-        const std::vector<uint>& beamSizes);
+        const std::vector<uint>& beamSizes,
+        const BeamSize &bs);
 
 
     void CalcBeam(
@@ -50,7 +53,8 @@ class BestHyps : public BestHypsBase
         const std::vector<ScorerPtr>& scorers,
         const Words& filterIndices,
         Beams &beams,
-        const std::vector<uint>& beamSizes);
+        const std::vector<uint>& beamSizes,
+        const BeamSize &bs);
 
   private:
     NthElement nthElement_;

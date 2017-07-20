@@ -5,6 +5,7 @@
 #include <map>
 
 #include "common/types.h"
+#include "common/beam_size.h"
 #include "scorer.h"
 
 namespace amunmt {
@@ -32,14 +33,16 @@ class BestHypsBase
         Scorer& scorer,
         const Words& filterIndices,
         Beams &beams,
-        const std::vector<uint>& beamSizes) = 0;
+        const std::vector<uint>& beamSizes,
+        const BeamSize &bs) = 0;
 
     virtual void CalcBeam(
         const Hypotheses& prevHyps,
         const std::vector<ScorerPtr>& scorers,
         const Words& filterIndices,
         Beams &beams,
-        const std::vector<uint>& beamSizes) = 0;
+        const std::vector<uint>& beamSizes,
+        const BeamSize &bs) = 0;
 
   protected:
     const bool forbidUNK_;

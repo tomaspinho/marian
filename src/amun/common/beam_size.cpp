@@ -8,6 +8,7 @@ namespace amunmt {
 
 BeamSize::BeamSize(SentencesPtr sentences)
 :vec_(sentences->size(), 1)
+,total_(sentences->size())
 {
 
 }
@@ -17,6 +18,7 @@ void BeamSize::Init(uint val)
   for (uint& beamSize : vec_) {
     beamSize = val;
   }
+  total_ = vec_.size() * val;
 }
 
 std::string BeamSize::Debug(size_t verbosity) const

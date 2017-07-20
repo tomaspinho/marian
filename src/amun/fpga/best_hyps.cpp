@@ -41,7 +41,8 @@ void BestHyps::CalcBeam(
     const std::vector<ScorerPtr>& scorers,
     const Words& filterIndices,
     std::vector<Beam>& beams,
-    const std::vector<uint>& beamSizes
+    const std::vector<uint>& beamSizes,
+    const BeamSize &bs
     )
 {
   /*
