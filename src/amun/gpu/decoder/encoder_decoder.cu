@@ -169,7 +169,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     Beams beams(encParams->sentences);
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
     //cerr << "batchSize=" << batchSize << endl;
-    cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
+    //cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
     histories.AddAndOutput(god, beams);
 
     Hypotheses survivors;
@@ -205,7 +205,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     prevHyps.swap(survivors);
 
-    LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
+    //LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   } // for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
 
   histories.OutputRemaining(god);
