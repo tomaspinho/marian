@@ -22,14 +22,14 @@ class BestHyps : public BestHypsBase
         Scorer& scorer,
         const Words& filterIndices,
         Beams &beams,
-        std::vector<uint>& beamSizes);
+        const std::vector<uint>& beamSizes);
 
     void CalcBeam(
         const Hypotheses& prevHyps,
         const std::vector<ScorerPtr>& scorers,
         const Words& filterIndices,
         Beams &beams,
-        std::vector<uint>& beamSizes);
+        const std::vector<uint>& beamSizes);
 };
 
 }  // namespace CPU

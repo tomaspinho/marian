@@ -29,7 +29,7 @@ void BestHyps::CalcBeam(
     Scorer& scorer,
     const Words& filterIndices,
     Beams &beams,
-    std::vector<uint>& beamSizes)
+    const std::vector<uint>& beamSizes)
 {
   abort();
 }
@@ -39,7 +39,7 @@ void BestHyps::CalcBeam(
     const std::vector<ScorerPtr>& scorers,
     const Words& filterIndices,
     Beams &beams,
-    std::vector<uint>& beamSizes)
+    const std::vector<uint>& beamSizes)
 {
   using namespace mblas;
 
