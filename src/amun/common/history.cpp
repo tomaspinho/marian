@@ -18,13 +18,11 @@ maxLength_(maxLength)
 
 void History::Add(const Beam& beam)
 {
-  //std::cerr << "beam=" << beam.size() << " " << GetLineNum()  << " "; //<< std::endl;
   if (beam.back()->GetPrevHyp() != nullptr) {
     for (size_t j = 0; j < beam.size(); ++j) {
       HypothesisPtr hyp = beam.at(j);
       size_t lineNum = hyp->GetLineNum();
       assert(GetLineNum() == lineNum);
-      //std::cerr << lineNum << " ";
 
       if(hyp->GetWord() == EOS_ID || size() == maxLength_ ) {
         float cost = normalize_ ? hyp->GetCost() / history_.size() : hyp->GetCost();
@@ -32,9 +30,8 @@ void History::Add(const Beam& beam)
       }
     }
   }
-  history_.push_back(beam);
 
-  //std::cerr << std::endl;
+  history_.push_back(beam);
 }
 
 NBestList History::NBest(size_t n) const {
@@ -148,9 +145,7 @@ std::string GetSoftAlignmentString(const HypothesisPtr& hypothesis)
 
 void History::Output(const God &god, std::ostream& out) const
 {
-  //std::cerr << "BAA1" << std::endl;
-  auto bestTranslation = Top();
-  //std::cerr << "BAA2" << std::endl;
+  Result bestTranslation = Top();
   std::vector<std::string> bestSentenceWords = god.Postprocess(god.GetTargetVocab()(bestTranslation.first));
 
   std::string best = Join(bestSentenceWords);

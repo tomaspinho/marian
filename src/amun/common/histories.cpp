@@ -14,9 +14,7 @@ Histories::Histories(const Sentences& sentences, bool normalizeScore)
     const Sentence &sentence = *sentences.at(i).get();
     size_t lineNum = sentence.GetLineNum();
     History *history = new History(sentence, normalizeScore, 3 * sentence.size());
-    //coll_[i].reset(history);
     coll_[lineNum].reset(history);
-    //std::cerr << "sentence=" << lineNum << " " << sentence.size() << std::endl;
   }
 }
 
@@ -29,7 +27,6 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
     assert(!beam.empty());
 
     size_t lineNum = beam.GetLineNum();
-    //std::cerr << "beam=" << lineNum << " " << beam.size() << std::endl;
 
     Coll::iterator iter = coll_.find(lineNum);
     assert(iter != coll_.end());
@@ -49,7 +46,6 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
     }
 
     if (end) {
-      //std::cerr << "beam.size() == 1=" << lineNum << std::endl;
       history->Output(god);
       coll_.erase(iter);
     }

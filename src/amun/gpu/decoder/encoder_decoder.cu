@@ -147,13 +147,14 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   Histories histories(*encParams->sentences, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();
 
+  size_t batchSize = beamSizes.size();
+  assert(batchSize == encParams->sentences->size());
+
   // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
     boost::timer::cpu_timer timerStep;
-    //cerr << "\ndecoderStep=" << decoderStep << endl;
-    //cerr << "beamSizes0=" << Debug(beamSizes, 2) << endl;
+
     Decode(*state, *nextState, beamSizes);
-    //cerr << "beamSizes1=" << Debug(beamSizes, 2) << endl;
 
     // beams
     if (decoderStep == 0) {
@@ -162,14 +163,9 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
       }
     }
 
-    //cerr << "beamSizes2=" << Debug(beamSizes, 2) << endl;
-    size_t batchSize = beamSizes.size();
-    assert(batchSize == encParams->sentences->size());
-
     Beams beams(encParams->sentences);
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
-    //cerr << "batchSize=" << batchSize << endl;
-    //cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
+
     histories.AddAndOutput(god, beams);
 
     Hypotheses survivors;
@@ -192,11 +188,14 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     }
 
     /*
-    cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
+    cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "beams=" << beams.size() << endl;
     cerr << "survivors=" << survivors.size() << endl;
     cerr << "histories=" << histories.size() << endl;
     */
+    cerr << "state=" << state->Debug(0) << endl;
+    cerr << "nextState=" << nextState->Debug(0) << endl;
+
     if (survivors.size() == 0) {
       break;
     }
@@ -205,7 +204,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     prevHyps.swap(survivors);
 
-    //LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
+    LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   } // for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
 
   histories.OutputRemaining(god);
