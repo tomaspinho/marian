@@ -5,6 +5,7 @@
 #include "common/sentences.h"
 #include "common/search.h"
 #include "common/histories.h"
+#include "common/beam_size.h"
 
 #include "encoder_decoder.h"
 #include "gpu/mblas/matrix_functions.h"
@@ -143,18 +144,23 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
   State *nextState = NewState();
   std::vector<uint> beamSizes(encParams->sentences->size(), 1);
+  BeamSize bs(encParams->sentences);
 
   Histories histories(*encParams->sentences, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();
 
-  size_t batchSize = beamSizes.size();
+  size_t batchSize = bs.size();
   assert(batchSize == encParams->sentences->size());
+
+  cerr << "beamSizes1=" << bs.Debug(2) << endl;
 
   // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
     boost::timer::cpu_timer timerStep;
 
+    cerr << "beamSizes2=" << Debug(beamSizes, 2) << endl;
     Decode(*state, *nextState, beamSizes);
+    cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
 
     // beams
     if (decoderStep == 0) {
@@ -162,6 +168,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
         beamSize = search_.MaxBeamSize();
       }
     }
+    cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
 
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
@@ -187,9 +194,9 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
       }
     }
 
+    /*
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
-    /*
     cerr << "beams=" << beams.size() << endl;
     cerr << "histories=" << histories.size() << endl;
     cerr << "state=" << state->Debug(0) << endl;
@@ -204,6 +211,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     prevHyps.swap(survivors);
 
+    cerr << endl;
     LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   } // for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
 
