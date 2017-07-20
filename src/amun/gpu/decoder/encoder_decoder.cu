@@ -158,7 +158,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     // beams
     if (decoderStep == 0) {
-      for (auto& beamSize : beamSizes) {
+      for (uint& beamSize : beamSizes) {
         beamSize = search_.MaxBeamSize();
       }
     }
@@ -187,14 +187,14 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
       }
     }
 
-    /*
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
-    cerr << "beams=" << beams.size() << endl;
     cerr << "survivors=" << survivors.size() << endl;
+    /*
+    cerr << "beams=" << beams.size() << endl;
     cerr << "histories=" << histories.size() << endl;
-    */
     cerr << "state=" << state->Debug(0) << endl;
     cerr << "nextState=" << nextState->Debug(0) << endl;
+    */
 
     if (survivors.size() == 0) {
       break;
