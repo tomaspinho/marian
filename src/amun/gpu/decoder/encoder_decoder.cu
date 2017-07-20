@@ -163,7 +163,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
       }
     }
 
-    Beams beams(encParams->sentences);
+    Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
 
     histories.AddAndOutput(god, beams);

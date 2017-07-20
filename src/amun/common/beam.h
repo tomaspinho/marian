@@ -77,8 +77,6 @@ public:
   const_iterator end() const
   { return coll_.end(); }
 
-  Beams(SentencesPtr sentences);
-
   size_t size() const
   { return coll_.size(); }
 

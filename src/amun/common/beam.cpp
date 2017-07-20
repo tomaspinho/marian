@@ -28,10 +28,6 @@ std::string Beam::Debug(size_t verbosity) const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-Beams::Beams(SentencesPtr sentences)
-{
-}
-
 const BeamPtr Beams::Get(size_t ind) const
 {
   Coll::const_iterator iter = coll_.find(ind);
