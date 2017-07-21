@@ -14,12 +14,6 @@ public:
   size_t size() const
   { return vec_.size(); }
 
-
-  void Set(size_t ind, uint val)
-  {
-    vec_[ind] = val;
-  }
-
   void Decr(size_t ind);
 
   uint Get(size_t ind) const

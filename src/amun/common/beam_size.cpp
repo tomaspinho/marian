@@ -24,12 +24,12 @@ void BeamSize::Init(uint val)
 void BeamSize::Decr(size_t ind)
 {
   --vec_[ind];
+  --total_;
 }
 
 uint BeamSize::GetTotal() const
 {
-  uint ret = std::accumulate(vec_.begin(), vec_.end(), 0);
-  return ret;
+  return total_;
 }
 
 
