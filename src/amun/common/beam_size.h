@@ -7,15 +7,15 @@ namespace amunmt {
 class BeamSize : public std::vector<uint>
 {
 public:
-  BeamSize(size_t size, uint val);
+  BeamSize(SentencesPtr sentences);
+
+  void Init(uint val);
 
   /*
-  BeamSize(SentencesPtr sentences);
 
   size_t size() const
   { return vec_.size(); }
 
-  void Init(uint val);
 
   uint &at(size_t ind)
   { return vec_.at(ind); }
@@ -30,8 +30,9 @@ public:
 
 protected:
   std::vector<uint> vec_;
-  uint total_;
 */
+  uint total_;
+
 };
 
 }

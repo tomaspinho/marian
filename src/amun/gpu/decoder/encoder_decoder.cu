@@ -142,7 +142,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
   State *nextState = NewState();
-  BeamSize beamSizes(encParams->sentences->size(), 1);
+  BeamSize beamSizes(encParams->sentences);
 
   Histories histories(*encParams->sentences, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();
@@ -162,9 +162,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     // beams
     if (decoderStep == 0) {
-      for (uint& beamSize : beamSizes) {
-        beamSize = search_.MaxBeamSize();
-      }
+      beamSizes.Init(search_.MaxBeamSize());
     }
     cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
 
