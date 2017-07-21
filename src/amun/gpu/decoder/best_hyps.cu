@@ -19,8 +19,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
                         Scorer& scorer,
                         const Words& filterIndices,
                         Beams &beams,
-                        const std::vector<uint>& beamSizes,
-                        const BeamSize &bs)
+                        const BeamSize &beamSizes)
 {
   BEGIN_TIMER("CalcBeam");
 
@@ -48,7 +47,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
 
-  FindBests(beamSizes, bs, Probs, bestCosts, bestKeys, isFirst);
+  FindBests(beamSizes, Probs, bestCosts, bestKeys, isFirst);
 
   std::vector<HostVector<float>> breakDowns;
   if (returnNBestList_) {
@@ -104,8 +103,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
                         const std::vector<ScorerPtr>& scorers,
                         const Words& filterIndices,
                         Beams &beams,
-                        const std::vector<uint>& beamSizes,
-                        const BeamSize &bs)
+                        const BeamSize &beamSizes)
 {
   BEGIN_TIMER("CalcBeam");
 
@@ -138,7 +136,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
 
-  FindBests(beamSizes, bs, Probs, bestCosts, bestKeys, isFirst);
+  FindBests(beamSizes, Probs, bestCosts, bestKeys, isFirst);
 
   std::vector<HostVector<float>> breakDowns;
   if (returnNBestList_) {

@@ -142,16 +142,15 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
   State *nextState = NewState();
-  std::vector<uint> beamSizes(encParams->sentences->size(), 1);
-  BeamSize bs(encParams->sentences);
+  BeamSize beamSizes(encParams->sentences->size(), 1);
 
   Histories histories(*encParams->sentences, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();
 
-  size_t batchSize = bs.size();
+  size_t batchSize =beamSizes.size();
   assert(batchSize == encParams->sentences->size());
 
-  cerr << "beamSizes1=" << bs.Debug(2) << endl;
+  cerr << "beamSizes1=" << Debug(beamSizes, 2) << endl;
 
   // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
@@ -163,7 +162,6 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     // beams
     if (decoderStep == 0) {
-      bs.Init(search_.MaxBeamSize());
       for (uint& beamSize : beamSizes) {
         beamSize = search_.MaxBeamSize();
       }
@@ -171,7 +169,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
 
     Beams beams;
-    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes, bs);
+    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
 
     histories.AddAndOutput(god, beams);
 
