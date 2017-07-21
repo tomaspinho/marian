@@ -36,7 +36,8 @@ uint BeamSize::GetTotal() const
 std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
-  strm << amunmt::Debug(vec_, verbosity);
+  strm << "total_=" << total_ << " " << amunmt::Debug(vec_, verbosity);
+  return strm.str();
 }
 
 }
