@@ -30,7 +30,7 @@ EncoderDecoder::EncoderDecoder(const God &god,
 {}
 
 
-void EncoderDecoder::Decode(const State& in, State& out, const std::vector<uint>&) {
+void EncoderDecoder::Decode(const State& in, State& out, const BeamSize&) {
   const EDState& edIn = in.get<EDState>();
   EDState& edOut = out.get<EDState>();
 

@@ -82,7 +82,7 @@ void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, mblas::E
   decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
 }
 
-void EncoderDecoder::Decode(const State& in, State& out, const std::vector<uint>& beamSizes) {
+void EncoderDecoder::Decode(const State& in, State& out, const BeamSize& beamSizes) {
   BEGIN_TIMER("Decode");
   const EDState& edIn = in.get<EDState>();
   EDState& edOut = out.get<EDState>();
@@ -150,21 +150,21 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   size_t batchSize =beamSizes.size();
   assert(batchSize == encParams->sentences->size());
 
-  cerr << "beamSizes1=" << Debug(beamSizes, 2) << endl;
+  cerr << "beamSizes1=" << beamSizes.Debug(2) << endl;
 
   // decode
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
     boost::timer::cpu_timer timerStep;
 
-    cerr << "beamSizes2=" << Debug(beamSizes, 2) << endl;
+    cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     Decode(*state, *nextState, beamSizes);
-    cerr << "beamSizes3=" << Debug(beamSizes, 2) << endl;
+    cerr << "beamSizes3=" << beamSizes.Debug(2) << endl;
 
     // beams
     if (decoderStep == 0) {
       beamSizes.Init(search_.MaxBeamSize());
     }
-    cerr << "beamSizes4=" << Debug(beamSizes, 2) << endl;
+    cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
 
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
@@ -184,7 +184,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
           if (h->GetWord() != EOS_ID) {
             survivors.push_back(h);
           } else {
-            --beamSizes[batchId];
+            beamSizes.Decr(batchId);
           }
         }
       }

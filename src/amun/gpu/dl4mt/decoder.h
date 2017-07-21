@@ -147,7 +147,7 @@ class Decoder {
                                      const mblas::Matrix& HiddenState,
                                      const mblas::Matrix& SourceContext,
                                      const mblas::IMatrix &sentencesMask,
-                                     const std::vector<uint>& beamSizes)
+                                     const BeamSize& beamSizes)
         {
           // mapping = 1/0 whether each position, in each sentence in the batch is actually a valid word
           // batchMapping = which sentence is each element in the batch. eg 0 0 1 2 2 2 = first 2 belongs to sent0, 3rd is sent1, 4th and 5th is sent2
@@ -162,7 +162,7 @@ class Decoder {
           HostVector<uint> batchMapping(HiddenState.dim(0));
           size_t k = 0;
           for (size_t i = 0; i < beamSizes.size(); ++i) {
-            for (size_t j = 0; j < beamSizes[i]; ++j) {
+            for (size_t j = 0; j < beamSizes.Get(i); ++j) {
               batchMapping[k++] = i;
             }
           }
@@ -353,7 +353,7 @@ class Decoder {
     void Decode(mblas::Matrix& NextState,
                   const mblas::Matrix& State,
                   const mblas::Matrix& Embeddings,
-                  const std::vector<uint>& beamSizes)
+                  const BeamSize& beamSizes)
     {
       BEGIN_TIMER("Decode");
 
@@ -434,7 +434,7 @@ class Decoder {
                                   const mblas::Matrix& HiddenState,
                                   const mblas::Matrix& SourceContext,
                                   const mblas::IMatrix &sentencesMask,
-                                  const std::vector<uint>& beamSizes) {
+                                  const BeamSize& beamSizes) {
       alignment_.GetAlignedSourceContext(AlignedSourceContext, HiddenState, SourceContext,
                                          sentencesMask, beamSizes);
     }

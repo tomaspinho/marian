@@ -42,7 +42,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   }
 
   //size_t beamSizeSum = bs.GetTotal();
-  size_t beamSizeSum = std::accumulate(beamSizes.begin(), beamSizes.end(), 0);
+  size_t beamSizeSum = beamSizes.GetTotal();
 
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
@@ -57,7 +57,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::map<size_t, size_t> batchMap;
   size_t tmp = 0;
   for (size_t batchID = 0; batchID < beamSizes.size(); ++batchID) {
-    for (size_t t = 0; t < beamSizes[batchID]; ++t) {
+    for (size_t t = 0; t < beamSizes.Get(batchID); ++t) {
       batchMap[tmp++] = batchID;
     }
   }
@@ -131,7 +131,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
     DisAllowUNK(Probs);
   }
 
-  size_t beamSizeSum = std::accumulate(beamSizes.begin(), beamSizes.end(), 0);
+  size_t beamSizeSum = beamSizes.GetTotal();
 
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
@@ -153,7 +153,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::map<size_t, size_t> batchMap;
   size_t tmp = 0;
   for (size_t batchID = 0; batchID < beamSizes.size(); ++batchID) {
-    for (size_t t = 0; t < beamSizes[batchID]; ++t) {
+    for (size_t t = 0; t < beamSizes.Get(batchID); ++t) {
       batchMap[tmp++] = batchID;
     }
   }

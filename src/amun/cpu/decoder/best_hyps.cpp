@@ -65,7 +65,7 @@ void BestHyps::CalcBeam(
     keys[i] = i;
   }
 
-  size_t beamSize = beamSizes[0];
+  size_t beamSize = beamSizes.Get(0);
 
   std::vector<size_t> bestKeys(beamSize);
   std::vector<float> bestCosts(beamSize);

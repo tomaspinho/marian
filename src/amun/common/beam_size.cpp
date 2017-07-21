@@ -7,7 +7,7 @@ using namespace std;
 namespace amunmt {
 
 BeamSize::BeamSize(SentencesPtr sentences)
-:std::vector<uint>(sentences->size(), 1)
+:vec_(sentences->size(), 1)
 ,total_(sentences->size())
 {
 
@@ -15,13 +15,22 @@ BeamSize::BeamSize(SentencesPtr sentences)
 
 void BeamSize::Init(uint val)
 {
-  for (uint& beamSize : *this) {
+  for (uint& beamSize : vec_) {
     beamSize = val;
   }
   total_ = size() * val;
 }
 
-/*
+void BeamSize::Decr(size_t ind)
+{
+  --vec_[ind];
+}
+
+uint BeamSize::GetTotal() const
+{
+  uint ret = std::accumulate(vec_.begin(), vec_.end(), 0);
+  return ret;
+}
 
 
 std::string BeamSize::Debug(size_t verbosity) const
@@ -29,7 +38,7 @@ std::string BeamSize::Debug(size_t verbosity) const
   stringstream strm;
   strm << amunmt::Debug(vec_, verbosity);
 }
-*/
+
 }
 
 

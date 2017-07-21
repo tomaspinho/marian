@@ -29,7 +29,7 @@ class EncoderDecoder : public CPUEncoderDecoderBase {
                    const Nematus::Weights& model,
                    const Search &search);
 
-    virtual void Decode(const State& in, State& out, const std::vector<uint>& beamSizes);
+    virtual void Decode(const State& in, State& out, const BeamSize& beamSizes);
 
     virtual void BeginSentenceState(State& state, size_t batchSize);
 

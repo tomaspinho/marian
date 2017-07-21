@@ -4,33 +4,34 @@
 
 namespace amunmt {
 
-class BeamSize : public std::vector<uint>
+class BeamSize
 {
 public:
   BeamSize(SentencesPtr sentences);
 
   void Init(uint val);
 
-  /*
-
   size_t size() const
   { return vec_.size(); }
 
 
-  uint &at(size_t ind)
+  void Set(size_t ind, uint val)
+  {
+    vec_[ind] = val;
+  }
+
+  void Decr(size_t ind);
+
+  uint Get(size_t ind) const
   { return vec_.at(ind); }
 
-  const uint &at(size_t ind) const
-  { return vec_.at(ind); }
-
-  uint GetTotal() const
-  { return total_; }
+  uint GetTotal() const;
 
   std::string Debug(size_t verbosity = 1) const;
 
 protected:
   std::vector<uint> vec_;
-*/
+
   uint total_;
 
 };

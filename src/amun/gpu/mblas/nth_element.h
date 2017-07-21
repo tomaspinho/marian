@@ -7,6 +7,9 @@
 #include "gpu/mblas/matrix.h"
 
 namespace amunmt {
+
+class BeamSize;
+
 namespace GPU {
 
 struct NthOut
@@ -53,7 +56,7 @@ class NthElement {
     NthElement(uint maxBeamSize, uint maxBatchSize);
     virtual ~NthElement();
 
-    void getNBestList(const std::vector<uint>& beamSizes, mblas::Matrix& Probs,
+    void getNBestList(const BeamSize& beamSizes, mblas::Matrix& Probs,
                       std::vector<float>& outCosts, std::vector<uint>& outKeys,
                       const bool isFirst=false);
 
