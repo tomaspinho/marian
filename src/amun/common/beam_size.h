@@ -26,7 +26,7 @@ public:
 
   void DeleteEmpty();
 
-  std::string Debug(size_t verbosity = 1) const;
+  virtual std::string Debug(size_t verbosity = 1) const;
 
 protected:
   std::vector<uint> sizes_;

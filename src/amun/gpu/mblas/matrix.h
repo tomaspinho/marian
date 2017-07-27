@@ -222,9 +222,12 @@ class TMatrix : public BaseMatrix {
     {
       std::stringstream strm;
       strm << BaseMatrix::Debug(verbosity) << " ";
+
+      /*
       strm << data_ << " "
           << arrSize_ << " "
           << std::flush;
+      */
 
       if (verbosity) {
         T sum = Sum(data(), size());

@@ -55,7 +55,10 @@ void BeamSize::DeleteEmpty()
 std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
-  strm << amunmt::Debug(sizes_, verbosity);
+
+  strm << "sizes_=" << amunmt::Debug(sizes_, verbosity);
+  strm << " sentences_=" << sentences_.size();
+
   return strm.str();
 }
 
