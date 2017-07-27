@@ -147,9 +147,6 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   Histories histories(beamSizes, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();
 
-  size_t batchSize =beamSizes.size();
-  assert(batchSize == encParams->sentences->size());
-
   cerr << "beamSizes1=" << beamSizes.Debug(2) << endl;
 
   // decode
@@ -171,9 +168,12 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     histories.AddAndOutput(god, beams);
 
+    size_t batchSize = beamSizes.size();
+    //assert(batchSize == encParams->sentences->size());
+
     Hypotheses survivors;
     for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      SentencePtr sentence = encParams->sentences->at(batchId);
+      SentencePtr sentence = beamSizes.GetSentence(batchId);
       size_t lineNum = sentence->GetLineNum();
 
       const BeamPtr beam = beams.Get(lineNum);
@@ -206,6 +206,9 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     }
 
     AssembleBeamState(*nextState, survivors, *state);
+
+    //beamSizes.DeleteEmpty();
+    //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
 
     prevHyps.swap(survivors);
 

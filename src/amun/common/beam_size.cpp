@@ -25,15 +25,30 @@ void BeamSize::Init(uint val)
   total_ = size() * val;
 }
 
+uint BeamSize::GetTotal() const
+{
+  return total_;
+}
+
 void BeamSize::Decr(size_t ind)
 {
   --sizes_[ind];
   --total_;
 }
 
-uint BeamSize::GetTotal() const
+void BeamSize::DeleteEmpty()
 {
-  return total_;
+  size_t i = 0;
+  while (i < size()) {
+    if (sizes_[i]) {
+      ++i;
+    }
+    else {
+      sizes_.erase(sizes_.begin() + i);
+      sentences_.erase(sentences_.begin() + i);
+    }
+  }
+
 }
 
 
