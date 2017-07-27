@@ -82,10 +82,12 @@ void EncoderDecoder::Decode(const State& in, State& out, const BeamSize& beamSiz
   const EDState& edIn = in.get<EDState>();
   EDState& edOut = out.get<EDState>();
 
+  const BeamSizeGPU &bs = static_cast<const BeamSizeGPU&>(beamSizes);
+
   decoder_->Decode(edOut.GetStates(),
                      edIn.GetStates(),
                      edIn.GetEmbeddings(),
-                     beamSizes);
+                     bs);
   PAUSE_TIMER("Decode");
 }
 

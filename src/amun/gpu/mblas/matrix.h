@@ -281,11 +281,19 @@ typedef TMatrix<uint> IMatrix;
 class EncParams
 {
 public:
+  Matrix sourceContext;
+  SentencesPtr sentences;
+
   EncParams() {}
 
-  Matrix sourceContext;
+  mblas::IMatrix &GetSentenceMask()
+  { return sentencesMask; }
+
+  const mblas::IMatrix &GetSentenceMask() const
+  { return sentencesMask; }
+
+protected:
   mblas::IMatrix sentencesMask;
-  SentencesPtr sentences;
 
 };
 

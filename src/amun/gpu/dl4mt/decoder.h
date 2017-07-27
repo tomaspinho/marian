@@ -5,6 +5,7 @@
 #include "gru.h"
 #include "gpu/types-gpu.h"
 #include "common/god.h"
+#include "../decoder/beam_size_gpu.h"
 
 namespace amunmt {
 namespace GPU {
@@ -353,7 +354,7 @@ class Decoder {
     void Decode(mblas::Matrix& NextState,
                   const mblas::Matrix& State,
                   const mblas::Matrix& Embeddings,
-                  const BeamSize& beamSizes)
+                  const BeamSizeGPU& beamSizes)
     {
       BEGIN_TIMER("Decode");
 
@@ -366,7 +367,7 @@ class Decoder {
       PAUSE_TIMER("GetHiddenState");
 
       BEGIN_TIMER("GetAlignedSourceContext");
-      GetAlignedSourceContext(AlignedSourceContext_, HiddenState_, encParams_->sourceContext, encParams_->sentencesMask, beamSizes);
+      GetAlignedSourceContext(AlignedSourceContext_, HiddenState_, encParams_->sourceContext, beamSizes.sentencesMask, beamSizes);
       //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");
 
@@ -392,7 +393,7 @@ class Decoder {
                     size_t batchSize)
     {
       encParams_ = encParams;
-      rnn1_.InitializeState(State, encParams->sourceContext, batchSize, encParams->sentencesMask);
+      rnn1_.InitializeState(State, encParams->sourceContext, batchSize, encParams->GetSentenceMask());
       alignment_.Init(encParams->sourceContext);
     }
 

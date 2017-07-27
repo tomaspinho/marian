@@ -38,10 +38,10 @@ void Encoder::Encode(const Sentences& source, size_t tab,
     }
   }
 
-  encParams->sentencesMask.NewSize(maxSentenceLength, source.size(), 1, 1);
+  encParams->GetSentenceMask().NewSize(maxSentenceLength, source.size(), 1, 1);
   mblas::copy(thrust::raw_pointer_cast(hMapping.data()),
               hMapping.size(),
-              encParams->sentencesMask.data(),
+              encParams->GetSentenceMask().data(),
               cudaMemcpyHostToDevice);
 
   //cerr << "GetContext1=" << context.Debug(1) << endl;
@@ -69,7 +69,7 @@ void Encoder::Encode(const Sentences& source, size_t tab,
 
   backwardRnn_.Encode(embeddedWords_.crend() - maxSentenceLength,
                           embeddedWords_.crend() ,
-                          encParams->sourceContext, source.size(), true, &encParams->sentencesMask);
+                          encParams->sourceContext, source.size(), true, &encParams->GetSentenceMask());
   //cerr << "GetContext5=" << context.Debug(1) << endl;
 }
 

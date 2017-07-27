@@ -5,7 +5,7 @@ namespace GPU {
 
 BeamSizeGPU::BeamSizeGPU(mblas::EncParamsPtr encParams)
 :BeamSize(encParams->sentences)
-,sentencesMask(encParams->sentencesMask)
+,sentencesMask(encParams->GetSentenceMask())
 {
 
 }
