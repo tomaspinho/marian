@@ -13,15 +13,6 @@ Encoder::Encoder(const Weights& model)
 {
 }
 
-size_t GetMaxLength(const Sentences& source, size_t tab) {
-  size_t maxLength = source.at(0)->GetWords(tab).size();
-  for (size_t i = 0; i < source.size(); ++i) {
-    const Sentence &sentence = *source.at(i);
-    maxLength = std::max(maxLength, sentence.GetWords(tab).size());
-  }
-  return maxLength;
-}
-
 std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t tab, size_t maxLen) {
   std::vector<std::vector<size_t>> matrix(maxLen, std::vector<size_t>(source.size(), 0));
 
@@ -37,7 +28,7 @@ std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t t
 void Encoder::Encode(const Sentences& source, size_t tab,
                      mblas::EncParamsPtr &encParams)
 {
-  size_t maxSentenceLength = GetMaxLength(source, tab);
+  size_t maxSentenceLength = source.GetMaxLength();
 
   //cerr << "1dMapping=" << mblas::Debug(dMapping, 2) << endl;
   HostVector<uint> hMapping(maxSentenceLength * source.size(), 0);
