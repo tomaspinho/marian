@@ -46,13 +46,6 @@ class BestHyps : public BestHypsBase
         const BeamSize &beamSizes);
 
 
-    void CalcBeam(
-        const Hypotheses& prevHyps,
-        const std::vector<ScorerPtr>& scorers,
-        const Words& filterIndices,
-        Beams &beams,
-        const BeamSize &beamSizes);
-
   private:
     NthElement nthElement_;
     DeviceVector<unsigned> keys;
