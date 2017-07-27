@@ -137,7 +137,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
   State *nextState = NewState();
-  BeamSizeGPU beamSizes(encParams->sentences);
+  BeamSizeGPU beamSizes(encParams);
 
   Histories histories(beamSizes, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();

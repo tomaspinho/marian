@@ -3,8 +3,9 @@
 namespace amunmt {
 namespace GPU {
 
-BeamSizeGPU::BeamSizeGPU(SentencesPtr sentences)
-:BeamSize(sentences)
+BeamSizeGPU::BeamSizeGPU(mblas::EncParamsPtr encParams)
+:BeamSize(encParams->sentences)
+,sentencesMask(encParams->sentencesMask)
 {
 
 }

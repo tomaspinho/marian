@@ -1,5 +1,6 @@
 #pragma once
 #include "common/beam_size.h"
+#include "../mblas/matrix.h"
 
 namespace amunmt {
 namespace GPU {
@@ -7,7 +8,9 @@ namespace GPU {
 class BeamSizeGPU : public amunmt::BeamSize
 {
 public:
-  BeamSizeGPU(SentencesPtr sentences);
+  BeamSizeGPU(mblas::EncParamsPtr encParams);
+
+  mblas::IMatrix sentencesMask;
 
 };
 
