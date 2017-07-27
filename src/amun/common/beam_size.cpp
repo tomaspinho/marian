@@ -8,9 +8,13 @@ namespace amunmt {
 
 BeamSize::BeamSize(SentencesPtr sentences)
 :sizes_(sentences->size(), 1)
+,sentences_(sentences->size())
 ,total_(sentences->size())
 {
-
+  for (size_t i = 0; i < sentences->size(); ++i) {
+    SentencePtr sentence = sentences->at(i);
+    sentences_[i] = sentence;
+  }
 }
 
 void BeamSize::Init(uint val)
