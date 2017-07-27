@@ -38,14 +38,14 @@ void Encoder::Encode(const Sentences& source, size_t tab,
     }
   }
 
-  encParams->sentencesMask_.NewSize(maxSentenceLength, source.size(), 1, 1);
+  encParams->sentencesMask.NewSize(maxSentenceLength, source.size(), 1, 1);
   mblas::copy(thrust::raw_pointer_cast(hMapping.data()),
               hMapping.size(),
-              encParams->sentencesMask_.data(),
+              encParams->sentencesMask.data(),
               cudaMemcpyHostToDevice);
 
   //cerr << "GetContext1=" << context.Debug(1) << endl;
-  encParams->sourceContext_.NewSize(maxSentenceLength,
+  encParams->sourceContext.NewSize(maxSentenceLength,
                  forwardRnn_.GetStateLength() + backwardRnn_.GetStateLength(),
                  1,
                  source.size());
@@ -64,12 +64,12 @@ void Encoder::Encode(const Sentences& source, size_t tab,
   //cerr << "GetContext3=" << context.Debug(1) << endl;
   forwardRnn_.Encode(embeddedWords_.cbegin(),
                          embeddedWords_.cbegin() + maxSentenceLength,
-                         encParams->sourceContext_, source.size(), false);
+                         encParams->sourceContext, source.size(), false);
   //cerr << "GetContext4=" << context.Debug(1) << endl;
 
   backwardRnn_.Encode(embeddedWords_.crend() - maxSentenceLength,
                           embeddedWords_.crend() ,
-                          encParams->sourceContext_, source.size(), true, &encParams->sentencesMask_);
+                          encParams->sourceContext, source.size(), true, &encParams->sentencesMask);
   //cerr << "GetContext5=" << context.Debug(1) << endl;
 }
 

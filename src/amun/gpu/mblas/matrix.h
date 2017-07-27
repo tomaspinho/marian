@@ -283,8 +283,8 @@ class EncParams
 public:
   EncParams() {}
 
-  Matrix sourceContext_;
-  mblas::IMatrix sentencesMask_;
+  Matrix sourceContext;
+  mblas::IMatrix sentencesMask;
   SentencesPtr sentences;
 
 };
