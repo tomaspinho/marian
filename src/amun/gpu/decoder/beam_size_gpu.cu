@@ -13,6 +13,20 @@ BeamSizeGPU::BeamSizeGPU(mblas::EncParamsPtr encParams)
 
 }
 
+void BeamSizeGPU::DeleteEmpty()
+{
+  size_t i = 0;
+  while (i < size()) {
+    if (sizes_[i]) {
+      ++i;
+    }
+    else {
+      sizes_.erase(sizes_.begin() + i);
+      sentences_.erase(sentences_.begin() + i);
+    }
+  }
+}
+
 std::string BeamSizeGPU::Debug(size_t verbosity) const
 {
   stringstream strm;

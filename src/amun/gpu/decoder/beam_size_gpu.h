@@ -13,6 +13,8 @@ public:
 
   BeamSizeGPU(mblas::EncParamsPtr encParams);
 
+  void DeleteEmpty();
+
   std::string Debug(size_t verbosity = 1) const;
 
 };

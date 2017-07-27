@@ -24,8 +24,6 @@ public:
   SentencePtr GetSentence(size_t ind) const
   { return sentences_.at(ind); }
 
-  void DeleteEmpty();
-
   virtual std::string Debug(size_t verbosity = 1) const;
 
 protected:

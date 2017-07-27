@@ -36,22 +36,6 @@ void BeamSize::Decr(size_t ind)
   --total_;
 }
 
-void BeamSize::DeleteEmpty()
-{
-  size_t i = 0;
-  while (i < size()) {
-    if (sizes_[i]) {
-      ++i;
-    }
-    else {
-      sizes_.erase(sizes_.begin() + i);
-      sentences_.erase(sentences_.begin() + i);
-    }
-  }
-
-}
-
-
 std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
