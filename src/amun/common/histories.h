@@ -9,6 +9,7 @@
 
 namespace amunmt {
 
+class BeamSize;
 class Sentences;
 class God;
 
@@ -18,7 +19,7 @@ class Histories {
   // 1st = line num, 2nd = history (beams and top) for this particular sentence
 
 public:
-    Histories(const Sentences& sentences, bool normalizeScore);
+    Histories(const BeamSize& beamSizes, bool normalizeScore);
 
     /*
     //! iterators
@@ -45,7 +46,7 @@ public:
 
 protected:
     Coll coll_;
-    const Sentences &sentences_;
+    const BeamSize &beamSizes_;
 
     Histories(const Histories &) = delete;
 };

@@ -144,7 +144,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   State *nextState = NewState();
   BeamSize beamSizes(encParams->sentences);
 
-  Histories histories(*encParams->sentences, search_.NormalizeScore());
+  Histories histories(beamSizes, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();
 
   size_t batchSize =beamSizes.size();
