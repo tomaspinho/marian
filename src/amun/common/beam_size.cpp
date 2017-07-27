@@ -37,6 +37,7 @@ std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
   strm << amunmt::Debug(vec_, verbosity);
+  return strm.str();
 }
 
 }
