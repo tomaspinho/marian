@@ -45,7 +45,7 @@ void Encoder::Encode(const Sentences& source, size_t tab,
               cudaMemcpyHostToDevice);
 
   //cerr << "GetContext1=" << context.Debug(1) << endl;
-  encParams->sourceContext.NewSize(maxSentenceLength,
+  encParams->GetSourceContext().NewSize(maxSentenceLength,
                  forwardRnn_.GetStateLength() + backwardRnn_.GetStateLength(),
                  1,
                  source.size());
@@ -64,12 +64,12 @@ void Encoder::Encode(const Sentences& source, size_t tab,
   //cerr << "GetContext3=" << context.Debug(1) << endl;
   forwardRnn_.Encode(embeddedWords_.cbegin(),
                          embeddedWords_.cbegin() + maxSentenceLength,
-                         encParams->sourceContext, source.size(), false);
+                         encParams->GetSourceContext(), source.size(), false);
   //cerr << "GetContext4=" << context.Debug(1) << endl;
 
   backwardRnn_.Encode(embeddedWords_.crend() - maxSentenceLength,
                           embeddedWords_.crend() ,
-                          encParams->sourceContext, source.size(), true, &encParams->GetSentenceMask());
+                          encParams->GetSourceContext(), source.size(), true, &encParams->GetSentenceMask());
   //cerr << "GetContext5=" << context.Debug(1) << endl;
 }
 

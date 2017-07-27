@@ -367,7 +367,7 @@ class Decoder {
       PAUSE_TIMER("GetHiddenState");
 
       BEGIN_TIMER("GetAlignedSourceContext");
-      GetAlignedSourceContext(AlignedSourceContext_, HiddenState_, encParams_->sourceContext, beamSizes.sentencesMask, beamSizes);
+      GetAlignedSourceContext(AlignedSourceContext_, HiddenState_, beamSizes.sourceContext, beamSizes.sentencesMask, beamSizes);
       //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");
 
@@ -393,8 +393,8 @@ class Decoder {
                     size_t batchSize)
     {
       encParams_ = encParams;
-      rnn1_.InitializeState(State, encParams->sourceContext, batchSize, encParams->GetSentenceMask());
-      alignment_.Init(encParams->sourceContext);
+      rnn1_.InitializeState(State, encParams->GetSourceContext(), batchSize, encParams->GetSentenceMask());
+      alignment_.Init(encParams->GetSourceContext());
     }
 
     void EmptyEmbedding(mblas::Matrix& Embedding, size_t batchSize = 1) {

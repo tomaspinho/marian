@@ -11,6 +11,7 @@ public:
   BeamSizeGPU(mblas::EncParamsPtr encParams);
 
   mblas::IMatrix sentencesMask;
+  mblas::Matrix sourceContext;
 
 };
 
