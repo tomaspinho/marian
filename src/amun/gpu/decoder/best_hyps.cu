@@ -69,7 +69,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
     }
 
     size_t hypIndex  = bestKeys[i] / Probs.dim(1);
-    std::cerr << "hypIndex=" << hypIndex << std::endl;
+    //std::cerr << "hypIndex=" << hypIndex << std::endl;
     float cost = bestCosts[i];
 
     HypothesisPtr prevHyp = prevHyps.at(hypIndex);
