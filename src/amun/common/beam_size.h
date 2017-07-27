@@ -12,19 +12,19 @@ public:
   void Init(uint val);
 
   size_t size() const
-  { return vec_.size(); }
+  { return sizes_.size(); }
 
   void Decr(size_t ind);
 
   uint Get(size_t ind) const
-  { return vec_.at(ind); }
+  { return sizes_.at(ind); }
 
   uint GetTotal() const;
 
   std::string Debug(size_t verbosity = 1) const;
 
 protected:
-  std::vector<uint> vec_;
+  std::vector<uint> sizes_;
 
   uint total_;
 
