@@ -63,12 +63,6 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   PAUSE_TIMER("Encode");
 }
 
-void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
-{
-  mblas::EncParamsPtr encParams = encDecBuffer_.remove();
-  BeginSentenceState(state, batchSize, encParams);
-}
-
 void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, mblas::EncParamsPtr encParams)
 {
   //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
