@@ -11,6 +11,7 @@
 #include "gpu/dl4mt/dl4mt.h"
 #include "gpu/decoder/encoder_decoder_state.h"
 #include "gpu/decoder/best_hyps.h"
+#include "gpu/decoder/beam_size_gpu.h"
 
 using namespace std;
 
@@ -136,7 +137,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
   State *nextState = NewState();
-  BeamSize beamSizes(encParams->sentences);
+  BeamSizeGPU beamSizes(encParams->sentences);
 
   Histories histories(beamSizes, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();

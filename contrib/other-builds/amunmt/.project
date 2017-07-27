@@ -1441,6 +1441,16 @@
 			<locationURI>PARENT-3-PROJECT_LOC/src/amun/fpga/kernels/square.cl</locationURI>
 		</link>
 		<link>
+			<name>src/amun/gpu/decoder/beam_size_gpu.cu</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/src/amun/gpu/decoder/beam_size_gpu.cu</locationURI>
+		</link>
+		<link>
+			<name>src/amun/gpu/decoder/beam_size_gpu.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/src/amun/gpu/decoder/beam_size_gpu.h</locationURI>
+		</link>
+		<link>
 			<name>src/amun/gpu/decoder/best_hyps.cu</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/src/amun/gpu/decoder/best_hyps.cu</locationURI>
