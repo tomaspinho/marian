@@ -426,7 +426,51 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, const Mat
 
 void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps);
 
-void RandomizeMemory();
+/////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+__global__ void gDelete1Axis(MatrixWrapper<T> out,
+                      const MatrixWrapper<T> in,
+                      size_t axis, size_t ind)
+{
+  for (size_t i = 0; i < in.size(); ++i) {
+    uint dimIn[SHAPE_SIZE];
+    in.id2Indices(i, dimIn);
+
+    if (dimIn[axis] < ind) {
+      // just copy
+      out(dimIn[0], dimIn[1], dimIn[2], dimIn[3]) = in[i];
+    }
+    else if (dimIn[axis] < ind) {
+      // the row/col we want to delete. Do nothing
+    }
+    else {
+      --dimIn[axis];
+      out(dimIn[0], dimIn[1], dimIn[2], dimIn[3]) = in[i];
+    }
+
+  }
+}
+
+template <typename T>
+void Delete1Axis(TMatrix<T> &in, size_t axis, size_t ind)
+{
+  assert(axis < SHAPE_SIZE);
+  assert(ind < in.dim(axis));
+
+  size_t dim[SHAPE_SIZE] = {in.dim(0), in.dim(1), in.dim(2), in.dim(3)};
+  --dim[axis];
+
+  TMatrix<T> out(dim[0], dim[1], dim[2], dim[3]);
+
+  MatrixWrapper<T> outWrap(out);
+  MatrixWrapper<T> inWrap(in);
+
+  gDelete1Axis<<<1, 1, 0, CudaStreamHandler::GetStream()>>>
+    (outWrap, inWrap, axis, ind);
+
+  in.swap(out);
+}
 
 /////////////////////////////////////////////////////////////////////////
 

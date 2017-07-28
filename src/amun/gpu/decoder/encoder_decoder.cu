@@ -204,7 +204,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     AssembleBeamState(*nextState, survivors, *state);
 
-    //beamSizes.DeleteEmpty();
+    beamSizes.DeleteEmpty();
     //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
 
     prevHyps.swap(survivors);

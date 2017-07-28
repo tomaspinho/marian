@@ -1,4 +1,5 @@
 #include "beam_size_gpu.h"
+#include "gpu/mblas/matrix_functions.h"
 
 using namespace std;
 
@@ -23,6 +24,21 @@ void BeamSizeGPU::DeleteEmpty()
     else {
       sizes_.erase(sizes_.begin() + i);
       sentences_.erase(sentences_.begin() + i);
+
+      cerr << "DELETE " << i;
+
+      HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+      cerr << " sentencesMask=" << sentencesMask.Debug(0);
+      Delete1Axis(sentencesMask, 1, i);
+      HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+      cerr << " " << sentencesMask.Debug(0);
+
+      HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+      cerr << " sourceContext=" << sourceContext.Debug(0);
+      Delete1Axis(sourceContext, 3, i);
+      HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+      cerr << " " << sourceContext.Debug(0);
+
     }
   }
 }
