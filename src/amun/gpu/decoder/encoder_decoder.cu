@@ -153,6 +153,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     Decode(*state, *nextState, beamSizes);
     cerr << "beamSizes3=" << beamSizes.Debug(2) << endl;
+    cerr << "state=" << state->Debug(0) << endl;
 
     // beams
     if (decoderStep == 0) {
