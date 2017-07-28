@@ -439,16 +439,16 @@ __global__ void gDelete1Axis(MatrixWrapper<T> out,
 
     if (dimIn[axis] < ind) {
       // just copy
-      out(dimIn[0], dimIn[1], dimIn[2], dimIn[3]) = in[i];
     }
-    else if (dimIn[axis] < ind) {
-      // the row/col we want to delete. Do nothing
+    else if (dimIn[axis] > ind) {
+      --dimIn[axis];
     }
     else {
-      --dimIn[axis];
-      out(dimIn[0], dimIn[1], dimIn[2], dimIn[3]) = in[i];
+      // the row/col we want to delete. Do nothing
+      continue;
     }
 
+    out(dimIn[0], dimIn[1], dimIn[2], dimIn[3]) = in[i];
   }
 }
 
@@ -465,6 +465,8 @@ void Delete1Axis(TMatrix<T> &in, size_t axis, size_t ind)
 
   MatrixWrapper<T> outWrap(out);
   MatrixWrapper<T> inWrap(in);
+
+  std::cerr << "in=" << in.Debug(0) << " out=" << out.Debug(0) << std::endl;
 
   gDelete1Axis<<<1, 1, 0, CudaStreamHandler::GetStream()>>>
     (outWrap, inWrap, axis, ind);

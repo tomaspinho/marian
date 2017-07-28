@@ -28,16 +28,16 @@ void BeamSizeGPU::DeleteEmpty()
       cerr << "DELETE " << i;
 
       HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-      cerr << " sentencesMask=" << sentencesMask.Debug(0);
+      cerr << " sentencesMask=" << sentencesMask.Debug(0) << flush;
       Delete1Axis(sentencesMask, 1, i);
       HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-      cerr << " " << sentencesMask.Debug(0);
+      cerr << " " << sentencesMask.Debug(0) << flush;
 
       HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-      cerr << " sourceContext=" << sourceContext.Debug(0);
+      cerr << " sourceContext=" << sourceContext.Debug(0) << flush;
       Delete1Axis(sourceContext, 3, i);
       HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-      cerr << " " << sourceContext.Debug(0);
+      cerr << " " << sourceContext.Debug(0) << flush;
 
     }
   }
