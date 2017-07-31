@@ -7,15 +7,20 @@ using namespace std;
 
 namespace amunmt {
 
-Histories::Histories(BeamSize& beamSizes, bool normalizeScore)
+Histories::Histories(BeamSize *beamSizes, bool normalizeScore)
 :beamSizes_(beamSizes)
 {
-  for (size_t i = 0; i < beamSizes.size(); ++i) {
-    const Sentence &sentence = *beamSizes.GetSentence(i).get();
+  for (size_t i = 0; i < beamSizes->size(); ++i) {
+    const Sentence &sentence = *beamSizes->GetSentence(i).get();
     size_t lineNum = sentence.GetLineNum();
     History *history = new History(sentence, normalizeScore, 3 * sentence.size());
     coll_[lineNum].reset(history);
   }
+}
+
+Histories::~Histories()
+{
+  delete beamSizes_;
 }
 
 Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
@@ -52,10 +57,10 @@ Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
   }
 
   // beam sizes
-  size_t batchSize = beamSizes_.size();
+  size_t batchSize = beamSizes_->size();
   Hypotheses survivors;
   for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-    SentencePtr sentence = beamSizes_.GetSentence(batchId);
+    SentencePtr sentence = beamSizes_->GetSentence(batchId);
     size_t lineNum = sentence->GetLineNum();
 
     const BeamPtr beam = beams.Get(lineNum);
@@ -66,7 +71,7 @@ Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
         if (h->GetWord() != EOS_ID) {
           survivors.push_back(h);
         } else {
-          beamSizes_.Decr(batchId);
+          beamSizes_->Decr(batchId);
         }
       }
     }
@@ -79,8 +84,8 @@ Hypotheses Histories::GetFirstHyps() const
 {
   Hypotheses hypos;
 
-  for (size_t i = 0; i < beamSizes_.size(); ++i) {
-    SentencePtr sentence = beamSizes_.GetSentence(i);
+  for (size_t i = 0; i < beamSizes_->size(); ++i) {
+    SentencePtr sentence = beamSizes_->GetSentence(i);
     size_t lineNum = sentence->GetLineNum();
 
     Coll::const_iterator iter = coll_.find(lineNum);
@@ -108,7 +113,7 @@ void Histories::OutputRemaining(const God &god) const
 
 void Histories::InitBeamSize(uint val)
 {
-  beamSizes_.Init(val);
+  beamSizes_->Init(val);
 }
 
 

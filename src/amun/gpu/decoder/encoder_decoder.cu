@@ -138,21 +138,20 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
     State *nextState = NewState();
-    BeamSizeGPU beamSizes(encParams);
 
-    Histories histories(beamSizes, search_.NormalizeScore());
+    Histories histories(new BeamSizeGPU(encParams), search_.NormalizeScore());
     Hypotheses prevHyps = histories.GetFirstHyps();
 
-    cerr << "beamSizes1=" << beamSizes.Debug(2) << endl;
+    cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;
 
     // decode
     for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
       boost::timer::cpu_timer timerStep;
 
       //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
-      Decode(*state, *nextState, beamSizes);
+      Decode(*state, *nextState, histories.GetBeamSizes());
 
-      cerr << "beamSizes3=" << beamSizes.Debug(2) << endl;
+      cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
       cerr << "state=" << state->Debug(0) << endl;
 
       // beams
@@ -162,11 +161,11 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       //cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
 
       Beams beams;
-      search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
+      search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
 
       Hypotheses survivors = histories.AddAndOutput(god, beams);
 
-      cerr << "beamSizes5=" << beamSizes.Debug(2) << endl;
+      cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
 
       /*
       cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
