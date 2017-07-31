@@ -67,7 +67,7 @@ class EncoderDecoder : public Scorer {
     std::unique_ptr<std::thread> decThread_;
 
     void DecodeAsync(const God &god);
-    void DecodeAsync(const God &god, mblas::EncParamsPtr encParams);
+    void DecodeAsyncInternal(const God &god);
     void BeginSentenceState(State& state, size_t batchSize, mblas::EncParamsPtr encParams);
 
     EncoderDecoder(const EncoderDecoder&) = delete;

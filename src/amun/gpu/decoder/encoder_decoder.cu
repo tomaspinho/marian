@@ -94,6 +94,34 @@ void EncoderDecoder::Decode(const State& in, State& out, const BeamSize& beamSiz
 
 void EncoderDecoder::DecodeAsync(const God &god)
 {
+  //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+  try {
+    DecodeAsyncInternal(god);
+  }
+  catch(thrust::system_error &e)
+  {
+    std::cerr << "CUDA error during some_function: " << e.what() << std::endl;
+    abort();
+  }
+  catch(std::bad_alloc &e)
+  {
+    std::cerr << "Bad memory allocation during some_function: " << e.what() << std::endl;
+    abort();
+  }
+  catch(std::runtime_error &e)
+  {
+    std::cerr << "Runtime error during some_function: " << e.what() << std::endl;
+    abort();
+  }
+  catch(...)
+  {
+    std::cerr << "Some other kind of error during some_function" << std::endl;
+    abort();
+  }
+}
+
+void EncoderDecoder::DecodeAsyncInternal(const God &god)
+{
   while (true) {
     mblas::EncParamsPtr encParams = encDecBuffer_.remove();
     assert(encParams.get());
@@ -103,126 +131,98 @@ void EncoderDecoder::DecodeAsync(const God &god)
       return;
     }
 
-    //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
-    try {
-      DecodeAsync(god, encParams);
-    }
-    catch(thrust::system_error &e)
-    {
-      std::cerr << "CUDA error during some_function: " << e.what() << std::endl;
-      abort();
-    }
-    catch(std::bad_alloc &e)
-    {
-      std::cerr << "Bad memory allocation during some_function: " << e.what() << std::endl;
-      abort();
-    }
-    catch(std::runtime_error &e)
-    {
-      std::cerr << "Runtime error during some_function: " << e.what() << std::endl;
-      abort();
-    }
-    catch(...)
-    {
-      std::cerr << "Some other kind of error during some_function" << std::endl;
-      abort();
-    }
-  }
-}
+    boost::timer::cpu_timer timer;
 
-void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
-{
-  boost::timer::cpu_timer timer;
+    // begin decoding - create 1st decode states
+    State *state = NewState();
+    BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
-  // begin decoding - create 1st decode states
-  State *state = NewState();
-  BeginSentenceState(*state, encParams->sentences->size(), encParams);
+    State *nextState = NewState();
+    BeamSizeGPU beamSizes(encParams);
 
-  State *nextState = NewState();
-  BeamSizeGPU beamSizes(encParams);
+    Histories histories(beamSizes, search_.NormalizeScore());
+    Hypotheses prevHyps = histories.GetFirstHyps();
 
-  Histories histories(beamSizes, search_.NormalizeScore());
-  Hypotheses prevHyps = histories.GetFirstHyps();
+    cerr << "beamSizes1=" << beamSizes.Debug(2) << endl;
 
-  cerr << "beamSizes1=" << beamSizes.Debug(2) << endl;
+    // decode
+    for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
+      boost::timer::cpu_timer timerStep;
 
-  // decode
-  for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
-    boost::timer::cpu_timer timerStep;
+      //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
+      Decode(*state, *nextState, beamSizes);
 
-    //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
-    Decode(*state, *nextState, beamSizes);
+      cerr << "beamSizes3=" << beamSizes.Debug(2) << endl;
+      cerr << "state=" << state->Debug(0) << endl;
 
-    cerr << "beamSizes3=" << beamSizes.Debug(2) << endl;
-    cerr << "state=" << state->Debug(0) << endl;
+      // beams
+      if (decoderStep == 0) {
+        beamSizes.Init(search_.MaxBeamSize());
+      }
+      //cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
 
-    // beams
-    if (decoderStep == 0) {
-      beamSizes.Init(search_.MaxBeamSize());
-    }
-    //cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
+      Beams beams;
+      search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
 
-    Beams beams;
-    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
+      histories.AddAndOutput(god, beams);
 
-    histories.AddAndOutput(god, beams);
+      size_t batchSize = beamSizes.size();
+      //assert(batchSize == encParams->sentences->size());
 
-    size_t batchSize = beamSizes.size();
-    //assert(batchSize == encParams->sentences->size());
+      Hypotheses survivors;
+      for (size_t batchId = 0; batchId < batchSize; ++batchId) {
+        SentencePtr sentence = beamSizes.GetSentence(batchId);
+        size_t lineNum = sentence->GetLineNum();
 
-    Hypotheses survivors;
-    for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      SentencePtr sentence = beamSizes.GetSentence(batchId);
-      size_t lineNum = sentence->GetLineNum();
+        const BeamPtr beam = beams.Get(lineNum);
+        //assert(beam);
 
-      const BeamPtr beam = beams.Get(lineNum);
-      //assert(beam);
-
-      if (beam) {
-        for (const HypothesisPtr& h : *beam) {
-          if (h->GetWord() != EOS_ID) {
-            survivors.push_back(h);
-          } else {
-            beamSizes.Decr(batchId);
+        if (beam) {
+          for (const HypothesisPtr& h : *beam) {
+            if (h->GetWord() != EOS_ID) {
+              survivors.push_back(h);
+            } else {
+              beamSizes.Decr(batchId);
+            }
           }
         }
       }
-    }
 
-    cerr << "beamSizes5=" << beamSizes.Debug(2) << endl;
+      cerr << "beamSizes5=" << beamSizes.Debug(2) << endl;
 
-    /*
-    cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
-    cerr << "survivors=" << survivors.size() << endl;
-    cerr << "beams=" << beams.size() << endl;
-    cerr << "histories=" << histories.size() << endl;
-    cerr << "state=" << state->Debug(0) << endl;
-    cerr << "nextState=" << nextState->Debug(0) << endl;
-    */
+      /*
+      cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
+      cerr << "survivors=" << survivors.size() << endl;
+      cerr << "beams=" << beams.size() << endl;
+      cerr << "histories=" << histories.size() << endl;
+      cerr << "state=" << state->Debug(0) << endl;
+      cerr << "nextState=" << nextState->Debug(0) << endl;
+      */
 
-    if (survivors.size() == 0) {
-      break;
-    }
+      if (survivors.size() == 0) {
+        break;
+      }
 
-    AssembleBeamState(*nextState, survivors, *state);
+      AssembleBeamState(*nextState, survivors, *state);
 
-    beamSizes.DeleteEmpty();
-    //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
+      //beamSizes.DeleteEmpty();
+      //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
 
-    prevHyps.swap(survivors);
+      prevHyps.swap(survivors);
 
-    cerr << endl;
-    LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
-  } // for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
+      cerr << endl;
+      LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
+    } // for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
 
-  histories.OutputRemaining(god);
+    histories.OutputRemaining(god);
 
-  CleanUpAfterSentence();
+    CleanUpAfterSentence();
 
-  // output
-  //Output(god, histories);
+    // output
+    //Output(god, histories);
 
-  LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
+    LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
+  }
 }
 
 
