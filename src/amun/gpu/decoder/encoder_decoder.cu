@@ -150,8 +150,9 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
     boost::timer::cpu_timer timerStep;
 
-    cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
+    //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     Decode(*state, *nextState, beamSizes);
+
     cerr << "beamSizes3=" << beamSizes.Debug(2) << endl;
     cerr << "state=" << state->Debug(0) << endl;
 
@@ -159,7 +160,7 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
     if (decoderStep == 0) {
       beamSizes.Init(search_.MaxBeamSize());
     }
-    cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
+    //cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
 
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
