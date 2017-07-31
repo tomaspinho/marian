@@ -18,7 +18,7 @@ Histories::Histories(BeamSize& beamSizes, bool normalizeScore)
   }
 }
 
-void Histories::AddAndOutput(const God &god, const Beams& beams)
+Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
 {
   assert(size() <= beams.size());
 
@@ -50,6 +50,29 @@ void Histories::AddAndOutput(const God &god, const Beams& beams)
       coll_.erase(iter);
     }
   }
+
+  // beam sizes
+  size_t batchSize = beamSizes_.size();
+  Hypotheses survivors;
+  for (size_t batchId = 0; batchId < batchSize; ++batchId) {
+    SentencePtr sentence = beamSizes_.GetSentence(batchId);
+    size_t lineNum = sentence->GetLineNum();
+
+    const BeamPtr beam = beams.Get(lineNum);
+    //assert(beam);
+
+    if (beam) {
+      for (const HypothesisPtr& h : *beam) {
+        if (h->GetWord() != EOS_ID) {
+          survivors.push_back(h);
+        } else {
+          beamSizes_.Decr(batchId);
+        }
+      }
+    }
+  }
+
+  return survivors;
 }
 
 Hypotheses Histories::GetFirstHyps() const

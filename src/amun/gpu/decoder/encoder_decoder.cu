@@ -164,29 +164,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       Beams beams;
       search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, beamSizes);
 
-      histories.AddAndOutput(god, beams);
-
-      size_t batchSize = beamSizes.size();
-      //assert(batchSize == encParams->sentences->size());
-
-      Hypotheses survivors;
-      for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-        SentencePtr sentence = beamSizes.GetSentence(batchId);
-        size_t lineNum = sentence->GetLineNum();
-
-        const BeamPtr beam = beams.Get(lineNum);
-        //assert(beam);
-
-        if (beam) {
-          for (const HypothesisPtr& h : *beam) {
-            if (h->GetWord() != EOS_ID) {
-              survivors.push_back(h);
-            } else {
-              beamSizes.Decr(batchId);
-            }
-          }
-        }
-      }
+      Hypotheses survivors = histories.AddAndOutput(god, beams);
 
       cerr << "beamSizes5=" << beamSizes.Debug(2) << endl;
 

@@ -38,7 +38,7 @@ public:
       return coll_.size();
     }
 
-    void AddAndOutput(const God &god, const Beams& beams);
+    Hypotheses AddAndOutput(const God &god, const Beams& beams);
 
     Hypotheses GetFirstHyps() const;
 
