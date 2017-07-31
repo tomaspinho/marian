@@ -19,7 +19,7 @@ class Histories {
   // 1st = line num, 2nd = history (beams and top) for this particular sentence
 
 public:
-    Histories(const BeamSize& beamSizes, bool normalizeScore);
+    Histories(BeamSize& beamSizes, bool normalizeScore);
 
     /*
     //! iterators
@@ -44,9 +44,11 @@ public:
 
     void OutputRemaining(const God &god) const;
 
+    void InitBeamSize(uint val);
+
 protected:
     Coll coll_;
-    const BeamSize &beamSizes_;
+    BeamSize &beamSizes_;
 
     Histories(const Histories &) = delete;
 };

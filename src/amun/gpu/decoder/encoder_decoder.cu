@@ -157,7 +157,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       // beams
       if (decoderStep == 0) {
-        beamSizes.Init(search_.MaxBeamSize());
+        histories.InitBeamSize(search_.MaxBeamSize());
       }
       //cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
 

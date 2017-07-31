@@ -7,7 +7,7 @@ using namespace std;
 
 namespace amunmt {
 
-Histories::Histories(const BeamSize& beamSizes, bool normalizeScore)
+Histories::Histories(BeamSize& beamSizes, bool normalizeScore)
 :beamSizes_(beamSizes)
 {
   for (size_t i = 0; i < beamSizes.size(); ++i) {
@@ -82,6 +82,12 @@ void Histories::OutputRemaining(const God &god) const
     history->Output(god);
   }
 }
+
+void Histories::InitBeamSize(uint val)
+{
+  beamSizes_.Init(val);
+}
+
 
 
 } // namespace
