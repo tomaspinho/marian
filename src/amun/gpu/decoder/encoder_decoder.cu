@@ -11,6 +11,7 @@
 #include "gpu/dl4mt/dl4mt.h"
 #include "gpu/decoder/encoder_decoder_state.h"
 #include "gpu/decoder/best_hyps.h"
+#include "gpu/decoder/beam_size_gpu.h"
 
 using namespace std;
 
@@ -63,12 +64,6 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   PAUSE_TIMER("Encode");
 }
 
-void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize)
-{
-  mblas::EncParamsPtr encParams = encDecBuffer_.remove();
-  BeginSentenceState(state, batchSize, encParams);
-}
-
 void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, mblas::EncParamsPtr encParams)
 {
   //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
@@ -87,10 +82,12 @@ void EncoderDecoder::Decode(const State& in, State& out, const BeamSize& beamSiz
   const EDState& edIn = in.get<EDState>();
   EDState& edOut = out.get<EDState>();
 
+  const BeamSizeGPU &bs = static_cast<const BeamSizeGPU&>(beamSizes);
+
   decoder_->Decode(edOut.GetStates(),
                      edIn.GetStates(),
                      edIn.GetEmbeddings(),
-                     beamSizes);
+                     bs);
   PAUSE_TIMER("Decode");
 }
 
@@ -142,13 +139,10 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
   BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
   State *nextState = NewState();
-  BeamSize beamSizes(encParams->sentences);
+  BeamSizeGPU beamSizes(encParams);
 
-  Histories histories(*encParams->sentences, search_.NormalizeScore());
+  Histories histories(beamSizes, search_.NormalizeScore());
   Hypotheses prevHyps = histories.GetFirstHyps();
-
-  size_t batchSize =beamSizes.size();
-  assert(batchSize == encParams->sentences->size());
 
   cerr << "beamSizes1=" << beamSizes.Debug(2) << endl;
 
@@ -171,9 +165,12 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
 
     histories.AddAndOutput(god, beams);
 
+    size_t batchSize = beamSizes.size();
+    //assert(batchSize == encParams->sentences->size());
+
     Hypotheses survivors;
     for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-      SentencePtr sentence = encParams->sentences->at(batchId);
+      SentencePtr sentence = beamSizes.GetSentence(batchId);
       size_t lineNum = sentence->GetLineNum();
 
       const BeamPtr beam = beams.Get(lineNum);
@@ -190,18 +187,25 @@ void EncoderDecoder::DecodeAsync(const God &god, mblas::EncParamsPtr encParams)
       }
     }
 
-    cerr << "beamSizes=" << beamSizes.Debug(2) << endl;
+    cerr << "beamSizes5=" << beamSizes.Debug(2) << endl;
+
+    /*
+    cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
     cerr << "beams=" << beams.size() << endl;
     cerr << "histories=" << histories.size() << endl;
     cerr << "state=" << state->Debug(0) << endl;
     cerr << "nextState=" << nextState->Debug(0) << endl;
+    */
 
     if (survivors.size() == 0) {
       break;
     }
 
     AssembleBeamState(*nextState, survivors, *state);
+
+    //beamSizes.DeleteEmpty();
+    //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
 
     prevHyps.swap(survivors);
 

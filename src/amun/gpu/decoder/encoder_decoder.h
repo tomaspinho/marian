@@ -40,7 +40,6 @@ class EncoderDecoder : public Scorer {
 
     virtual State* NewState() const;
 
-    virtual void BeginSentenceState(State& state, size_t batchSize=1);
 
     virtual void Encode(const SentencesPtr source);
 

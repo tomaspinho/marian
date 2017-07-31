@@ -81,6 +81,7 @@ set_source_files_properties( common/loader_factory.cpp
 cuda_add_executable(
   amun
   common/decoder_main.cpp
+  gpu/decoder/beam_size_gpu.cu  
   gpu/decoder/best_hyps.cu  
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu
@@ -106,6 +107,7 @@ if(PYTHONLIBS_FOUND)
 cuda_add_library(python SHARED
   python/amunmt.cpp
   # gpu/decoder/ape_penalty.cu
+  gpu/decoder/beam_size_gpu.cu  
   gpu/decoder/best_hyps.cu  
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu
@@ -133,6 +135,7 @@ cuda_add_library(mosesplugin STATIC
   #plugin/nbest.cu
   plugin/nmt.cu
   plugin/neural_phrase.cpp
+  gpu/decoder/beam_size_gpu.cu  
   gpu/decoder/best_hyps.cu  
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu

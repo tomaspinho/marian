@@ -36,7 +36,6 @@ class Search {
     States NewStates() const;
     void FilterTargetVocab(const Sentences& sentences);
     void Encode(const SentencesPtr sentences);
-    States BeginSentenceState(const Sentences& sentences);
 
     void CleanAfterTranslation();
 

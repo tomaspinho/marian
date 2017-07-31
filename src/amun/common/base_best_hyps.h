@@ -35,13 +35,6 @@ class BestHypsBase
         Beams &beams,
         const BeamSize &beamSizes) = 0;
 
-    virtual void CalcBeam(
-        const Hypotheses& prevHyps,
-        const std::vector<ScorerPtr>& scorers,
-        const Words& filterIndices,
-        Beams &beams,
-        const BeamSize &beamSizes) = 0;
-
   protected:
     const bool forbidUNK_;
     const bool returnNBestList_;

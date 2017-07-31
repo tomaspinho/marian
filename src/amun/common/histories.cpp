@@ -7,11 +7,11 @@ using namespace std;
 
 namespace amunmt {
 
-Histories::Histories(const Sentences& sentences, bool normalizeScore)
-:sentences_(sentences)
+Histories::Histories(const BeamSize& beamSizes, bool normalizeScore)
+:beamSizes_(beamSizes)
 {
-  for (size_t i = 0; i < sentences.size(); ++i) {
-    const Sentence &sentence = *sentences.at(i).get();
+  for (size_t i = 0; i < beamSizes.size(); ++i) {
+    const Sentence &sentence = *beamSizes.GetSentence(i).get();
     size_t lineNum = sentence.GetLineNum();
     History *history = new History(sentence, normalizeScore, 3 * sentence.size());
     coll_[lineNum].reset(history);
@@ -56,8 +56,8 @@ Hypotheses Histories::GetFirstHyps() const
 {
   Hypotheses hypos;
 
-  for (size_t i = 0; i < sentences_.size(); ++i) {
-    SentencePtr sentence = sentences_.at(i);
+  for (size_t i = 0; i < beamSizes_.size(); ++i) {
+    SentencePtr sentence = beamSizes_.GetSentence(i);
     size_t lineNum = sentence->GetLineNum();
 
     Coll::const_iterator iter = coll_.find(lineNum);

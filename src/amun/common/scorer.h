@@ -49,8 +49,6 @@ class Scorer {
 
     virtual void Decode(const State& in, State& out, const BeamSize& beamSizes) = 0;
 
-    virtual void BeginSentenceState(State& state, size_t batchSize = 1) = 0;
-
     virtual void AssembleBeamState(const State& in, const Hypotheses& hypos, State& out) = 0;
 
     virtual void Encode(const SentencesPtr sources) = 0;

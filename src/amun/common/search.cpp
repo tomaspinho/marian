@@ -57,18 +57,6 @@ void Search::Encode(const SentencesPtr sentences)
   }
 }
 
-States Search::BeginSentenceState(const Sentences& sentences)
-{
-  States states;
-  for (auto& scorer : scorers_) {
-    auto state = scorer->NewState();
-    scorer->BeginSentenceState(*state, sentences.size());
-    states.emplace_back(state);
-  }
-  return states;
-}
-
-
 States Search::NewStates() const {
   States states;
   for (auto& scorer : scorers_) {

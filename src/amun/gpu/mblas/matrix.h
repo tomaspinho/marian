@@ -222,9 +222,12 @@ class TMatrix : public BaseMatrix {
     {
       std::stringstream strm;
       strm << BaseMatrix::Debug(verbosity) << " ";
+
+      /*
       strm << data_ << " "
           << arrSize_ << " "
           << std::flush;
+      */
 
       if (verbosity) {
         T sum = Sum(data(), size());
@@ -281,11 +284,25 @@ typedef TMatrix<uint> IMatrix;
 class EncParams
 {
 public:
+  SentencesPtr sentences;
+
   EncParams() {}
 
-  Matrix sourceContext_;
+  mblas::IMatrix &GetSentenceMask()
+  { return sentencesMask_; }
+
+  const mblas::IMatrix &GetSentenceMask() const
+  { return sentencesMask_; }
+
+  Matrix &GetSourceContext()
+  { return sourceContext_; }
+
+  const Matrix &GetSourceContext() const
+  { return sourceContext_; }
+
+protected:
   mblas::IMatrix sentencesMask_;
-  SentencesPtr sentences;
+  mblas::Matrix sourceContext_;
 
 };
 

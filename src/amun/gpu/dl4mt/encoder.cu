@@ -13,15 +13,6 @@ Encoder::Encoder(const Weights& model)
 {
 }
 
-size_t GetMaxLength(const Sentences& source, size_t tab) {
-  size_t maxLength = source.at(0)->GetWords(tab).size();
-  for (size_t i = 0; i < source.size(); ++i) {
-    const Sentence &sentence = *source.at(i);
-    maxLength = std::max(maxLength, sentence.GetWords(tab).size());
-  }
-  return maxLength;
-}
-
 std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t tab, size_t maxLen) {
   std::vector<std::vector<size_t>> matrix(maxLen, std::vector<size_t>(source.size(), 0));
 
@@ -37,7 +28,7 @@ std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t t
 void Encoder::Encode(const Sentences& source, size_t tab,
                      mblas::EncParamsPtr &encParams)
 {
-  size_t maxSentenceLength = GetMaxLength(source, tab);
+  size_t maxSentenceLength = source.GetMaxLength();
 
   //cerr << "1dMapping=" << mblas::Debug(dMapping, 2) << endl;
   HostVector<uint> hMapping(maxSentenceLength * source.size(), 0);
@@ -47,14 +38,14 @@ void Encoder::Encode(const Sentences& source, size_t tab,
     }
   }
 
-  encParams->sentencesMask_.NewSize(maxSentenceLength, source.size(), 1, 1);
+  encParams->GetSentenceMask().NewSize(maxSentenceLength, source.size(), 1, 1);
   mblas::copy(thrust::raw_pointer_cast(hMapping.data()),
               hMapping.size(),
-              encParams->sentencesMask_.data(),
+              encParams->GetSentenceMask().data(),
               cudaMemcpyHostToDevice);
 
   //cerr << "GetContext1=" << context.Debug(1) << endl;
-  encParams->sourceContext_.NewSize(maxSentenceLength,
+  encParams->GetSourceContext().NewSize(maxSentenceLength,
                  forwardRnn_.GetStateLength() + backwardRnn_.GetStateLength(),
                  1,
                  source.size());
@@ -73,12 +64,12 @@ void Encoder::Encode(const Sentences& source, size_t tab,
   //cerr << "GetContext3=" << context.Debug(1) << endl;
   forwardRnn_.Encode(embeddedWords_.cbegin(),
                          embeddedWords_.cbegin() + maxSentenceLength,
-                         encParams->sourceContext_, source.size(), false);
+                         encParams->GetSourceContext(), source.size(), false);
   //cerr << "GetContext4=" << context.Debug(1) << endl;
 
   backwardRnn_.Encode(embeddedWords_.crend() - maxSentenceLength,
                           embeddedWords_.crend() ,
-                          encParams->sourceContext_, source.size(), true, &encParams->sentencesMask_);
+                          encParams->GetSourceContext(), source.size(), true, &encParams->GetSentenceMask());
   //cerr << "GetContext5=" << context.Debug(1) << endl;
 }
 
