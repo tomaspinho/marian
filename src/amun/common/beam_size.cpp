@@ -37,6 +37,12 @@ uint BeamSize::GetTotal() const
   return total_;
 }
 
+SentencePtr BeamSize::GetSentence(size_t ind) const
+{
+  return sentences_.at(ind);
+}
+
+
 void BeamSize::Decr(size_t ind)
 {
   --sizes_[ind];

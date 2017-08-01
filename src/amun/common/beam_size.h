@@ -7,6 +7,12 @@ namespace amunmt {
 
 class BeamSize
 {
+  struct SentenceHolder
+  {
+    EncParamsPtr encParams;
+    size_t ind;
+  };
+
 public:
   BeamSize();
 
@@ -24,13 +30,13 @@ public:
   uint Get(size_t ind) const
   { return sizes_.at(ind); }
 
-  SentencePtr GetSentence(size_t ind) const
-  { return sentences_.at(ind); }
+  SentencePtr GetSentence(size_t ind) const;
 
   virtual std::string Debug(size_t verbosity = 1) const;
 
 protected:
   std::vector<uint> sizes_;
+  //std::vector<SentenceHolder> sentences_;
   std::vector<SentencePtr> sentences_;
 
   uint total_;
