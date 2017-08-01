@@ -22,8 +22,8 @@ void Histories::Init(EncParamsPtr encParams)
 {
   beamSizes_->Init(encParams);
 
-  for (size_t i = 0; i < beamSizes_->size(); ++i) {
-    const Sentence &sentence = *beamSizes_->GetSentence(i).get();
+  for (size_t i = 0; i < encParams->sentences->size(); ++i) {
+    const Sentence &sentence = *encParams->sentences->at(i);
     size_t lineNum = sentence.GetLineNum();
     History *history = new History(sentence, normalizeScore_, 3 * sentence.size());
     coll_[lineNum].reset(history);

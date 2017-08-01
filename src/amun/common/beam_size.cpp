@@ -13,8 +13,9 @@ BeamSize::BeamSize()
 void BeamSize::Init(EncParamsPtr encParams)
 {
   sizes_.resize(encParams->sentences->size(), 1);
-  sentences_.resize(encParams->sentences->size());
   total_ = encParams->sentences->size();
+
+  sentences_.resize(encParams->sentences->size());
 
   for (size_t i = 0; i < encParams->sentences->size(); ++i) {
     SentencePtr sentence = encParams->sentences->at(i);
