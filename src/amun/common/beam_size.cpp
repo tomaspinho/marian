@@ -7,10 +7,16 @@ using namespace std;
 namespace amunmt {
 
 BeamSize::BeamSize(SentencesPtr sentences)
-:sizes_(sentences->size(), 1)
-,sentences_(sentences->size())
-,total_(sentences->size())
 {
+  Init(sentences);
+}
+
+void BeamSize::Init(SentencesPtr sentences)
+{
+  sizes_.resize(sentences->size(), 1);
+  sentences_.resize(sentences->size());
+  total_ = sentences->size();
+
   for (size_t i = 0; i < sentences->size(); ++i) {
     SentencePtr sentence = sentences->at(i);
     sentences_[i] = sentence;

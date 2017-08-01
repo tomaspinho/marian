@@ -9,6 +9,8 @@ class BeamSize
 public:
   BeamSize(SentencesPtr sentences);
 
+  void Init(SentencesPtr sentences);
+
   void Set(uint val);
 
   size_t size() const

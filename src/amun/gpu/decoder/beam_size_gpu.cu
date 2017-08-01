@@ -14,6 +14,13 @@ BeamSizeGPU::BeamSizeGPU(EncParamsPtr encParams)
 
 }
 
+void BeamSizeGPU::Init(EncParamsPtr encParams)
+{
+  BeamSize::Init(encParams->sentences);
+  //sentencesMask = encParams->GetSentenceMask2<mblas::IMatrix>());
+  //sourceContext = encParams->GetSourceContext2<mblas::Matrix>());
+}
+
 void BeamSizeGPU::DeleteEmpty()
 {
   size_t i = 0;
