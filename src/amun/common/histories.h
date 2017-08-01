@@ -33,8 +33,6 @@ public:
 
     Hypotheses GetFirstHyps() const;
 
-    void OutputRemaining(const God &god) const;
-
     void SetBeamSize(uint val);
 
     const BeamSize &GetBeamSizes() const

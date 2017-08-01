@@ -108,16 +108,6 @@ Hypotheses Histories::GetFirstHyps() const
   return hypos;
 }
 
-void Histories::OutputRemaining(const God &god) const
-{
-  for (const Coll::value_type &ele: coll_) {
-    const HistoryPtr &history = ele.second;
-    assert(history);
-
-    history->Output(god);
-  }
-}
-
 void Histories::SetBeamSize(uint val)
 {
   beamSizes_->Set(val);
