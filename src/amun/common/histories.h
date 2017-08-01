@@ -22,19 +22,6 @@ public:
     Histories(BeamSize *beamSizes, bool normalizeScore);
     virtual ~Histories();
 
-    /*
-    //! iterators
-    typedef Coll::iterator iterator;
-    typedef Coll::const_iterator const_iterator;
-
-    const_iterator begin() const {
-      return coll_.begin();
-    }
-    const_iterator end() const {
-      return coll_.end();
-    }
-    */
-
     size_t size() const {
       return coll_.size();
     }

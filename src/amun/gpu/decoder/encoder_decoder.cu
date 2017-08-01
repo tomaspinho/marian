@@ -51,7 +51,7 @@ State* EncoderDecoder::NewState() const {
 void EncoderDecoder::Encode(const SentencesPtr source) {
   BEGIN_TIMER("Encode");
 
-  mblas::EncParamsPtr encParams(new mblas::EncParamsGPU());
+  EncParamsPtr encParams(new mblas::EncParamsGPU());
   encParams->sentences = source;
 
   if (source->size()) {
@@ -64,7 +64,7 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   PAUSE_TIMER("Encode");
 }
 
-void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, mblas::EncParamsPtr encParams)
+void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, EncParamsPtr encParams)
 {
   //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
   //cerr << "BeginSentenceState encParams->sentencesMask_=" << encParams->sentencesMask_.Debug(0) << endl;
@@ -123,7 +123,7 @@ void EncoderDecoder::DecodeAsync(const God &god)
 void EncoderDecoder::DecodeAsyncInternal(const God &god)
 {
   while (true) {
-    mblas::EncParamsPtr encParams = encDecBuffer_.remove();
+    EncParamsPtr encParams = encDecBuffer_.remove();
     assert(encParams.get());
     assert(encParams->sentences.get());
 

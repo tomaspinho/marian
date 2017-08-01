@@ -63,12 +63,12 @@ class EncoderDecoder : public Scorer {
     DeviceVector<uint> indices_;
       // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
 
-    Buffer<mblas::EncParamsPtr> encDecBuffer_;
+    Buffer<EncParamsPtr> encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;
 
     void DecodeAsync(const God &god);
     void DecodeAsyncInternal(const God &god);
-    void BeginSentenceState(State& state, size_t batchSize, mblas::EncParamsPtr encParams);
+    void BeginSentenceState(State& state, size_t batchSize, EncParamsPtr encParams);
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };

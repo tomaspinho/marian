@@ -58,5 +58,8 @@ public:
 
 };
 
+typedef std::shared_ptr<EncParams> EncParamsPtr;
+
+
 }
 

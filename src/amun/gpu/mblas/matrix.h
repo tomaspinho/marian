@@ -304,8 +304,6 @@ protected:
 
 };
 
-typedef std::shared_ptr<EncParamsGPU> EncParamsPtr;
-
 /////////////////////////////////////////////////////////////////////////
 
 }  // namespace mblas

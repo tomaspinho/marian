@@ -389,7 +389,7 @@ class Decoder {
     }
 
     void EmptyState(mblas::Matrix& State,
-                    mblas::EncParamsPtr encParams,
+                    EncParamsPtr encParams,
                     size_t batchSize)
     {
       encParams_ = encParams;
@@ -464,7 +464,7 @@ class Decoder {
     Alignment<Weights::DecAlignment> alignment_;
     Softmax<Weights::DecSoftmax> softmax_;
 
-    mblas::EncParamsPtr encParams_;
+    EncParamsPtr encParams_;
 
     Decoder(const Decoder&) = delete;
 };

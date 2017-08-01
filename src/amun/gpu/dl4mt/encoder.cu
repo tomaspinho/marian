@@ -26,7 +26,7 @@ std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t t
 }
 
 void Encoder::Encode(const Sentences& source, size_t tab,
-                     mblas::EncParamsPtr &encParams)
+                     EncParamsPtr &encParams)
 {
   size_t maxSentenceLength = source.GetMaxLength();
 
