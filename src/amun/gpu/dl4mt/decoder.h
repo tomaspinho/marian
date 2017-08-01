@@ -367,7 +367,7 @@ class Decoder {
       PAUSE_TIMER("GetHiddenState");
 
       BEGIN_TIMER("GetAlignedSourceContext");
-      GetAlignedSourceContext(AlignedSourceContext_, HiddenState_, beamSizes.sourceContext, beamSizes.sentencesMask, beamSizes);
+      GetAlignedSourceContext(AlignedSourceContext_, HiddenState_, *beamSizes.sourceContext, *beamSizes.sentencesMask, beamSizes);
       //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");
 
