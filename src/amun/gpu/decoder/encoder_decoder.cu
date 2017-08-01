@@ -140,6 +140,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     State *nextState = NewState();
 
     Histories histories(new BeamSizeGPU(encParams), search_.NormalizeScore());
+
+
     Hypotheses prevHyps = histories.GetFirstHyps();
 
     cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;

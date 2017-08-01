@@ -1,15 +1,16 @@
 #pragma once
 #include <vector>
 #include "sentences.h"
+#include "base_matrix.h"
 
 namespace amunmt {
 
 class BeamSize
 {
 public:
-  BeamSize(SentencesPtr sentences);
+  BeamSize(EncParamsPtr encParams);
 
-  void Init(SentencesPtr sentences);
+  virtual void Init(EncParamsPtr encParams);
 
   void Set(uint val);
 

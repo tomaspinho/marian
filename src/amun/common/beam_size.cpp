@@ -6,19 +6,19 @@ using namespace std;
 
 namespace amunmt {
 
-BeamSize::BeamSize(SentencesPtr sentences)
+BeamSize::BeamSize(EncParamsPtr encParams)
 {
-  Init(sentences);
+  Init(encParams);
 }
 
-void BeamSize::Init(SentencesPtr sentences)
+void BeamSize::Init(EncParamsPtr encParams)
 {
-  sizes_.resize(sentences->size(), 1);
-  sentences_.resize(sentences->size());
-  total_ = sentences->size();
+  sizes_.resize(encParams->sentences->size(), 1);
+  sentences_.resize(encParams->sentences->size());
+  total_ = encParams->sentences->size();
 
-  for (size_t i = 0; i < sentences->size(); ++i) {
-    SentencePtr sentence = sentences->at(i);
+  for (size_t i = 0; i < encParams->sentences->size(); ++i) {
+    SentencePtr sentence = encParams->sentences->at(i);
     sentences_[i] = sentence;
   }
 }

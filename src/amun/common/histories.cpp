@@ -23,6 +23,11 @@ Histories::~Histories()
   delete beamSizes_;
 }
 
+void Histories::Init(EncParamsPtr encParams)
+{
+
+}
+
 Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
 {
   assert(size() <= beams.size());

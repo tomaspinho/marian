@@ -6,6 +6,7 @@
 
 #include "history.h"
 #include "hypothesis.h"
+#include "base_matrix.h"
 
 namespace amunmt {
 
@@ -21,6 +22,8 @@ class Histories {
 public:
     Histories(BeamSize *beamSizes, bool normalizeScore);
     virtual ~Histories();
+
+    void Init(EncParamsPtr encParams);
 
     size_t size() const {
       return coll_.size();

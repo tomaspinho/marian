@@ -7,7 +7,7 @@ namespace amunmt {
 namespace GPU {
 
 BeamSizeGPU::BeamSizeGPU(EncParamsPtr encParams)
-:BeamSize(encParams->sentences)
+:BeamSize(encParams)
 ,sentencesMask(&encParams->GetSentenceMask2<mblas::IMatrix>())
 ,sourceContext(&encParams->GetSourceContext2<mblas::Matrix>())
 {
@@ -16,7 +16,7 @@ BeamSizeGPU::BeamSizeGPU(EncParamsPtr encParams)
 
 void BeamSizeGPU::Init(EncParamsPtr encParams)
 {
-  BeamSize::Init(encParams->sentences);
+  BeamSize::Init(encParams);
   sentencesMask = &encParams->GetSentenceMask2<mblas::IMatrix>();
   sourceContext = &encParams->GetSourceContext2<mblas::Matrix>();
 }
