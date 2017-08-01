@@ -6,9 +6,8 @@ using namespace std;
 
 namespace amunmt {
 
-BeamSize::BeamSize(EncParamsPtr encParams)
+BeamSize::BeamSize()
 {
-  Init(encParams);
 }
 
 void BeamSize::Init(EncParamsPtr encParams)

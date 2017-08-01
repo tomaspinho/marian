@@ -11,7 +11,7 @@ public:
   mblas::IMatrix *sentencesMask;
   mblas::Matrix *sourceContext;
 
-  BeamSizeGPU(EncParamsPtr encParams);
+  BeamSizeGPU();
 
   void Init(EncParamsPtr encParams);
 

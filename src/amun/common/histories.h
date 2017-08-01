@@ -43,6 +43,7 @@ public:
 protected:
     Coll coll_;
     BeamSize *beamSizes_;
+    bool normalizeScore_;
 
     Histories(const Histories &) = delete;
 };

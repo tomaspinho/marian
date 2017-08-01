@@ -8,7 +8,7 @@ namespace amunmt {
 class BeamSize
 {
 public:
-  BeamSize(EncParamsPtr encParams);
+  BeamSize();
 
   virtual void Init(EncParamsPtr encParams);
 

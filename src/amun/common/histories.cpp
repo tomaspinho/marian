@@ -9,13 +9,8 @@ namespace amunmt {
 
 Histories::Histories(BeamSize *beamSizes, bool normalizeScore)
 :beamSizes_(beamSizes)
+,normalizeScore_(normalizeScore)
 {
-  for (size_t i = 0; i < beamSizes->size(); ++i) {
-    const Sentence &sentence = *beamSizes->GetSentence(i).get();
-    size_t lineNum = sentence.GetLineNum();
-    History *history = new History(sentence, normalizeScore, 3 * sentence.size());
-    coll_[lineNum].reset(history);
-  }
 }
 
 Histories::~Histories()
@@ -25,7 +20,14 @@ Histories::~Histories()
 
 void Histories::Init(EncParamsPtr encParams)
 {
+  beamSizes_->Init(encParams);
 
+  for (size_t i = 0; i < beamSizes_->size(); ++i) {
+    const Sentence &sentence = *beamSizes_->GetSentence(i).get();
+    size_t lineNum = sentence.GetLineNum();
+    History *history = new History(sentence, normalizeScore_, 3 * sentence.size());
+    coll_[lineNum].reset(history);
+  }
 }
 
 Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)

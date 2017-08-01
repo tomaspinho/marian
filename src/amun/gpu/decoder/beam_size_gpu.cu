@@ -6,10 +6,10 @@ using namespace std;
 namespace amunmt {
 namespace GPU {
 
-BeamSizeGPU::BeamSizeGPU(EncParamsPtr encParams)
-:BeamSize(encParams)
-,sentencesMask(&encParams->GetSentenceMask2<mblas::IMatrix>())
-,sourceContext(&encParams->GetSourceContext2<mblas::Matrix>())
+BeamSizeGPU::BeamSizeGPU()
+:BeamSize()
+,sentencesMask(nullptr)
+,sourceContext(nullptr)
 {
 
 }
