@@ -144,17 +144,17 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     Hypotheses prevHyps = histories.GetFirstHyps();
 
-    cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;
+    //cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;
 
     // decode
-    for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
+    for (size_t decoderStep = 0; prevHyps.size() && decoderStep < 300 * encParams->sentences->GetMaxLength(); ++decoderStep) {
       boost::timer::cpu_timer timerStep;
 
       //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
       Decode(*state, *nextState, histories.GetBeamSizes());
 
-      cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
-      cerr << "state=" << state->Debug(0) << endl;
+      //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
+      //cerr << "state=" << state->Debug(0) << endl;
 
       // beams
       if (decoderStep == 0) {
@@ -167,28 +167,23 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       Hypotheses survivors = histories.AddAndOutput(god, beams);
 
-      cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
+      AssembleBeamState(*nextState, survivors, *state);
 
       /*
       cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
       cerr << "survivors=" << survivors.size() << endl;
       cerr << "beams=" << beams.size() << endl;
-      cerr << "histories=" << histories.size() << endl;
       cerr << "state=" << state->Debug(0) << endl;
       cerr << "nextState=" << nextState->Debug(0) << endl;
       */
-
-      if (survivors.size() == 0) {
-        break;
-      }
-
-      AssembleBeamState(*nextState, survivors, *state);
 
       //beamSizes.DeleteEmpty();
       //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
 
       prevHyps.swap(survivors);
 
+      cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
+      cerr << "histories=" << histories.size() << endl;
       cerr << endl;
       LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
     } // for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
@@ -208,6 +203,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 void EncoderDecoder::AssembleBeamState(const State& in,
                                const Hypotheses& hypos,
                                State& out) {
+  if (hypos.size() == 0) {
+    return;
+  }
+
   std::vector<size_t> beamWords;
   std::vector<uint> beamStateIds;
   for (const HypothesisPtr &h : hypos) {
