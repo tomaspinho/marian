@@ -281,12 +281,10 @@ typedef TMatrix<uint> IMatrix;
 
 
 /////////////////////////////////////////////////////////////////////////
-class EncParams
+class EncParamsGPU : public EncParams
 {
 public:
-  SentencesPtr sentences;
-
-  EncParams() {}
+  EncParamsGPU() {}
 
   mblas::IMatrix &GetSentenceMask()
   { return sentencesMask_; }
@@ -306,7 +304,7 @@ protected:
 
 };
 
-typedef std::shared_ptr<EncParams> EncParamsPtr;
+typedef std::shared_ptr<EncParamsGPU> EncParamsPtr;
 
 /////////////////////////////////////////////////////////////////////////
 

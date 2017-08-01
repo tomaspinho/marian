@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include "common/types.h"
+#include "common/sentences.h"
 
 namespace amunmt {
 
@@ -25,6 +26,15 @@ class BaseMatrix {
     virtual void Resize(size_t rows, size_t cols, size_t beam = 1, size_t batches = 1) = 0;
 
     virtual std::string Debug(size_t verbosity = 1) const;
+};
+
+/////////////////////////////////////////////////////////////////////////
+
+class EncParams
+{
+public:
+  SentencesPtr sentences;
+
 };
 
 }
