@@ -122,7 +122,6 @@ void EncoderDecoder::DecodeAsync(const God &god)
 
 void EncoderDecoder::DecodeAsyncInternal(const God &god)
 {
-  Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   State *state;
   State *nextState;
   Hypotheses prevHyps;
@@ -130,6 +129,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
   while (true) {
     boost::timer::cpu_timer timer;
+    Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
+    cerr << "histories=" << histories.size() << endl;
     if (histories.size() == 0) {
       encParams = encDecBuffer_.remove();
       assert(encParams.get());
