@@ -128,9 +128,16 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   Hypotheses prevHyps;
   EncParamsPtr encParams;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
+  size_t decoderStep;
 
   while (true) {
     if (histories.size() == 0) {
+      // clean up previous
+      CleanUpAfterSentence();
+
+      LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
+
+      // read in next batch
       encParams = encDecBuffer_.remove();
       assert(encParams.get());
       assert(encParams->sentences.get());
@@ -141,69 +148,59 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       timer.start();
 
-      // begin decoding - create 1st decode states
+      // init states & histories/beams
       state = NewState();
       BeginSentenceState(*state, encParams->sentences->size(), encParams);
-
       nextState = NewState();
 
       histories.Init(encParams);
-
       prevHyps = histories.GetFirstHyps();
+
+      decoderStep = 0;
     }
 
     //cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;
 
     // decode
-    for (size_t decoderStep = 0; prevHyps.size() && decoderStep < 300 * encParams->sentences->GetMaxLength(); ++decoderStep) {
-      boost::timer::cpu_timer timerStep;
+    boost::timer::cpu_timer timerStep;
 
-      //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
-      Decode(*state, *nextState, histories.GetBeamSizes());
+    //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
+    Decode(*state, *nextState, histories.GetBeamSizes());
 
-      //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
-      //cerr << "state=" << state->Debug(0) << endl;
+    //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
+    //cerr << "state=" << state->Debug(0) << endl;
 
-      // beams
-      if (decoderStep == 0) {
-        histories.SetBeamSize(search_.MaxBeamSize());
-      }
-      //cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
+    // beams
+    if (decoderStep == 0) {
+      histories.SetBeamSize(search_.MaxBeamSize());
+    }
+    //cerr << "beamSizes4=" << beamSizes.Debug(2) << endl;
 
-      Beams beams;
-      search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
+    Beams beams;
+    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
 
-      Hypotheses survivors = histories.AddAndOutput(god, beams);
+    Hypotheses survivors = histories.AddAndOutput(god, beams);
 
-      AssembleBeamState(*nextState, survivors, *state);
+    AssembleBeamState(*nextState, survivors, *state);
 
-      /*
-      cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
-      cerr << "survivors=" << survivors.size() << endl;
-      cerr << "beams=" << beams.size() << endl;
-      cerr << "state=" << state->Debug(0) << endl;
-      cerr << "nextState=" << nextState->Debug(0) << endl;
-      */
+    /*
+    cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
+    cerr << "survivors=" << survivors.size() << endl;
+    cerr << "beams=" << beams.size() << endl;
+    cerr << "state=" << state->Debug(0) << endl;
+    cerr << "nextState=" << nextState->Debug(0) << endl;
+    */
 
-      //beamSizes.DeleteEmpty();
-      //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
+    //beamSizes.DeleteEmpty();
+    //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
 
-      prevHyps.swap(survivors);
+    prevHyps.swap(survivors);
+    ++decoderStep;
 
-      //cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
-      //cerr << "histories=" << histories.size() << endl;
-      //cerr << endl;
-      LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
-    } // for (size_t decoderStep = 0; decoderStep < 3 * encParams->sentences->GetMaxLength(); ++decoderStep) {
-
-    assert(histories.size() == 0);
-
-    CleanUpAfterSentence();
-
-    // output
-    //Output(god, histories);
-
-    LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
+    //cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
+    //cerr << "histories=" << histories.size() << endl;
+    //cerr << endl;
+    LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   }
 }
 
