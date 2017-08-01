@@ -122,27 +122,33 @@ void EncoderDecoder::DecodeAsync(const God &god)
 
 void EncoderDecoder::DecodeAsyncInternal(const God &god)
 {
+  Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
+  State *state;
+  State *nextState;
+  Hypotheses prevHyps;
+  EncParamsPtr encParams;
+
   while (true) {
-    EncParamsPtr encParams = encDecBuffer_.remove();
-    assert(encParams.get());
-    assert(encParams->sentences.get());
-
-    if (encParams->sentences->size() == 0) {
-      return;
-    }
-
     boost::timer::cpu_timer timer;
+    if (histories.size() == 0) {
+      encParams = encDecBuffer_.remove();
+      assert(encParams.get());
+      assert(encParams->sentences.get());
 
-    // begin decoding - create 1st decode states
-    State *state = NewState();
-    BeginSentenceState(*state, encParams->sentences->size(), encParams);
+      if (encParams->sentences->size() == 0) {
+        return;
+      }
 
-    State *nextState = NewState();
+      // begin decoding - create 1st decode states
+      state = NewState();
+      BeginSentenceState(*state, encParams->sentences->size(), encParams);
 
-    Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
-    histories.Init(encParams);
+      nextState = NewState();
 
-    Hypotheses prevHyps = histories.GetFirstHyps();
+      histories.Init(encParams);
+
+      prevHyps = histories.GetFirstHyps();
+    }
 
     //cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;
 
