@@ -19,8 +19,8 @@ void BeamSize::Init(EncParamsPtr encParams)
   sentences_.resize(encParams->sentences->size());
 
   for (size_t i = 0; i < encParams->sentences->size(); ++i) {
-    SentencePtr sentence = encParams->sentences->at(i);
-    sentences_[i] = sentence;
+    SentenceElement ele = {encParams, i};
+    sentences_[i] = ele;
   }
 }
 
@@ -39,7 +39,13 @@ uint BeamSize::GetTotal() const
 
 SentencePtr BeamSize::GetSentence(size_t ind) const
 {
-  return sentences_.at(ind);
+  const SentenceElement &ele = sentences_.at(ind);
+  const EncParamsPtr &encParams = ele.encParams;
+  size_t sentenceInd = ele.sentenceInd;
+
+  SentencesPtr &sentences = encParams->sentences;
+  SentencePtr sentence = sentences->at(sentenceInd);
+  return sentence;
 }
 
 

@@ -7,10 +7,10 @@ namespace amunmt {
 
 class BeamSize
 {
-  struct SentenceHolder
+  struct SentenceElement
   {
     EncParamsPtr encParams;
-    size_t ind;
+    size_t sentenceInd;
   };
 
 public:
@@ -36,8 +36,7 @@ public:
 
 protected:
   std::vector<uint> sizes_;
-  //std::vector<SentenceHolder> sentences_;
-  std::vector<SentencePtr> sentences_;
+  std::vector<SentenceElement> sentences_;
 
   uint total_;
 
