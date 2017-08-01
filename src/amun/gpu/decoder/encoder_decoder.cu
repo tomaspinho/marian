@@ -127,11 +127,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   State *nextState;
   Hypotheses prevHyps;
   EncParamsPtr encParams;
+  Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
 
   while (true) {
-    Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
-    cerr << "histories=" << histories.size() << endl;
-
     if (histories.size() == 0) {
       encParams = encDecBuffer_.remove();
       assert(encParams.get());
