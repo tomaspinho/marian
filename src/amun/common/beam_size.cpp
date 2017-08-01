@@ -17,7 +17,7 @@ BeamSize::BeamSize(SentencesPtr sentences)
   }
 }
 
-void BeamSize::Init(uint val)
+void BeamSize::Set(uint val)
 {
   for (uint& beamSize : sizes_) {
     beamSize = val;

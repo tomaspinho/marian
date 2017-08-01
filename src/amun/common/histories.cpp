@@ -111,9 +111,9 @@ void Histories::OutputRemaining(const God &god) const
   }
 }
 
-void Histories::InitBeamSize(uint val)
+void Histories::SetBeamSize(uint val)
 {
-  beamSizes_->Init(val);
+  beamSizes_->Set(val);
 }
 
 

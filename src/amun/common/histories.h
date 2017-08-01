@@ -32,7 +32,7 @@ public:
 
     void OutputRemaining(const God &god) const;
 
-    void InitBeamSize(uint val);
+    void SetBeamSize(uint val);
 
     const BeamSize &GetBeamSizes() const
     { return *beamSizes_; }
