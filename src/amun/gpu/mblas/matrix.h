@@ -286,16 +286,16 @@ class EncParamsGPU : public EncParams
 public:
   EncParamsGPU() {}
 
-  mblas::IMatrix &GetSentenceMask()
+  BaseMatrix &GetSentenceMask()
   { return sentencesMask_; }
 
-  const mblas::IMatrix &GetSentenceMask() const
+  const BaseMatrix &GetSentenceMask() const
   { return sentencesMask_; }
 
-  Matrix &GetSourceContext()
+  BaseMatrix &GetSourceContext()
   { return sourceContext_; }
 
-  const Matrix &GetSourceContext() const
+  const BaseMatrix &GetSourceContext() const
   { return sourceContext_; }
 
 protected:

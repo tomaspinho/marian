@@ -393,8 +393,8 @@ class Decoder {
                     size_t batchSize)
     {
       encParams_ = encParams;
-      rnn1_.InitializeState(State, encParams->GetSourceContext(), batchSize, encParams->GetSentenceMask());
-      alignment_.Init(encParams->GetSourceContext());
+      rnn1_.InitializeState(State, encParams->GetSourceContext2<mblas::Matrix>(), batchSize, encParams->GetSentenceMask2<mblas::IMatrix>());
+      alignment_.Init(encParams->GetSourceContext2<mblas::Matrix>());
     }
 
     void EmptyEmbedding(mblas::Matrix& Embedding, size_t batchSize = 1) {

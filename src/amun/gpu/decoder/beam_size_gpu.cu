@@ -8,8 +8,8 @@ namespace GPU {
 
 BeamSizeGPU::BeamSizeGPU(mblas::EncParamsPtr encParams)
 :BeamSize(encParams->sentences)
-,sentencesMask(encParams->GetSentenceMask())
-,sourceContext(encParams->GetSourceContext())
+,sentencesMask(encParams->GetSentenceMask2<mblas::IMatrix>())
+,sourceContext(encParams->GetSourceContext2<mblas::Matrix>())
 {
 
 }

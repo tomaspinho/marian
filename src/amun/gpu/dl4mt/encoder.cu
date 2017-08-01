@@ -38,14 +38,14 @@ void Encoder::Encode(const Sentences& source, size_t tab,
     }
   }
 
-  encParams->GetSentenceMask().NewSize(maxSentenceLength, source.size(), 1, 1);
+  encParams->GetSentenceMask2<mblas::IMatrix>().NewSize(maxSentenceLength, source.size(), 1, 1);
   mblas::copy(thrust::raw_pointer_cast(hMapping.data()),
               hMapping.size(),
-              encParams->GetSentenceMask().data(),
+              encParams->GetSentenceMask2<mblas::IMatrix>().data(),
               cudaMemcpyHostToDevice);
 
   //cerr << "GetContext1=" << context.Debug(1) << endl;
-  encParams->GetSourceContext().NewSize(maxSentenceLength,
+  encParams->GetSourceContext2<mblas::Matrix>().NewSize(maxSentenceLength,
                  forwardRnn_.GetStateLength() + backwardRnn_.GetStateLength(),
                  1,
                  source.size());
@@ -64,12 +64,12 @@ void Encoder::Encode(const Sentences& source, size_t tab,
   //cerr << "GetContext3=" << context.Debug(1) << endl;
   forwardRnn_.Encode(embeddedWords_.cbegin(),
                          embeddedWords_.cbegin() + maxSentenceLength,
-                         encParams->GetSourceContext(), source.size(), false);
+                         encParams->GetSourceContext2<mblas::Matrix>(), source.size(), false);
   //cerr << "GetContext4=" << context.Debug(1) << endl;
 
   backwardRnn_.Encode(embeddedWords_.crend() - maxSentenceLength,
                           embeddedWords_.crend() ,
-                          encParams->GetSourceContext(), source.size(), true, &encParams->GetSentenceMask());
+                          encParams->GetSourceContext2<mblas::Matrix>(), source.size(), true, &encParams->GetSentenceMask2<mblas::IMatrix>());
   //cerr << "GetContext5=" << context.Debug(1) << endl;
 }
 
