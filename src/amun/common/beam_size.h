@@ -30,7 +30,7 @@ public:
   uint Get(size_t ind) const
   { return sizes_.at(ind); }
 
-  SentencePtr GetSentence(size_t ind) const;
+  const Sentence &GetSentence(size_t ind) const;
 
   virtual std::string Debug(size_t verbosity = 1) const;
 

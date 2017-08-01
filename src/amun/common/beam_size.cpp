@@ -37,15 +37,15 @@ uint BeamSize::GetTotal() const
   return total_;
 }
 
-SentencePtr BeamSize::GetSentence(size_t ind) const
+const Sentence &BeamSize::GetSentence(size_t ind) const
 {
   const SentenceElement &ele = sentences_.at(ind);
   const EncParamsPtr &encParams = ele.encParams;
   size_t sentenceInd = ele.sentenceInd;
 
-  SentencesPtr &sentences = encParams->sentences;
-  SentencePtr sentence = sentences->at(sentenceInd);
-  return sentence;
+  const SentencesPtr &sentences = encParams->sentences;
+  const SentencePtr &sentence = sentences->at(sentenceInd);
+  return *sentence;
 }
 
 

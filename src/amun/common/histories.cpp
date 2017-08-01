@@ -67,8 +67,8 @@ Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
   size_t batchSize = beamSizes_->size();
   Hypotheses survivors;
   for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-    SentencePtr sentence = beamSizes_->GetSentence(batchId);
-    size_t lineNum = sentence->GetLineNum();
+    const Sentence &sentence = beamSizes_->GetSentence(batchId);
+    size_t lineNum = sentence.GetLineNum();
 
     const BeamPtr beam = beams.Get(lineNum);
     //assert(beam);
@@ -92,8 +92,8 @@ Hypotheses Histories::GetFirstHyps() const
   Hypotheses hypos;
 
   for (size_t i = 0; i < beamSizes_->size(); ++i) {
-    SentencePtr sentence = beamSizes_->GetSentence(i);
-    size_t lineNum = sentence->GetLineNum();
+    const Sentence &sentence = beamSizes_->GetSentence(i);
+    size_t lineNum = sentence.GetLineNum();
 
     Coll::const_iterator iter = coll_.find(lineNum);
     assert(iter != coll_.end());
