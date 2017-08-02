@@ -88,6 +88,7 @@ cuda_add_executable(
   gpu/decoder/encoder_decoder_state.cu
   gpu/dl4mt/encoder.cu
   gpu/dl4mt/gru.cu
+  gpu/mblas/enc_params_gpu.cu
   gpu/mblas/handles.cu
   gpu/mblas/matrix.cu
   gpu/mblas/matrix_functions.cu
@@ -112,6 +113,7 @@ cuda_add_library(python SHARED
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu
   gpu/decoder/encoder_decoder_state.cu
+  gpu/mblas/enc_params_gpu.cu
   gpu/mblas/matrix.cu
   gpu/mblas/matrix_functions.cu
   gpu/mblas/nth_element.cu
@@ -140,6 +142,7 @@ cuda_add_library(mosesplugin STATIC
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu
   gpu/decoder/encoder_decoder_state.cu
+  gpu/mblas/enc_params_gpu.cu
   gpu/mblas/matrix.cu
   gpu/mblas/matrix_functions.cu
   gpu/mblas/nth_element.cu

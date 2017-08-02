@@ -282,28 +282,6 @@ typedef TMatrix<char> CMatrix;
 
 
 /////////////////////////////////////////////////////////////////////////
-class EncParamsGPU : public EncParams
-{
-public:
-  EncParamsGPU() {}
-
-  BaseMatrix &GetSentenceMask()
-  { return sentencesMask_; }
-
-  const BaseMatrix &GetSentenceMask() const
-  { return sentencesMask_; }
-
-  BaseMatrix &GetSourceContext()
-  { return sourceContext_; }
-
-  const BaseMatrix &GetSourceContext() const
-  { return sourceContext_; }
-
-protected:
-  mblas::CMatrix sentencesMask_;
-  mblas::Matrix sourceContext_;
-
-};
 
 /////////////////////////////////////////////////////////////////////////
 
