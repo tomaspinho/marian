@@ -15,6 +15,7 @@ class BeamSize
 
 public:
   BeamSize();
+  virtual ~BeamSize();
 
   virtual void Init(EncParamsPtr encParams);
 

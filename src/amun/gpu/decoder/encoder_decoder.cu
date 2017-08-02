@@ -123,8 +123,8 @@ void EncoderDecoder::DecodeAsync(const God &god)
 void EncoderDecoder::DecodeAsyncInternal(const God &god)
 {
   boost::timer::cpu_timer timer;
-  State *state;
-  State *nextState;
+  State *state = nullptr;
+  State *nextState = nullptr;
   Hypotheses prevHyps;
   EncParamsPtr encParams;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
@@ -143,7 +143,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       assert(encParams->sentences.get());
 
       if (encParams->sentences->size() == 0) {
-        return;
+        break;
       }
 
       timer.start();
@@ -199,6 +199,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   }
+
+  delete state;
+  delete nextState;
 }
 
 

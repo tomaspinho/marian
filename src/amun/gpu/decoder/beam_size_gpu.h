@@ -12,6 +12,7 @@ public:
   mblas::Matrix *sourceContext;
 
   BeamSizeGPU();
+  ~BeamSizeGPU();
 
   void Init(EncParamsPtr encParams);
 

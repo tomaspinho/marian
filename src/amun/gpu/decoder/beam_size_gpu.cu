@@ -11,8 +11,10 @@ BeamSizeGPU::BeamSizeGPU()
 ,sentencesMask(nullptr)
 ,sourceContext(nullptr)
 {
-
 }
+
+BeamSizeGPU::~BeamSizeGPU()
+{}
 
 void BeamSizeGPU::Init(EncParamsPtr encParams)
 {

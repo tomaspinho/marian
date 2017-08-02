@@ -10,6 +10,9 @@ BeamSize::BeamSize()
 {
 }
 
+BeamSize::~BeamSize()
+{}
+
 void BeamSize::Init(EncParamsPtr encParams)
 {
   sizes_.clear();
