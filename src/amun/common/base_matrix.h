@@ -33,7 +33,10 @@ class BaseMatrix {
 class EncParams
 {
 public:
-  SentencesPtr sentences;
+
+  virtual void SetSentences(SentencesPtr sentences);
+  SentencesPtr GetSentences() const
+  { return sentences_; }
 
   virtual BaseMatrix &GetSentenceMask() = 0;
   virtual const BaseMatrix &GetSentenceMask() const = 0;
@@ -55,6 +58,9 @@ public:
   template<class T>
   const T &GetSourceContext2() const
   { return static_cast<const T&>(GetSourceContext()); }
+
+protected:
+  SentencesPtr sentences_;
 
 };
 

@@ -20,5 +20,14 @@ std::string BaseMatrix::Debug(size_t detailed) const
   return strm.str();
 }
 
+
+/////////////////////////////////////////////////////////////////////////
+
+void EncParams::SetSentences(SentencesPtr sentences)
+{
+  sentences_ = sentences;
+
+}
+
 }
 

@@ -52,7 +52,7 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   BEGIN_TIMER("Encode");
 
   EncParamsPtr encParams(new mblas::EncParamsGPU());
-  encParams->sentences = source;
+  encParams->SetSentences(source);
 
   if (source->size()) {
     encoder_->Encode(*source, tab_, encParams);
@@ -140,9 +140,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       // read in next batch
       encParams = encDecBuffer_.remove();
       assert(encParams.get());
-      assert(encParams->sentences.get());
+      assert(encParams->GetSentences().get());
 
-      if (encParams->sentences->size() == 0) {
+      if (encParams->GetSentences()->size() == 0) {
         break;
       }
 
@@ -150,7 +150,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       // init states & histories/beams
       state = NewState();
-      BeginSentenceState(*state, encParams->sentences->size(), encParams);
+      BeginSentenceState(*state, encParams->GetSentences()->size(), encParams);
       nextState = NewState();
 
       histories.Init(encParams);
