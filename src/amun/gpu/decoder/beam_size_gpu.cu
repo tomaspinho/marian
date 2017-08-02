@@ -19,7 +19,7 @@ BeamSizeGPU::~BeamSizeGPU()
 void BeamSizeGPU::Init(EncParamsPtr encParams)
 {
   BeamSize::Init(encParams);
-  sentencesMask = &encParams->GetSentenceMask2<mblas::IMatrix>();
+  sentencesMask = &encParams->GetSentenceMask2<mblas::CMatrix>();
   sourceContext = &encParams->GetSourceContext2<mblas::Matrix>();
 }
 

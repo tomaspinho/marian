@@ -17,7 +17,7 @@ Matrix& Swap(Matrix& Out, Matrix& In) {
 
 __global__ void gMean(MatrixWrapper<float> out,
                       const MatrixWrapper<float> in,
-                      const MatrixWrapper<uint>  mapping)
+                      const MatrixWrapper<char>  mapping)
 {
   // out = batches * states
   // in = max sentence length * states * 1 * batches
@@ -50,7 +50,7 @@ __global__ void gMean(MatrixWrapper<float> out,
   }
 }
 
-void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentencesMask)
+void Mean(Matrix& Out, const Matrix& In, const CMatrix &sentencesMask)
 {
   assert(Out.dim(2) == 1);
   assert(Out.dim(3) == 1);
@@ -66,7 +66,7 @@ void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentencesMask)
   MatrixWrapper<float> outWrap(Out);
   MatrixWrapper<float> inWrap(In);
 
-  MatrixWrapper<uint> mappingWrap(sentencesMask, false);
+  MatrixWrapper<char> mappingWrap(sentencesMask, false);
 
   size_t threads = MAX_THREADS;
   size_t blocks =  (outWrap.size() / threads) + ((outWrap.size() % threads == 0) ?  0 : 1);
@@ -427,7 +427,7 @@ Matrix& Prod(Matrix& C, const Matrix& A, const Matrix& B,
 
 __global__ void gSoftMax(MatrixWrapper<float> out,
                          const MatrixWrapper<uint> batchIdsWrap,
-                         const MatrixWrapper<uint> sentencesMappingWrap,
+                         const MatrixWrapper<char> sentencesMappingWrap,
                          uint shareSize)
 {
   extern __shared__ float _share[];
@@ -510,13 +510,13 @@ __global__ void gSoftMax(MatrixWrapper<float> out,
   }
 }
 
-Matrix& Softmax(Matrix& Out, const DeviceVector<uint>& batchIds, const mblas::IMatrix &sentencesMask, size_t batchSize)
+Matrix& Softmax(Matrix& Out, const DeviceVector<uint>& batchIds, const mblas::CMatrix &sentencesMask, size_t batchSize)
 {
   size_t srcSize = Out.dim(1);
 
   MatrixWrapper<float> outWrap(Out);
   const MatrixWrapper<uint> batchIdsWrap(batchIds);
-  const MatrixWrapper<uint> sentencesMappingWrap(sentencesMask, false);
+  const MatrixWrapper<char> sentencesMappingWrap(sentencesMask, false);
 
   int blocks = batchSize;
   int threads = std::min(MAX_THREADS, (int)srcSize);
@@ -675,7 +675,7 @@ void Zero(Matrix& In)
 
 __global__
 void gMapMatrix(MatrixWrapper<float> in,
-                const MatrixWrapper<uint> sentencesMappingWrap,
+                const MatrixWrapper<char> sentencesMappingWrap,
                 int mappingCols, int i)
 {
   int tid = threadIdx.x + blockIdx.x * blockDim.x;
@@ -689,7 +689,7 @@ void gMapMatrix(MatrixWrapper<float> in,
   }
 }
 
-void MapMatrix(Matrix& state, const mblas::IMatrix &sentencesMask, size_t i)
+void MapMatrix(Matrix& state, const mblas::CMatrix &sentencesMask, size_t i)
 {
   // blank out rows in the state matrix where the word position i does not exist
   // mapping is a concatenated array of 1 & 0 of each sentence in the batch to say whether word exists or not.
@@ -702,7 +702,7 @@ void MapMatrix(Matrix& state, const mblas::IMatrix &sentencesMask, size_t i)
   int numBlocks = (state.size() / numThreads) + 1;
 
   MatrixWrapper<float> stateWrap(state);
-  MatrixWrapper<uint> sentencesMappingWrap(sentencesMask, false);
+  MatrixWrapper<char> sentencesMappingWrap(sentencesMask, false);
 
   gMapMatrix<<<numBlocks, numThreads, 0, CudaStreamHandler::GetStream()>>>
     (stateWrap, sentencesMappingWrap, sentenceLength, i);

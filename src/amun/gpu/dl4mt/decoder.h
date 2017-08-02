@@ -61,7 +61,7 @@ class Decoder {
         void InitializeState(mblas::Matrix& State,
                              const mblas::Matrix& sourceContext,
                              const size_t batchSize,
-                             const mblas::IMatrix &sentencesMask)
+                             const mblas::CMatrix &sentencesMask)
         {
           using namespace mblas;
 
@@ -147,7 +147,7 @@ class Decoder {
         void GetAlignedSourceContext(mblas::Matrix& AlignedSourceContext,
                                      const mblas::Matrix& HiddenState,
                                      const mblas::Matrix& sourceContext,
-                                     const mblas::IMatrix &sentencesMask,
+                                     const mblas::CMatrix &sentencesMask,
                                      const BeamSize& beamSizes)
         {
           // mapping = 1/0 whether each position, in each sentence in the batch is actually a valid word
@@ -392,7 +392,7 @@ class Decoder {
                     EncParamsPtr encParams,
                     size_t batchSize)
     {
-      rnn1_.InitializeState(State, encParams->GetSourceContext2<mblas::Matrix>(), batchSize, encParams->GetSentenceMask2<mblas::IMatrix>());
+      rnn1_.InitializeState(State, encParams->GetSourceContext2<mblas::Matrix>(), batchSize, encParams->GetSentenceMask2<mblas::CMatrix>());
       alignment_.Init(encParams->GetSourceContext2<mblas::Matrix>());
     }
 
@@ -433,7 +433,7 @@ class Decoder {
     void GetAlignedSourceContext(mblas::Matrix& AlignedSourceContext,
                                   const mblas::Matrix& HiddenState,
                                   const mblas::Matrix& sourceContext,
-                                  const mblas::IMatrix &sentencesMask,
+                                  const mblas::CMatrix &sentencesMask,
                                   const BeamSize& beamSizes) {
       alignment_.GetAlignedSourceContext(AlignedSourceContext, HiddenState, sourceContext,
                                          sentencesMask, beamSizes);

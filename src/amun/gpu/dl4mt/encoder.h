@@ -50,7 +50,7 @@ class Encoder {
 
         template <class It>
         void Encode(It it, It end, mblas::Matrix& Context, size_t batchSize, bool invert,
-                        const mblas::IMatrix *sentencesMask=nullptr)
+                        const mblas::CMatrix *sentencesMask=nullptr)
         {
           mblas::Matrix state(batchSize, gru_.GetStateLength(), 1, 1);
           mblas::Matrix prevState(batchSize, gru_.GetStateLength(), 1, 1, true);

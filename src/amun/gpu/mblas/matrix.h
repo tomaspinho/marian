@@ -278,6 +278,7 @@ class TMatrix : public BaseMatrix {
 
 typedef TMatrix<float> Matrix;
 typedef TMatrix<uint> IMatrix;
+typedef TMatrix<char> CMatrix;
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -299,7 +300,7 @@ public:
   { return sourceContext_; }
 
 protected:
-  mblas::IMatrix sentencesMask_;
+  mblas::CMatrix sentencesMask_;
   mblas::Matrix sourceContext_;
 
 };

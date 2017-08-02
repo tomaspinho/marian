@@ -31,17 +31,17 @@ void Encoder::Encode(const Sentences& source, size_t tab,
   size_t maxSentenceLength = source.GetMaxLength();
 
   //cerr << "1dMapping=" << mblas::Debug(dMapping, 2) << endl;
-  HostVector<uint> hMapping(maxSentenceLength * source.size(), 0);
+  HostVector<char> hMapping(maxSentenceLength * source.size(), 0);
   for (size_t i = 0; i < source.size(); ++i) {
     for (size_t j = 0; j < source.at(i)->GetWords(tab).size(); ++j) {
       hMapping[i * maxSentenceLength + j] = 1;
     }
   }
 
-  encParams->GetSentenceMask2<mblas::IMatrix>().NewSize(maxSentenceLength, source.size(), 1, 1);
+  encParams->GetSentenceMask2<mblas::CMatrix>().NewSize(maxSentenceLength, source.size(), 1, 1);
   mblas::copy(thrust::raw_pointer_cast(hMapping.data()),
               hMapping.size(),
-              encParams->GetSentenceMask2<mblas::IMatrix>().data(),
+              encParams->GetSentenceMask2<mblas::CMatrix>().data(),
               cudaMemcpyHostToDevice);
 
   //cerr << "GetContext1=" << context.Debug(1) << endl;
@@ -69,7 +69,7 @@ void Encoder::Encode(const Sentences& source, size_t tab,
 
   backwardRnn_.Encode(embeddedWords_.crend() - maxSentenceLength,
                           embeddedWords_.crend() ,
-                          encParams->GetSourceContext2<mblas::Matrix>(), source.size(), true, &encParams->GetSentenceMask2<mblas::IMatrix>());
+                          encParams->GetSourceContext2<mblas::Matrix>(), source.size(), true, &encParams->GetSentenceMask2<mblas::CMatrix>());
   //cerr << "GetContext5=" << context.Debug(1) << endl;
 }
 

@@ -8,7 +8,7 @@ namespace GPU {
 class BeamSizeGPU : public amunmt::BeamSize
 {
 public:
-  mblas::IMatrix *sentencesMask;
+  mblas::CMatrix *sentencesMask;
   mblas::Matrix *sourceContext;
 
   BeamSizeGPU();
