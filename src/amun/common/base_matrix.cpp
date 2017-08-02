@@ -23,8 +23,9 @@ std::string BaseMatrix::Debug(size_t detailed) const
 
 /////////////////////////////////////////////////////////////////////////
 
-void EncParams::SetSentences(SentencesPtr sentences)
+void EncParams::SetSentences(const SentencesPtr sentences)
 {
+  assert(sentences.get());
   sentences_ = sentences;
 
 }

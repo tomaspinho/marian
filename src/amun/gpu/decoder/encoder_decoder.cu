@@ -140,9 +140,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       // read in next batch
       encParams = encDecBuffer_.remove();
       assert(encParams.get());
-      assert(encParams->GetSentences().get());
 
-      if (encParams->GetSentences()->size() == 0) {
+      if (encParams->GetSentences().size() == 0) {
         break;
       }
 
@@ -150,7 +149,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       // init states & histories/beams
       state = NewState();
-      BeginSentenceState(*state, encParams->GetSentences()->size(), encParams);
+      BeginSentenceState(*state, encParams->GetSentences().size(), encParams);
       nextState = NewState();
 
       histories.Init(encParams);

@@ -22,7 +22,7 @@ void Histories::Init(EncParamsPtr encParams)
 {
   beamSizes_->Init(encParams);
 
-  const Sentences &sentences = *encParams->GetSentences();
+  const Sentences &sentences = encParams->GetSentences();
   for (size_t i = 0; i < sentences.size(); ++i) {
     const Sentence &sentence = *sentences.at(i);
     size_t lineNum = sentence.GetLineNum();

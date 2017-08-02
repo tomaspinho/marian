@@ -34,9 +34,9 @@ class EncParams
 {
 public:
 
-  virtual void SetSentences(SentencesPtr sentences);
-  SentencesPtr GetSentences() const
-  { return sentences_; }
+  virtual void SetSentences(const SentencesPtr sentences);
+  const Sentences &GetSentences() const
+  { return *sentences_; }
 
   virtual BaseMatrix &GetSentenceMask() = 0;
   virtual const BaseMatrix &GetSentenceMask() const = 0;
