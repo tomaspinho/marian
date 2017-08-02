@@ -15,8 +15,6 @@ public:
 
   void Init(EncParamsPtr encParams);
 
-  void DeleteEmpty();
-
   std::string Debug(size_t verbosity = 1) const;
 
 };

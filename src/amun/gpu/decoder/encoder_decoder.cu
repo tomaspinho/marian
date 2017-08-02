@@ -183,8 +183,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     AssembleBeamState(*nextState, survivors, *state);
 
-    //beamSizes.DeleteEmpty();
-
     /*
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
