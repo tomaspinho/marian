@@ -183,23 +183,22 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     AssembleBeamState(*nextState, survivors, *state);
 
+    //beamSizes.DeleteEmpty();
+
     /*
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
     cerr << "beams=" << beams.size() << endl;
     cerr << "state=" << state->Debug(0) << endl;
     cerr << "nextState=" << nextState->Debug(0) << endl;
+    cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
+    cerr << "histories=" << histories.size() << endl;
+    cerr << endl;
     */
-
-    //beamSizes.DeleteEmpty();
-    //cerr << "beamSizes6=" << beamSizes.Debug(2) << endl;
 
     prevHyps.swap(survivors);
     ++decoderStep;
 
-    cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
-    cerr << "histories=" << histories.size() << endl;
-    cerr << endl;
     LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   }
 }
