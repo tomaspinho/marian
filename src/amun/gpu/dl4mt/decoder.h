@@ -392,7 +392,6 @@ class Decoder {
                     EncParamsPtr encParams,
                     size_t batchSize)
     {
-      encParams_ = encParams;
       rnn1_.InitializeState(State, encParams->GetSourceContext2<mblas::Matrix>(), batchSize, encParams->GetSentenceMask2<mblas::IMatrix>());
       alignment_.Init(encParams->GetSourceContext2<mblas::Matrix>());
     }
@@ -463,8 +462,6 @@ class Decoder {
     RNNFinal<Weights::DecGRU2> rnn2_;
     Alignment<Weights::DecAlignment> alignment_;
     Softmax<Weights::DecSoftmax> softmax_;
-
-    EncParamsPtr encParams_;
 
     Decoder(const Decoder&) = delete;
 };
