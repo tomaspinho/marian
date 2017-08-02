@@ -197,9 +197,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     prevHyps.swap(survivors);
     ++decoderStep;
 
-    //cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
-    //cerr << "histories=" << histories.size() << endl;
-    //cerr << endl;
+    cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
+    cerr << "histories=" << histories.size() << endl;
+    cerr << endl;
     LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   }
 }

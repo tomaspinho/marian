@@ -51,7 +51,9 @@ Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
     bool end = true;
     for (size_t hypoInd = 0; hypoInd <  beam.size(); ++hypoInd) {
       const HypothesisPtr &hypo = beam.at(hypoInd);
-      if (hypo->GetWord() != EOS_ID) {
+      const Sentence &sentence = hypo->GetSentence();
+
+      if (hypo->GetNumWords() < sentence.size() * 3 &&  hypo->GetWord() != EOS_ID) {
         end = false;
         break;
       }
@@ -74,9 +76,9 @@ Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
     //assert(beam);
 
     if (beam) {
-      for (const HypothesisPtr& h : *beam) {
-        if (h->GetWord() != EOS_ID) {
-          survivors.push_back(h);
+      for (const HypothesisPtr& hypo : *beam) {
+        if (hypo->GetNumWords() < sentence.size() * 3 && hypo->GetWord() != EOS_ID) {
+          survivors.push_back(hypo);
         } else {
           beamSizes_->Decr(batchId);
         }

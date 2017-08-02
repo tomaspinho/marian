@@ -18,7 +18,8 @@ class Hypothesis {
        prevHyp_(nullptr),
        prevIndex_(0),
        word_(0),
-       cost_(0.0)
+       cost_(0.0),
+       numWords_(0)
     {}
 
     Hypothesis(const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost)
@@ -26,7 +27,8 @@ class Hypothesis {
         prevHyp_(prevHyp),
         prevIndex_(prevIndex),
         word_(word),
-        cost_(cost)
+        cost_(cost),
+        numWords_(prevHyp->numWords_ + 1)
     {}
 
     Hypothesis(const HypothesisPtr prevHyp, size_t word, size_t prevIndex, float cost,
@@ -36,7 +38,8 @@ class Hypothesis {
         prevIndex_(prevIndex),
         word_(word),
         cost_(cost),
-        alignments_(alignment)
+        alignments_(alignment),
+        numWords_(prevHyp->numWords_ + 1)
     {}
 
     size_t GetLineNum() const {
@@ -49,6 +52,10 @@ class Hypothesis {
 
     size_t GetWord() const {
       return word_;
+    }
+
+    size_t GetNumWords() const {
+      return numWords_;
     }
 
     size_t GetPrevStateIndex() const {
@@ -71,12 +78,17 @@ class Hypothesis {
       return alignments_;
     }
 
+    const Sentence &GetSentence() const {
+      return sentence_;
+    }
+
   private:
     const HypothesisPtr prevHyp_;
     const Sentence &sentence_;
     const size_t prevIndex_;
     const size_t word_;
     const float cost_;
+    const size_t numWords_;
     std::vector<SoftAlignmentPtr> alignments_;
 
     std::vector<float> costBreakdown_;
