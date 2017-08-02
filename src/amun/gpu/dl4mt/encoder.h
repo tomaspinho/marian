@@ -1,10 +1,11 @@
 #pragma once
 
-#include "gpu/mblas/matrix_functions.h"
 #include "model.h"
 #include "gru.h"
 #include "common/sentence.h"
+#include "common/enc_params.h"
 #include "gpu/types-gpu.h"
+#include "gpu/mblas/matrix_functions.h"
 
 namespace amunmt {
 

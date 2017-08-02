@@ -1,4 +1,7 @@
+#pragma once
+
 #include "matrix.h"
+#include "common/enc_params.h"
 
 namespace amunmt {
 namespace GPU {

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "sentences.h"
-#include "base_matrix.h"
+#include "enc_params.h"
 
 namespace amunmt {
 
