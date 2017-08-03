@@ -30,20 +30,6 @@ void Encoder::Encode(const Sentences& source, size_t tab,
 {
   size_t maxSentenceLength = source.GetMaxLength();
 
-  //cerr << "1dMapping=" << mblas::Debug(dMapping, 2) << endl;
-  HostVector<char> hMapping(maxSentenceLength * source.size(), 0);
-  for (size_t i = 0; i < source.size(); ++i) {
-    for (size_t j = 0; j < source.at(i)->GetWords(tab).size(); ++j) {
-      hMapping[i * maxSentenceLength + j] = 1;
-    }
-  }
-
-  encParams->GetSentenceMask<mblas::CMatrix>().NewSize(maxSentenceLength, source.size(), 1, 1);
-  mblas::copy(thrust::raw_pointer_cast(hMapping.data()),
-              hMapping.size(),
-              encParams->GetSentenceMask<mblas::CMatrix>().data(),
-              cudaMemcpyHostToDevice);
-
   //cerr << "GetContext1=" << context.Debug(1) << endl;
   encParams->GetSourceContext<mblas::Matrix>().NewSize(maxSentenceLength,
                  forwardRnn_.GetStateLength() + backwardRnn_.GetStateLength(),
