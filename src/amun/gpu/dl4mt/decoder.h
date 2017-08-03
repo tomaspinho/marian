@@ -61,7 +61,6 @@ class Decoder {
         void InitializeState(mblas::Matrix& State,
                              const mblas::Matrix& sourceContext,
                              const size_t batchSize,
-                             const mblas::CMatrix &sentencesMask,
                              const mblas::IMatrix &sentenceLengths)
         {
           using namespace mblas;
@@ -402,7 +401,6 @@ class Decoder {
       rnn1_.InitializeState(State,
                             encParams->GetSourceContext<mblas::Matrix>(),
                             batchSize,
-                            encParams->GetSentenceMask<mblas::CMatrix>(),
                             encParams->GetSentenceLengths<mblas::IMatrix>());
 
       alignment_.Init(encParams->GetSourceContext<mblas::Matrix>());
