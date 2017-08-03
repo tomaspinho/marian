@@ -55,7 +55,8 @@ void Encoder::Encode(const Sentences& source, size_t tab,
 
   backwardRnn_.Encode(embeddedWords_.crend() - maxSentenceLength,
                           embeddedWords_.crend() ,
-                          encParams->GetSourceContext<mblas::Matrix>(), source.size(), true, &encParams->GetSentenceMask<mblas::CMatrix>());
+                          encParams->GetSourceContext<mblas::Matrix>(), source.size(), true,
+                          &encParams->GetSentenceLengths<mblas::IMatrix>());
   //cerr << "GetContext5=" << context.Debug(1) << endl;
 }
 

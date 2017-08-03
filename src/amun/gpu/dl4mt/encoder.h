@@ -51,7 +51,7 @@ class Encoder {
 
         template <class It>
         void Encode(It it, It end, mblas::Matrix& Context, size_t batchSize, bool invert,
-                        const mblas::CMatrix *sentencesMask=nullptr)
+                        const mblas::IMatrix *sentenceLengths = nullptr)
         {
           mblas::Matrix state(batchSize, gru_.GetStateLength(), 1, 1);
           mblas::Matrix prevState(batchSize, gru_.GetStateLength(), 1, 1, true);
@@ -65,11 +65,11 @@ class Encoder {
 	    
             //std::cerr << "invert=" << invert << std::endl;
             if(invert) {
-              assert(sentencesMask);
+              assert(sentenceLengths);
 
               //std::cerr << "1State_=" << State_.Debug(1) << std::endl;
               //std::cerr << "mapping=" << mblas::Debug(*mapping) << std::endl;
-              mblas::MapMatrix(state, *sentencesMask, n - i - 1);
+              mblas::MapMatrix(state, *sentenceLengths, n - i - 1);
               //std::cerr << "2State_=" << State_.Debug(1) << std::endl;
 
               mblas::PasteRows(Context, state, (n - i - 1), gru_.GetStateLength());
