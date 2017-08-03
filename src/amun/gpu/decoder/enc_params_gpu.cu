@@ -1,6 +1,8 @@
 #include "enc_params_gpu.h"
 #include "gpu/mblas/matrix_functions.h"
 
+using namespace std;
+
 namespace amunmt {
 namespace GPU {
 namespace mblas {
@@ -35,6 +37,9 @@ EncParamsGPU::EncParamsGPU(SentencesPtr sentences)
               hMapping.size(),
               sentencesMask_.data(),
               cudaMemcpyHostToDevice);
+
+  //cerr << "sentenceLengths_=" << sentenceLengths_.Debug(2) << endl;
+  //cerr << "sentencesMask_=" << sentencesMask_.Debug(2) << endl;
 }
 
 }
