@@ -6,8 +6,8 @@ namespace amunmt {
 class EncParams
 {
 public:
+  EncParams(SentencesPtr sentences);
 
-  virtual void SetSentences(const SentencesPtr sentences);
   const Sentences &GetSentences() const
   { return *sentences_; }
 
@@ -27,6 +27,10 @@ public:
   const T &GetSourceContext() const
   { return static_cast<const T&>(GetSourceContextInternal()); }
 
+  template<class T>
+  const T &GetSentenceLengths() const
+  { return static_cast<const T&>(GetSentenceLengthsInternal()); }
+
 protected:
   SentencesPtr sentences_;
 
@@ -35,6 +39,7 @@ protected:
   virtual BaseMatrix &GetSourceContextInternal() = 0;
   virtual const BaseMatrix &GetSourceContextInternal() const = 0;
 
+  virtual const BaseMatrix &GetSentenceLengthsInternal() const = 0;
 };
 
 typedef std::shared_ptr<EncParams> EncParamsPtr;

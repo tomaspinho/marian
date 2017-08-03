@@ -4,9 +4,10 @@ namespace amunmt {
 namespace GPU {
 namespace mblas {
 
-void EncParamsGPU::SetSentences(const SentencesPtr sentences)
+EncParamsGPU::EncParamsGPU(SentencesPtr sentences)
+:EncParams(sentences)
 {
-  EncParams::SetSentences(sentences);
+
 }
 
 }

@@ -2,11 +2,9 @@
 
 namespace amunmt {
 
-void EncParams::SetSentences(const SentencesPtr sentences)
+EncParams::EncParams(SentencesPtr sentences)
+:sentences_(sentences)
 {
-  assert(sentences.get());
-  sentences_ = sentences;
-
 }
 
 }

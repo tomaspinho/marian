@@ -10,14 +10,13 @@ namespace mblas {
 class EncParamsGPU : public EncParams
 {
 public:
-  EncParamsGPU() {}
-
-  virtual void SetSentences(const SentencesPtr sentences);
+  EncParamsGPU(SentencesPtr sentences);
 
 
 protected:
   mblas::CMatrix sentencesMask_;
   mblas::Matrix sourceContext_;
+  mblas::IMatrix sentenceLengths_;
 
   BaseMatrix &GetSentenceMaskInternal()
   { return sentencesMask_; }
@@ -30,6 +29,9 @@ protected:
 
   const BaseMatrix &GetSourceContextInternal() const
   { return sourceContext_; }
+
+  virtual const BaseMatrix &GetSentenceLengthsInternal() const
+  { return sentenceLengths_; }
 
 };
 
