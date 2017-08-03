@@ -65,7 +65,7 @@ class Decoder {
         {
           using namespace mblas;
 
-          //std::cerr << "1Temp2_=" << Temp2_.Debug(1) << std::endl;
+          std::cerr << "State1=" << State.Debug(1) << std::endl;
           Temp2_.NewSize(batchSize, sourceContext.dim(1), 1, 1);
           //std::cerr << "2Temp2_=" << Temp2_.Debug(1) << std::endl;
 
@@ -87,8 +87,8 @@ class Decoder {
           } else {
             BroadcastVec(Tanh(_1 + _2), State, *w_.Bi_);
           }
-          //std::cerr << "3State=" << State.Debug(1) << std::endl;
-          //std::cerr << "\n";
+          std::cerr << "State2=" << State.Debug(1) << std::endl;
+          std::cerr << "\n";
         }
 
         void GetNextState(mblas::Matrix& NextState,
@@ -373,8 +373,8 @@ class Decoder {
       BEGIN_TIMER("GetAlignedSourceContext");
       GetAlignedSourceContext(AlignedSourceContext_,
                               HiddenState_,
-                              *beamSizes.sourceContext,
-                              *beamSizes.sentenceLengths,
+                              beamSizes.GetSourceContext(),
+                              beamSizes.GetSentenceLengths(),
                               beamSizes, beamSizes.GetMaxLength());
       //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");

@@ -8,15 +8,22 @@ namespace GPU {
 class BeamSizeGPU : public amunmt::BeamSize
 {
 public:
-  mblas::Matrix *sourceContext;
-  const mblas::IMatrix *sentenceLengths;
-
   BeamSizeGPU();
   ~BeamSizeGPU();
 
   void Init(EncParamsPtr encParams);
 
+  const mblas::Matrix &GetSourceContext() const
+  { return *sourceContext_; }
+
+  const mblas::IMatrix &GetSentenceLengths() const
+  { return *sentenceLengths_; }
+
   std::string Debug(size_t verbosity = 1) const;
+
+protected:
+  mblas::Matrix *sourceContext_;
+  const mblas::IMatrix *sentenceLengths_;
 
 };
 
