@@ -149,7 +149,8 @@ class Decoder {
                                      const mblas::Matrix& sourceContext,
                                      const mblas::CMatrix &sentencesMask,
                                      const mblas::IMatrix &sentenceLengths,
-                                     const BeamSize& beamSizes)
+                                     const BeamSize& beamSizes,
+                                     const size_t maxLength)
         {
           // mapping = 1/0 whether each position, in each sentence in the batch is actually a valid word
           // batchMapping = which sentence is each element in the batch. eg 0 0 1 2 2 2 = first 2 belongs to sent0, 3rd is sent1, 4th and 5th is sent2
@@ -178,7 +179,10 @@ class Decoder {
           //std::cerr << "batchMapping=" << Debug(batchMapping, 2) << std::endl;
           //std::cerr << "dBatchMapping_=" << Debug(dBatchMapping_, 2) << std::endl;
 
-          const size_t srcSize = sentencesMask.size() / beamSizes.size();
+          //const size_t maxLength = sentencesMask.size() / beamSizes.size();
+
+          std::cerr << "sentenceLengths=" << sentenceLengths.Debug(2) << std::endl;
+          std::cerr << "maxLength=" << maxLength << std::endl;
 
           Prod(/*h_[1],*/ Temp2_, HiddenState, *w_.W_);
           //std::cerr << "1Temp2_=" << Temp2_.Debug() << std::endl;
@@ -193,7 +197,7 @@ class Decoder {
           Copy(Temp1_, SCU_);
           //std::cerr << "1Temp1_=" << Temp1_.Debug() << std::endl;
 
-          Broadcast(Tanh(_1 + _2), Temp1_, Temp2_, dBatchMapping_, srcSize);
+          Broadcast(Tanh(_1 + _2), Temp1_, Temp2_, dBatchMapping_, maxLength);
 
           //std::cerr << "w_.V_=" << w_.V_->Debug(0) << std::endl;
           //std::cerr << "3Temp1_=" << Temp1_.Debug(0) << std::endl;
@@ -373,7 +377,7 @@ class Decoder {
                               *beamSizes.sourceContext,
                               *beamSizes.sentencesMask,
                               *beamSizes.sentenceLengths,
-                              beamSizes);
+                              beamSizes, beamSizes.GetMaxLength());
       //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");
 
@@ -445,9 +449,11 @@ class Decoder {
                                   const mblas::Matrix& sourceContext,
                                   const mblas::CMatrix &sentencesMask,
                                   const mblas::IMatrix &sentenceLengths,
-                                  const BeamSize& beamSizes) {
+                                  const BeamSize& beamSizes,
+                                  const size_t maxLength)
+    {
       alignment_.GetAlignedSourceContext(AlignedSourceContext, HiddenState, sourceContext,
-                                         sentencesMask, sentenceLengths, beamSizes);
+                                         sentencesMask, sentenceLengths, beamSizes, maxLength);
     }
 
     void GetNextState(mblas::Matrix& State,

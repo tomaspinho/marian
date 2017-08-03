@@ -7,6 +7,7 @@ using namespace std;
 namespace amunmt {
 
 BeamSize::BeamSize()
+:maxLength_(0)
 {
 }
 
@@ -21,11 +22,18 @@ void BeamSize::Init(EncParamsPtr encParams)
   sizes_.resize(sentences.size(), 1);
   total_ = sentences.size();
 
+  maxLength_ = 0;
   sentences_.resize(sentences.size());
 
   for (size_t i = 0; i < sentences.size(); ++i) {
     SentenceElement ele = {encParams, i};
     sentences_[i] = ele;
+
+    const Sentences &sentences = encParams->GetSentences();
+    SentencePtr sentence = sentences.at(i);
+    if (sentence->size() > maxLength_) {
+      maxLength_ = sentence->size();
+    }
   }
 }
 

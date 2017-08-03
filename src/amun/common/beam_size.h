@@ -26,6 +26,9 @@ public:
 
   uint GetTotal() const;
 
+  uint GetMaxLength() const
+  { return maxLength_; }
+
   void Decr(size_t ind);
 
   uint Get(size_t ind) const
@@ -40,7 +43,7 @@ protected:
   std::vector<SentenceElement> sentences_;
 
   uint total_;
-
+  uint maxLength_;
 };
 
 }
