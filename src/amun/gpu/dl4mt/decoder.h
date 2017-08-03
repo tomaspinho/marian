@@ -147,7 +147,6 @@ class Decoder {
         void GetAlignedSourceContext(mblas::Matrix& AlignedSourceContext,
                                      const mblas::Matrix& HiddenState,
                                      const mblas::Matrix& sourceContext,
-                                     const mblas::CMatrix &sentencesMask,
                                      const mblas::IMatrix &sentenceLengths,
                                      const BeamSize& beamSizes,
                                      const size_t maxLength)
@@ -375,7 +374,6 @@ class Decoder {
       GetAlignedSourceContext(AlignedSourceContext_,
                               HiddenState_,
                               *beamSizes.sourceContext,
-                              *beamSizes.sentencesMask,
                               *beamSizes.sentenceLengths,
                               beamSizes, beamSizes.GetMaxLength());
       //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
@@ -447,13 +445,12 @@ class Decoder {
     void GetAlignedSourceContext(mblas::Matrix& AlignedSourceContext,
                                   const mblas::Matrix& HiddenState,
                                   const mblas::Matrix& sourceContext,
-                                  const mblas::CMatrix &sentencesMask,
                                   const mblas::IMatrix &sentenceLengths,
                                   const BeamSize& beamSizes,
                                   const size_t maxLength)
     {
       alignment_.GetAlignedSourceContext(AlignedSourceContext, HiddenState, sourceContext,
-                                         sentencesMask, sentenceLengths, beamSizes, maxLength);
+                                         sentenceLengths, beamSizes, maxLength);
     }
 
     void GetNextState(mblas::Matrix& State,
