@@ -17,7 +17,6 @@ Matrix& Swap(Matrix& Out, Matrix& In) {
 
 __global__ void gMean(MatrixWrapper<float> out,
                       const MatrixWrapper<float> in,
-                      const MatrixWrapper<char>  mapping,
                       const MatrixWrapper<uint> sentenceLengths)
 {
   // out = batches * states
@@ -52,14 +51,14 @@ __global__ void gMean(MatrixWrapper<float> out,
   }
 }
 
-void Mean(Matrix& Out, const Matrix& In, const CMatrix &sentencesMask, const IMatrix &sentenceLengths)
+void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentenceLengths)
 {
-  //cerr << "Mean=" << sentencesMask.Debug(0) << " " << sentenceLengths.Debug(0) << endl;
+  //cerr << "In=" << In.Debug(0) << " " << sentenceLengths.Debug(0) << endl;
   assert(Out.dim(2) == 1);
   assert(Out.dim(3) == 1);
   assert(Out.dim(0) == In.dim(3));
   assert(Out.dim(1) == In.dim(1));
-  assert(In.dim(0) * In.dim(3) == sentencesMask.size());
+  assert(In.dim(3) == sentenceLengths.size());
 
   // mean of each ROW
   size_t batchNum = Out.dim(0) * Out.dim(2) * Out.dim(3);
@@ -69,14 +68,13 @@ void Mean(Matrix& Out, const Matrix& In, const CMatrix &sentencesMask, const IMa
   MatrixWrapper<float> outWrap(Out);
   MatrixWrapper<float> inWrap(In);
 
-  MatrixWrapper<char> mappingWrap(sentencesMask, false);
   MatrixWrapper<uint> sentenceLengthsWrap(sentenceLengths, false);
 
   size_t threads = MAX_THREADS;
   size_t blocks =  (outWrap.size() / threads) + ((outWrap.size() % threads == 0) ?  0 : 1);
 
   gMean<<<blocks, threads, 0, CudaStreamHandler::GetStream()>>>
-    (outWrap, inWrap, mappingWrap, sentenceLengthsWrap);
+    (outWrap, inWrap, sentenceLengthsWrap);
 
 }
 

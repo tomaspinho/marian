@@ -72,7 +72,7 @@ class Decoder {
 
           //std::cerr << "sourceContext=" << sourceContext.Debug(1) << std::endl;
           //std::cerr << "mapping=" << Debug(mapping, 2) << std::endl;
-          Mean(Temp2_, sourceContext, sentencesMask, sentenceLengths);
+          Mean(Temp2_, sourceContext, sentenceLengths);
 
           //std::cerr << "1State=" << State.Debug(1) << std::endl;
           //std::cerr << "3Temp2_=" << Temp2_.Debug(1) << std::endl;
