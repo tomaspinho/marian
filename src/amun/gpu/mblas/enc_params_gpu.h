@@ -14,21 +14,22 @@ public:
 
   virtual void SetSentences(const SentencesPtr sentences);
 
-  BaseMatrix &GetSentenceMask()
-  { return sentencesMask_; }
-
-  const BaseMatrix &GetSentenceMask() const
-  { return sentencesMask_; }
-
-  BaseMatrix &GetSourceContext()
-  { return sourceContext_; }
-
-  const BaseMatrix &GetSourceContext() const
-  { return sourceContext_; }
 
 protected:
   mblas::CMatrix sentencesMask_;
   mblas::Matrix sourceContext_;
+
+  BaseMatrix &GetSentenceMaskInternal()
+  { return sentencesMask_; }
+
+  const BaseMatrix &GetSentenceMaskInternal() const
+  { return sentencesMask_; }
+
+  BaseMatrix &GetSourceContextInternal()
+  { return sourceContext_; }
+
+  const BaseMatrix &GetSourceContextInternal() const
+  { return sourceContext_; }
 
 };
 

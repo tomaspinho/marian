@@ -19,8 +19,8 @@ BeamSizeGPU::~BeamSizeGPU()
 void BeamSizeGPU::Init(EncParamsPtr encParams)
 {
   BeamSize::Init(encParams);
-  sentencesMask = &encParams->GetSentenceMask2<mblas::CMatrix>();
-  sourceContext = &encParams->GetSourceContext2<mblas::Matrix>();
+  sentencesMask = &encParams->GetSentenceMask<mblas::CMatrix>();
+  sourceContext = &encParams->GetSourceContext<mblas::Matrix>();
 }
 
 std::string BeamSizeGPU::Debug(size_t verbosity) const
