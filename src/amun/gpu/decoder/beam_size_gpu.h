@@ -10,6 +10,7 @@ class BeamSizeGPU : public amunmt::BeamSize
 public:
   const mblas::CMatrix *sentencesMask;
   mblas::Matrix *sourceContext;
+  const mblas::IMatrix *sentenceLengths;
 
   BeamSizeGPU();
   ~BeamSizeGPU();
