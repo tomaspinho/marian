@@ -149,7 +149,6 @@ Matrix& Prod(Matrix& C, const Matrix& A, const Matrix& B,
 
 Matrix& Softmax(Matrix& Out,
                 const DeviceVector<uint>& batchIds,
-                const CMatrix &sentencesMask,
                 const IMatrix &sentenceLengths,
                 size_t batchSize);
 

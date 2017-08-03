@@ -201,7 +201,7 @@ class Decoder {
 
           Prod(A_, *w_.V_, Temp1_, false, true);
 
-          mblas::Softmax(A_, dBatchMapping_, sentencesMask, sentenceLengths, batchSize);
+          mblas::Softmax(A_, dBatchMapping_, sentenceLengths, batchSize);
           mblas::WeightedMean(AlignedSourceContext, A_, sourceContext, dBatchMapping_);
 
           /*
