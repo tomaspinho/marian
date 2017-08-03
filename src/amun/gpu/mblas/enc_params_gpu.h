@@ -18,9 +18,6 @@ protected:
   mblas::Matrix sourceContext_;
   mblas::IMatrix sentenceLengths_;
 
-  BaseMatrix &GetSentenceMaskInternal()
-  { return sentencesMask_; }
-
   const BaseMatrix &GetSentenceMaskInternal() const
   { return sentencesMask_; }
 

@@ -12,10 +12,6 @@ public:
   { return *sentences_; }
 
   template<class T>
-  T &GetSentenceMask()
-  { return static_cast<T&>(GetSentenceMaskInternal()); }
-
-  template<class T>
   const T &GetSentenceMask() const
   { return static_cast<const T&>(GetSentenceMaskInternal()); }
 
@@ -34,8 +30,8 @@ public:
 protected:
   SentencesPtr sentences_;
 
-  virtual BaseMatrix &GetSentenceMaskInternal() = 0;
   virtual const BaseMatrix &GetSentenceMaskInternal() const = 0;
+
   virtual BaseMatrix &GetSourceContextInternal() = 0;
   virtual const BaseMatrix &GetSourceContextInternal() const = 0;
 
