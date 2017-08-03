@@ -1,6 +1,6 @@
 #pragma once
 #include "common/beam_size.h"
-#include "../mblas/matrix.h"
+#include "gpu/mblas/matrix.h"
 
 namespace amunmt {
 namespace GPU {
