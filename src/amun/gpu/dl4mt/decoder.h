@@ -148,8 +148,7 @@ class Decoder {
                                      const mblas::Matrix& HiddenState,
                                      const mblas::Matrix& sourceContext,
                                      const mblas::IMatrix &sentenceLengths,
-                                     const BeamSize& beamSizes,
-                                     const size_t maxLengthA)
+                                     const BeamSize& beamSizes)
         {
           // mapping = 1/0 whether each position, in each sentence in the batch is actually a valid word
           // batchMapping = which sentence is each element in the batch. eg 0 0 1 2 2 2 = first 2 belongs to sent0, 3rd is sent1, 4th and 5th is sent2
@@ -372,7 +371,7 @@ class Decoder {
                               HiddenState_,
                               beamSizes.GetSourceContext(),
                               beamSizes.GetSentenceLengths(),
-                              beamSizes, beamSizes.GetMaxLength());
+                              beamSizes);
       //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");
 
@@ -443,11 +442,10 @@ class Decoder {
                                   const mblas::Matrix& HiddenState,
                                   const mblas::Matrix& sourceContext,
                                   const mblas::IMatrix &sentenceLengths,
-                                  const BeamSize& beamSizes,
-                                  const size_t maxLength)
+                                  const BeamSize& beamSizes)
     {
       alignment_.GetAlignedSourceContext(AlignedSourceContext, HiddenState, sourceContext,
-                                         sentenceLengths, beamSizes, maxLength);
+                                         sentenceLengths, beamSizes);
     }
 
     void GetNextState(mblas::Matrix& State,
