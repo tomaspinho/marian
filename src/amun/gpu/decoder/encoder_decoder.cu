@@ -8,7 +8,7 @@
 
 #include "encoder_decoder.h"
 #include "gpu/mblas/matrix_functions.h"
-#include "gpu/decoder/enc_params_gpu.h"
+#include "gpu/decoder/enc_out_gpu.h"
 #include "gpu/dl4mt/dl4mt.h"
 #include "gpu/decoder/encoder_decoder_state.h"
 #include "gpu/decoder/best_hyps.h"

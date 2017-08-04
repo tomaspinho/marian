@@ -1,4 +1,4 @@
-#include "enc_params.h"
+#include "enc_out.h"
 
 namespace amunmt {
 

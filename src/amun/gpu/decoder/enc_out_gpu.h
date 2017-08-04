@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../mblas/matrix.h"
-#include "common/enc_params.h"
+#include "common/enc_out.h"
 
 namespace amunmt {
 namespace GPU {

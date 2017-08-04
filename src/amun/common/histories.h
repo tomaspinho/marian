@@ -6,7 +6,7 @@
 
 #include "history.h"
 #include "hypothesis.h"
-#include "enc_params.h"
+#include "enc_out.h"
 
 namespace amunmt {
 

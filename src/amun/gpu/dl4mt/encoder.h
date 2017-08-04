@@ -3,7 +3,7 @@
 #include "model.h"
 #include "gru.h"
 #include "common/sentence.h"
-#include "common/enc_params.h"
+#include "common/enc_out.h"
 #include "gpu/types-gpu.h"
 #include "gpu/mblas/matrix_functions.h"
 

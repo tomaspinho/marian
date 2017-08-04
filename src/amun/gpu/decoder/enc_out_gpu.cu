@@ -1,4 +1,4 @@
-#include "enc_params_gpu.h"
+#include "enc_out_gpu.h"
 #include "gpu/mblas/matrix_functions.h"
 
 using namespace std;

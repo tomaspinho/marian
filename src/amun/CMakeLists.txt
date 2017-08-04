@@ -47,7 +47,7 @@ add_library(libcommon OBJECT
   common/beam.cpp
   common/beam_size.cpp
   common/config.cpp
-  common/enc_params.cpp
+  common/enc_out.cpp
   common/exception.cpp
   common/filter.cpp
   common/god.cpp
@@ -84,7 +84,7 @@ cuda_add_executable(
   common/decoder_main.cpp
   gpu/decoder/beam_size_gpu.cu  
   gpu/decoder/best_hyps.cu  
-  gpu/decoder/enc_params_gpu.cu
+  gpu/decoder/enc_out_gpu.cu
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu
   gpu/decoder/encoder_decoder_state.cu
@@ -111,7 +111,7 @@ cuda_add_library(python SHARED
   # gpu/decoder/ape_penalty.cu
   gpu/decoder/beam_size_gpu.cu  
   gpu/decoder/best_hyps.cu  
-  gpu/decoder/enc_params_gpu.cu
+  gpu/decoder/enc_out_gpu.cu
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu
   gpu/decoder/encoder_decoder_state.cu
@@ -140,7 +140,7 @@ cuda_add_library(mosesplugin STATIC
   plugin/neural_phrase.cpp
   gpu/decoder/beam_size_gpu.cu  
   gpu/decoder/best_hyps.cu  
-  gpu/decoder/enc_params_gpu.cu
+  gpu/decoder/enc_out_gpu.cu
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu
   gpu/decoder/encoder_decoder_state.cu
