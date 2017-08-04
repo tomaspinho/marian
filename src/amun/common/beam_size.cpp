@@ -64,6 +64,7 @@ const Sentence &BeamSize::GetSentence(size_t ind) const
 
 void BeamSize::Decr(size_t ind)
 {
+  assert(sizes_[ind] > 0);
   --sizes_[ind];
   --total_;
 }
