@@ -27,6 +27,7 @@ std::string BeamSizeGPU::Debug(size_t verbosity) const
 
   strm << amunmt::BeamSize::Debug(verbosity);
   strm << " sourceContext_=" << sourceContext_->Debug(0);
+  strm << " sentenceLengths_=" << sentenceLengths_->Debug(0);
 
   return strm.str();
 }

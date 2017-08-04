@@ -65,7 +65,7 @@ class Decoder {
         {
           using namespace mblas;
 
-          std::cerr << "State1=" << State.Debug(1) << std::endl;
+          //std::cerr << "State1=" << State.Debug(1) << std::endl;
           Temp2_.NewSize(batchSize, sourceContext.dim(1), 1, 1);
           //std::cerr << "2Temp2_=" << Temp2_.Debug(1) << std::endl;
 
@@ -87,8 +87,8 @@ class Decoder {
           } else {
             BroadcastVec(Tanh(_1 + _2), State, *w_.Bi_);
           }
-          std::cerr << "State2=" << State.Debug(1) << std::endl;
-          std::cerr << "\n";
+          //std::cerr << "State2=" << State.Debug(1) << std::endl;
+          //std::cerr << "\n";
         }
 
         void GetNextState(mblas::Matrix& NextState,
@@ -180,8 +180,8 @@ class Decoder {
 
           //const size_t maxLength = sentencesMask.size() / beamSizes.size();
 
-          std::cerr << "sentenceLengths=" << sentenceLengths.Debug(2) << std::endl;
-          std::cerr << "maxLength=" << maxLength << std::endl;
+          //std::cerr << "sentenceLengths=" << sentenceLengths.Debug(2) << std::endl;
+          //std::cerr << "maxLength=" << maxLength << std::endl;
 
           Prod(/*h_[1],*/ Temp2_, HiddenState, *w_.W_);
           //std::cerr << "1Temp2_=" << Temp2_.Debug() << std::endl;

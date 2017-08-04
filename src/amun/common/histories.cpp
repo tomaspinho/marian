@@ -21,6 +21,7 @@ Histories::~Histories()
 void Histories::Init(EncParamsPtr encParams)
 {
   beamSizes_->Init(encParams);
+  cerr << "beamSizes_=" << beamSizes_->Debug(0) << endl;
 
   const Sentences &sentences = encParams->GetSentences();
   for (size_t i = 0; i < sentences.size(); ++i) {
