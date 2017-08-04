@@ -29,7 +29,8 @@ public:
       return coll_.size();
     }
 
-    Hypotheses AddAndOutput(const God &god, const Beams& beams);
+    // 1st = survivors, 2nd = completed sentence index
+    std::pair<Hypotheses, std::vector<uint> > AddAndOutput(const God &god, const Beams& beams);
 
     Hypotheses GetFirstHyps() const;
 

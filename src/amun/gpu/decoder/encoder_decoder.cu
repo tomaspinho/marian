@@ -178,7 +178,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
 
-    Hypotheses survivors = histories.AddAndOutput(god, beams);
+    std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
+    Hypotheses &survivors = histOut.first;
 
     AssembleBeamState(*nextState, survivors, *state);
 

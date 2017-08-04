@@ -32,7 +32,7 @@ void Histories::Init(EncParamsPtr encParams)
   }
 }
 
-Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
+std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god, const Beams& beams)
 {
   assert(size() <= beams.size());
 
@@ -69,7 +69,10 @@ Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
 
   // beam sizes
   size_t batchSize = beamSizes_->size();
-  Hypotheses survivors;
+
+  std::pair<Hypotheses, std::vector<uint> > ret;
+  Hypotheses &survivors = ret.first;
+
   for (size_t batchId = 0; batchId < batchSize; ++batchId) {
     const Sentence &sentence = beamSizes_->GetSentence(batchId);
     size_t lineNum = sentence.GetLineNum();
@@ -88,7 +91,7 @@ Hypotheses Histories::AddAndOutput(const God &god, const Beams& beams)
     }
   }
 
-  return survivors;
+  return ret;
 }
 
 Hypotheses Histories::GetFirstHyps() const
