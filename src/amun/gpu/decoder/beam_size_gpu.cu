@@ -8,7 +8,6 @@ namespace GPU {
 
 BeamSizeGPU::BeamSizeGPU()
 :BeamSize()
-,sourceContext_(nullptr)
 {
 }
 
@@ -18,8 +17,8 @@ BeamSizeGPU::~BeamSizeGPU()
 void BeamSizeGPU::Init(EncParamsPtr encParams)
 {
   BeamSize::Init(encParams);
-  sourceContext_ = &encParams->GetSourceContext<mblas::Matrix>();
-  sentenceLengths_ = &encParams->GetSentenceLengths<mblas::IMatrix>();
+  sourceContext_.reset(new mblas::Matrix(encParams->GetSourceContext<mblas::Matrix>()));
+  sentenceLengths_.reset(new mblas::IMatrix(encParams->GetSentenceLengths<mblas::IMatrix>()));
 }
 
 std::string BeamSizeGPU::Debug(size_t verbosity) const

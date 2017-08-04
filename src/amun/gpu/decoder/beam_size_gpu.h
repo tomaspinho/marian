@@ -22,8 +22,8 @@ public:
   std::string Debug(size_t verbosity = 1) const;
 
 protected:
-  mblas::Matrix *sourceContext_;
-  const mblas::IMatrix *sentenceLengths_;
+  std::unique_ptr<mblas::Matrix> sourceContext_;
+  std::unique_ptr<mblas::IMatrix> sentenceLengths_;
 
 };
 
