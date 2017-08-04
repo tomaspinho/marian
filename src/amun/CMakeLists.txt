@@ -48,6 +48,7 @@ add_library(libcommon OBJECT
   common/beam_size.cpp
   common/config.cpp
   common/enc_out.cpp
+  common/enc_outs.cpp
   common/exception.cpp
   common/filter.cpp
   common/god.cpp
