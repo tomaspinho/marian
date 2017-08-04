@@ -14,11 +14,11 @@ BeamSizeGPU::BeamSizeGPU()
 BeamSizeGPU::~BeamSizeGPU()
 {}
 
-void BeamSizeGPU::Init(EncParamsPtr encParams)
+void BeamSizeGPU::Init(EncOutPtr encOut)
 {
-  BeamSize::Init(encParams);
-  sourceContext_.reset(new mblas::Matrix(encParams->GetSourceContext<mblas::Matrix>()));
-  sentenceLengths_.reset(new mblas::IMatrix(encParams->GetSentenceLengths<mblas::IMatrix>()));
+  BeamSize::Init(encOut);
+  sourceContext_.reset(new mblas::Matrix(encOut->GetSourceContext<mblas::Matrix>()));
+  sentenceLengths_.reset(new mblas::IMatrix(encOut->GetSentenceLengths<mblas::IMatrix>()));
 }
 
 std::string BeamSizeGPU::Debug(size_t verbosity) const

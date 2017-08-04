@@ -52,27 +52,27 @@ State* EncoderDecoder::NewState() const {
 void EncoderDecoder::Encode(const SentencesPtr source) {
   BEGIN_TIMER("Encode");
 
-  EncParamsPtr encParams(new mblas::EncParamsGPU(source));
+  EncOutPtr encOut(new mblas::EncOutGPU(source));
 
   if (source->size()) {
-    encoder_->Encode(*source, tab_, encParams);
+    encoder_->Encode(*source, tab_, encOut);
   }
 
-  encDecBuffer_.add(encParams);
-  //cerr << "Encode encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+  encDecBuffer_.add(encOut);
+  //cerr << "Encode encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
 
   PAUSE_TIMER("Encode");
 }
 
-void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, EncParamsPtr encParams)
+void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, EncOutPtr encOut)
 {
-  //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
-  //cerr << "BeginSentenceState encParams->sentencesMask_=" << encParams->sentencesMask_.Debug(0) << endl;
+  //cerr << "BeginSentenceState encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
+  //cerr << "BeginSentenceState encOut->sentencesMask_=" << encOut->sentencesMask_.Debug(0) << endl;
   //cerr << "batchSize=" << batchSize << endl;
 
   EDState& edState = state.get<EDState>();
 
-  decoder_->EmptyState(edState.GetStates(), encParams, batchSize);
+  decoder_->EmptyState(edState.GetStates(), encOut, batchSize);
 
   decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
 }
@@ -94,7 +94,7 @@ void EncoderDecoder::Decode(const State& in, State& out, const BeamSize& beamSiz
 
 void EncoderDecoder::DecodeAsync(const God &god)
 {
-  //cerr << "BeginSentenceState encParams->sourceContext_=" << encParams->sourceContext_.Debug(0) << endl;
+  //cerr << "BeginSentenceState encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
   try {
     DecodeAsyncInternal(god);
   }
@@ -126,7 +126,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   State *state = nullptr;
   State *nextState = nullptr;
   Hypotheses prevHyps;
-  EncParamsPtr encParams;
+  EncOutPtr encOut;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   size_t decoderStep;
 
@@ -138,10 +138,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
 
       // read in next batch
-      encParams = encDecBuffer_.remove();
-      assert(encParams.get());
+      encOut = encDecBuffer_.remove();
+      assert(encOut.get());
 
-      if (encParams->GetSentences().size() == 0) {
+      if (encOut->GetSentences().size() == 0) {
         break;
       }
 
@@ -149,10 +149,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       // init states & histories/beams
       state = NewState();
-      BeginSentenceState(*state, encParams->GetSentences().size(), encParams);
+      BeginSentenceState(*state, encOut->GetSentences().size(), encOut);
       nextState = NewState();
 
-      histories.Init(encParams);
+      histories.Init(encOut);
       prevHyps = histories.GetFirstHyps();
 
       decoderStep = 0;

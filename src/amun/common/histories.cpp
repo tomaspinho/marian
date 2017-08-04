@@ -18,12 +18,12 @@ Histories::~Histories()
   delete beamSizes_;
 }
 
-void Histories::Init(EncParamsPtr encParams)
+void Histories::Init(EncOutPtr encOut)
 {
-  beamSizes_->Init(encParams);
+  beamSizes_->Init(encOut);
   cerr << "beamSizes_=" << beamSizes_->Debug(0) << endl;
 
-  const Sentences &sentences = encParams->GetSentences();
+  const Sentences &sentences = encOut->GetSentences();
   for (size_t i = 0; i < sentences.size(); ++i) {
     const Sentence &sentence = *sentences.at(i);
     size_t lineNum = sentence.GetLineNum();

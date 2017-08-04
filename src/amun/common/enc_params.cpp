@@ -2,7 +2,7 @@
 
 namespace amunmt {
 
-EncParams::EncParams(SentencesPtr sentences)
+EncOut::EncOut(SentencesPtr sentences)
 :sentences_(sentences)
 {
 }

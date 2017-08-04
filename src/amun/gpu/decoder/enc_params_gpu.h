@@ -7,10 +7,10 @@ namespace amunmt {
 namespace GPU {
 namespace mblas {
 
-class EncParamsGPU : public EncParams
+class EncOutGPU : public EncOut
 {
 public:
-  EncParamsGPU(SentencesPtr sentences);
+  EncOutGPU(SentencesPtr sentences);
 
 
 protected:

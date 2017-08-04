@@ -26,12 +26,12 @@ std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t t
 }
 
 void Encoder::Encode(const Sentences& source, size_t tab,
-                     EncParamsPtr &encParams)
+                     EncOutPtr &encOut)
 {
   size_t maxSentenceLength = source.GetMaxLength();
 
   //cerr << "GetContext1=" << context.Debug(1) << endl;
-  encParams->GetSourceContext<mblas::Matrix>().NewSize(maxSentenceLength,
+  encOut->GetSourceContext<mblas::Matrix>().NewSize(maxSentenceLength,
                  forwardRnn_.GetStateLength() + backwardRnn_.GetStateLength(),
                  1,
                  source.size());
@@ -50,13 +50,13 @@ void Encoder::Encode(const Sentences& source, size_t tab,
   //cerr << "GetContext3=" << context.Debug(1) << endl;
   forwardRnn_.Encode(embeddedWords_.cbegin(),
                          embeddedWords_.cbegin() + maxSentenceLength,
-                         encParams->GetSourceContext<mblas::Matrix>(), source.size(), false);
+                         encOut->GetSourceContext<mblas::Matrix>(), source.size(), false);
   //cerr << "GetContext4=" << context.Debug(1) << endl;
 
   backwardRnn_.Encode(embeddedWords_.crend() - maxSentenceLength,
                           embeddedWords_.crend() ,
-                          encParams->GetSourceContext<mblas::Matrix>(), source.size(), true,
-                          &encParams->GetSentenceLengths<mblas::IMatrix>());
+                          encOut->GetSourceContext<mblas::Matrix>(), source.size(), true,
+                          &encOut->GetSentenceLengths<mblas::IMatrix>());
   //cerr << "GetContext5=" << context.Debug(1) << endl;
 }
 

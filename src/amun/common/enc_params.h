@@ -3,10 +3,10 @@
 
 namespace amunmt {
 
-class EncParams
+class EncOut
 {
 public:
-  EncParams(SentencesPtr sentences);
+  EncOut(SentencesPtr sentences);
 
   const Sentences &GetSentences() const
   { return *sentences_; }
@@ -32,6 +32,6 @@ protected:
   virtual const BaseMatrix &GetSentenceLengthsInternal() const = 0;
 };
 
-typedef std::shared_ptr<EncParams> EncParamsPtr;
+typedef std::shared_ptr<EncOut> EncOutPtr;
 
 }

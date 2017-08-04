@@ -7,8 +7,8 @@ namespace amunmt {
 namespace GPU {
 namespace mblas {
 
-EncParamsGPU::EncParamsGPU(SentencesPtr sentences)
-:EncParams(sentences)
+EncOutGPU::EncOutGPU(SentencesPtr sentences)
+:EncOut(sentences)
 {
   size_t tab = 0;
   size_t maxSentenceLength = sentences->GetMaxLength();

@@ -9,7 +9,7 @@ class BeamSize
 {
   struct SentenceElement
   {
-    EncParamsPtr encParams;
+    EncOutPtr encOut;
     size_t sentenceInd;
   };
 
@@ -17,7 +17,7 @@ public:
   BeamSize();
   virtual ~BeamSize();
 
-  virtual void Init(EncParamsPtr encParams);
+  virtual void Init(EncOutPtr encOut);
 
   void Set(uint val);
 

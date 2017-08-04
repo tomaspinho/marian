@@ -98,7 +98,7 @@ class Encoder {
     Encoder(const Weights& model);
 
     void Encode(const Sentences& words, size_t tab,
-                    EncParamsPtr &encParams);
+                    EncOutPtr &encOut);
 
   private:
     Embeddings<Weights::EncEmbeddings> embeddings_;

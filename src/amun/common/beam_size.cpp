@@ -14,9 +14,9 @@ BeamSize::BeamSize()
 BeamSize::~BeamSize()
 {}
 
-void BeamSize::Init(EncParamsPtr encParams)
+void BeamSize::Init(EncOutPtr encOut)
 {
-  const Sentences &sentences = encParams->GetSentences();
+  const Sentences &sentences = encOut->GetSentences();
 
   sizes_.clear();
   sizes_.resize(sentences.size(), 1);
@@ -26,10 +26,10 @@ void BeamSize::Init(EncParamsPtr encParams)
   sentences_.resize(sentences.size());
 
   for (size_t i = 0; i < sentences.size(); ++i) {
-    SentenceElement ele = {encParams, i};
+    SentenceElement ele = {encOut, i};
     sentences_[i] = ele;
 
-    const Sentences &sentences = encParams->GetSentences();
+    const Sentences &sentences = encOut->GetSentences();
     SentencePtr sentence = sentences.at(i);
     if (sentence->size() > maxLength_) {
       maxLength_ = sentence->size();
@@ -53,10 +53,10 @@ uint BeamSize::GetTotal() const
 const Sentence &BeamSize::GetSentence(size_t ind) const
 {
   const SentenceElement &ele = sentences_.at(ind);
-  const EncParamsPtr &encParams = ele.encParams;
+  const EncOutPtr &encOut = ele.encOut;
   size_t sentenceInd = ele.sentenceInd;
 
-  const Sentences &sentences = encParams->GetSentences();
+  const Sentences &sentences = encOut->GetSentences();
   const SentencePtr &sentence = sentences.at(sentenceInd);
   return *sentence;
 }
