@@ -167,7 +167,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     Decode(*state, *nextState, histories.GetBeamSizes());
 
     //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
-    //cerr << "state=" << state->Debug(0) << endl;
+    cerr << "state=" << state->Debug(0) << endl;
 
     // beams
     if (decoderStep == 0) {
