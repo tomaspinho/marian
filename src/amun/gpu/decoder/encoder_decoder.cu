@@ -180,9 +180,11 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
+    const std::vector<uint> &completed = histOut.second;
 
     AssembleBeamState(*nextState, survivors, *state);
 
+    cerr << "completed=" << Debug(completed, 2) << endl;
     /*
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;

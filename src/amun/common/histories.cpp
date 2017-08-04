@@ -72,6 +72,7 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
 
   std::pair<Hypotheses, std::vector<uint> > ret;
   Hypotheses &survivors = ret.first;
+  std::vector<uint> &completed = ret.second;
 
   for (size_t batchId = 0; batchId < batchSize; ++batchId) {
     const Sentence &sentence = beamSizes_->GetSentence(batchId);
@@ -86,6 +87,10 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
           survivors.push_back(hypo);
         } else {
           beamSizes_->Decr(batchId);
+
+          if (beamSizes_->Get(batchId) == 0) {
+            completed.push_back(batchId);
+          }
         }
       }
     }
