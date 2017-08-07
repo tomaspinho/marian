@@ -14,6 +14,8 @@ class BeamSize
   };
 
 public:
+  typedef std::pair<uint, uint> Element;
+
   BeamSize();
   virtual ~BeamSize();
 
@@ -32,14 +34,14 @@ public:
   void Decr(size_t ind);
 
   uint Get(size_t ind) const
-  { return sizes_.at(ind); }
+  { return sizes_.at(ind).second; }
 
   const Sentence &GetSentence(size_t ind) const;
 
   virtual std::string Debug(size_t verbosity = 1) const;
 
 protected:
-  std::vector<uint> sizes_;
+  std::vector<Element> sizes_;
   std::vector<SentenceElement> sentences_;
 
   uint total_;
