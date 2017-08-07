@@ -88,7 +88,7 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
         } else {
           beamSizes_->Decr(batchId);
 
-          if (beamSizes_->Get(batchId) == 0) {
+          if (beamSizes_->Get(batchId).second == 0) {
             completed.push_back(batchId);
           }
         }

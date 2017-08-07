@@ -57,7 +57,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::map<size_t, size_t> batchMap;
   size_t tmp = 0;
   for (size_t batchID = 0; batchID < beamSizes.size(); ++batchID) {
-    for (size_t t = 0; t < beamSizes.Get(batchID); ++t) {
+    for (size_t t = 0; t < beamSizes.Get(batchID).second; ++t) {
       batchMap[tmp++] = batchID;
     }
   }

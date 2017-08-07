@@ -164,7 +164,7 @@ class Decoder {
           HostVector<uint> batchMapping(HiddenState.dim(0));
           size_t k = 0;
           for (size_t i = 0; i < beamSizes.size(); ++i) {
-            for (size_t j = 0; j < beamSizes.Get(i); ++j) {
+            for (size_t j = 0; j < beamSizes.Get(i).second; ++j) {
               batchMapping[k++] = i;
             }
           }

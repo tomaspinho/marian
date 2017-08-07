@@ -14,6 +14,7 @@ class BeamSize
   };
 
 public:
+  // 1st = start ind, 2nd = size
   typedef std::pair<uint, uint> Element;
 
   BeamSize();
@@ -33,8 +34,8 @@ public:
 
   void Decr(size_t ind);
 
-  uint Get(size_t ind) const
-  { return sizes_.at(ind).second; }
+  const Element &Get(size_t ind) const
+  { return sizes_.at(ind); }
 
   const Sentence &GetSentence(size_t ind) const;
 
