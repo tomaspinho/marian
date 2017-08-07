@@ -1,5 +1,7 @@
 #include "best_hyps.h"
 
+using namespace std;
+
 namespace amunmt {
 namespace GPU {
 
@@ -55,12 +57,15 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   }
 
   std::map<size_t, size_t> batchMap;
-  size_t tmp = 0;
+  //cerr << "beamSizes.size()=" << beamSizes.size() << " batchMap=";
   for (size_t batchID = 0; batchID < beamSizes.size(); ++batchID) {
+    uint startPos = beamSizes.Get(batchID).first;
     for (size_t t = 0; t < beamSizes.Get(batchID).second; ++t) {
-      batchMap[tmp++] = batchID;
+      cerr << startPos << "=" << batchID << " ";
+      batchMap[startPos++] = batchID;
     }
   }
+  cerr << endl;
 
   for (size_t i = 0; i < beamSizeSum; i++) {
     size_t wordIndex = bestKeys[i] % Probs.dim(1);

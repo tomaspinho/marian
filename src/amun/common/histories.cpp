@@ -69,6 +69,7 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
 
   // beam sizes
   size_t batchSize = beamSizes_->size();
+  cerr << "batchSize=" << batchSize << endl;
 
   std::pair<Hypotheses, std::vector<uint> > ret;
   Hypotheses &survivors = ret.first;
