@@ -317,8 +317,8 @@ void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& Probs,
   //cerr << endl;
   //cerr << "numHypos=" << numHypos << endl;
   cerr << "beamSizes=" << beamSizes.Debug(2) << endl;
-  //cerr << "cummulatedBeamSizes=" << mblas::Debug(cummulatedBeamSizes, 2) << endl;
-  //cerr << "batchFirstElementIdxs=" << mblas::Debug(batchFirstElementIdxs, 2) << endl;
+  cerr << "cummulatedBeamSizes=" << mblas::Debug(cummulatedBeamSizes, 2) << endl;
+  cerr << "batchFirstElementIdxs=" << mblas::Debug(batchFirstElementIdxs, 2) << endl;
   //cerr << "1Probs=" << Probs.Debug() << endl;
 
   getNBestList(Probs, batchFirstElementIdxs, cummulatedBeamSizes);

@@ -70,7 +70,10 @@ std::string Debug(const HostVector<T> &vec, size_t verbosity = 1)
   strm << "size=" << vec.size();
 
   if (verbosity) {
-    T sum = Sum(vec.data(), vec.size());
+    T sum = 0;
+    for (size_t i = 0; i < vec.size(); ++i) {
+      sum += vec[i];
+    }
     strm << " sum=" << sum;
   }
 
