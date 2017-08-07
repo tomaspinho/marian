@@ -21,7 +21,7 @@ Histories::~Histories()
 void Histories::Init(EncOutPtr encOut)
 {
   beamSizes_->Init(encOut);
-  cerr << "beamSizes_=" << beamSizes_->Debug(0) << endl;
+  //cerr << "beamSizes_=" << beamSizes_->Debug(0) << endl;
 
   const Sentences &sentences = encOut->GetSentences();
   for (size_t i = 0; i < sentences.size(); ++i) {
