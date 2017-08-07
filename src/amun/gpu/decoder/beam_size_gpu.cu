@@ -14,9 +14,9 @@ BeamSizeGPU::BeamSizeGPU()
 BeamSizeGPU::~BeamSizeGPU()
 {}
 
-void BeamSizeGPU::Init(EncOutPtr encOut)
+void BeamSizeGPU::Init(uint maxBeamSize, EncOutPtr encOut)
 {
-  BeamSize::Init(encOut);
+  BeamSize::Init(maxBeamSize, encOut);
   sourceContext_.reset(new mblas::Matrix(encOut->GetSourceContext<mblas::Matrix>()));
   sentenceLengths_.reset(new mblas::IMatrix(encOut->GetSentenceLengths<mblas::IMatrix>()));
 }

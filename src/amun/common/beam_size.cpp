@@ -14,7 +14,7 @@ BeamSize::BeamSize()
 BeamSize::~BeamSize()
 {}
 
-void BeamSize::Init(EncOutPtr encOut)
+void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
 {
   const Sentences &sentences = encOut->GetSentences();
 
@@ -23,7 +23,7 @@ void BeamSize::Init(EncOutPtr encOut)
   sizes_.clear();
   sizes_.resize(sentences.size());
   for (size_t i = 0; i < sentences.size(); ++i) {
-    Element ele(i, 1);
+    Element ele(i * maxBeamSize, 1);
     sizes_[i] = ele;
   }
 

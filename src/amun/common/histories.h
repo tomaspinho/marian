@@ -23,7 +23,7 @@ public:
     Histories(BeamSize *beamSizes, bool normalizeScore);
     virtual ~Histories();
 
-    void Init(EncOutPtr encOut);
+    void Init(uint maxBeamSize, EncOutPtr encOut);
 
     size_t size() const {
       return coll_.size();

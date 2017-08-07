@@ -11,7 +11,7 @@ public:
   BeamSizeGPU();
   ~BeamSizeGPU();
 
-  void Init(EncOutPtr encOut);
+  void Init(uint maxBeamSize, EncOutPtr encOut);
 
   const mblas::Matrix &GetSourceContext() const
   { return *sourceContext_; }

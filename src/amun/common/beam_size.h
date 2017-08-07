@@ -19,7 +19,7 @@ public:
   BeamSize();
   virtual ~BeamSize();
 
-  virtual void Init(EncOutPtr encOut);
+  virtual void Init(uint maxBeamSize, EncOutPtr encOut);
 
   void Set(uint val);
 

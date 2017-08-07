@@ -123,6 +123,9 @@ void EncoderDecoder::DecodeAsync(const God &god)
 void EncoderDecoder::DecodeAsyncInternal(const God &god)
 {
   boost::timer::cpu_timer timer;
+
+  uint maxBeamSize = god.Get<uint>("beam-size");
+
   State *state = nullptr;
   State *nextState = nullptr;
   Hypotheses prevHyps;
@@ -152,7 +155,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       BeginSentenceState(*state, encOut->GetSentences().size(), encOut);
       nextState = NewState();
 
-      histories.Init(encOut);
+      histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
 
       decoderStep = 0;

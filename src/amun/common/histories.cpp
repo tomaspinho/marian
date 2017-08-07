@@ -18,9 +18,9 @@ Histories::~Histories()
   delete beamSizes_;
 }
 
-void Histories::Init(EncOutPtr encOut)
+void Histories::Init(uint maxBeamSize, EncOutPtr encOut)
 {
-  beamSizes_->Init(encOut);
+  beamSizes_->Init(maxBeamSize, encOut);
   //cerr << "beamSizes_=" << beamSizes_->Debug(0) << endl;
 
   const Sentences &sentences = encOut->GetSentences();
