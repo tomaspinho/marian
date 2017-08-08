@@ -31,12 +31,11 @@ public:
   uint GetMaxLength() const
   { return maxLength_; }
 
-  void Decr(size_t ind);
-
-  const SentenceElement &Get(size_t ind) const
-  { return sentences_.at(ind); }
+  const SentenceElement &Get(size_t ind) const;
 
   const Sentence &GetSentence(size_t ind) const;
+
+  void Decr(size_t ind);
 
   virtual std::string Debug(size_t verbosity = 1) const;
 

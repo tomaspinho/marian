@@ -48,6 +48,9 @@ uint BeamSize::GetTotal() const
   return total_;
 }
 
+const BeamSize::SentenceElement &BeamSize::Get(size_t ind) const
+{ return sentences_.at(ind); }
+
 const Sentence &BeamSize::GetSentence(size_t ind) const
 {
   const SentenceElement &ele = sentences_.at(ind);
