@@ -75,6 +75,10 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
   Hypotheses &survivors = ret.first;
   std::vector<uint> &completed = ret.second;
 
+  for (BeamSize::const_iterator iter = beamSizes_->begin(); iter != beamSizes_->end(); ++iter) {
+
+  }
+
   for (size_t batchId = 0; batchId < batchSize; ++batchId) {
     const Sentence &sentence = beamSizes_->GetSentence(batchId);
     size_t lineNum = sentence.GetLineNum();

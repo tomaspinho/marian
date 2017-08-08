@@ -57,12 +57,7 @@ const BeamSize::SentenceElement &BeamSize::Get(size_t ind) const
 const Sentence &BeamSize::GetSentence(size_t ind) const
 {
   const SentenceElement &ele = sentences_.at(ind);
-  const EncOutPtr &encOut = ele.encOut;
-  size_t sentenceInd = ele.sentenceInd;
-
-  const Sentences &sentences = encOut->GetSentences();
-  const SentencePtr &sentence = sentences.at(sentenceInd);
-  return *sentence;
+  return ele.GetSentence();
 }
 
 ///////////////////////////////////////////////////////////////////////////
