@@ -87,7 +87,8 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
         if (hypo->GetNumWords() < sentence.size() * 3 && hypo->GetWord() != EOS_ID) {
           survivors.push_back(hypo);
         } else {
-          beamSizes_->Decr(batchId);
+          //beamSizes_->Decr(batchId);
+          beamSizes_->Decr2(lineNum);
 
           if (beamSizes_->Get(batchId).size == 0) {
             completed.push_back(batchId);

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <unordered_map>
 #include "sentences.h"
 #include "enc_out.h"
 
@@ -35,12 +36,20 @@ public:
 
   const Sentence &GetSentence(size_t ind) const;
 
-  void Decr(size_t ind);
+  ///////////////////////////////////////////////////////////////////////////
+  const SentenceElement &Get2(size_t lineNum) const;
+  SentenceElement &Get2(size_t lineNum);
+
+  void Decr2(size_t lineNum);
+
+  ///////////////////////////////////////////////////////////////////////////
 
   virtual std::string Debug(size_t verbosity = 1) const;
 
 protected:
   std::vector<SentenceElement> sentences_;
+  typedef std::unordered_map<size_t, SentenceElement*> Coll;
+  Coll sentences2_;
 
   uint total_;
   uint maxLength_;

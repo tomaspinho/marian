@@ -24,11 +24,14 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
   sentences_.resize(sentences.size());
 
   for (size_t i = 0; i < sentences.size(); ++i) {
+    SentencePtr sentence = sentences.at(i);
+    size_t lineNum = sentence->GetLineNum();
+
     SentenceElement ele = {encOut, i, i * maxBeamSize, 1};
     sentences_[i] = ele;
 
-    const Sentences &sentences = encOut->GetSentences();
-    SentencePtr sentence = sentences.at(i);
+    sentences2_[lineNum] = &sentences_[i];
+
     if (sentence->size() > maxLength_) {
       maxLength_ = sentence->size();
     }
@@ -62,14 +65,31 @@ const Sentence &BeamSize::GetSentence(size_t ind) const
   return *sentence;
 }
 
-
-void BeamSize::Decr(size_t ind)
+///////////////////////////////////////////////////////////////////////////
+const BeamSize::SentenceElement &BeamSize::Get2(size_t lineNum) const
 {
-  assert(sentences_[ind].size > 0);
-  --sentences_[ind].size;
+  Coll::const_iterator iter = sentences2_.find(lineNum);
+  assert(iter != sentences2_.end());
+  return *iter->second;
+}
+
+BeamSize::SentenceElement &BeamSize::Get2(size_t lineNum)
+{
+  Coll::iterator iter = sentences2_.find(lineNum);
+  assert(iter != sentences2_.end());
+  return *iter->second;
+}
+
+void BeamSize::Decr2(size_t lineNum)
+{
+  SentenceElement &ele = Get2(lineNum);
+  assert(ele.size > 0);
+  --ele.size;
 
   --total_;
 }
+
+///////////////////////////////////////////////////////////////////////////
 
 std::string BeamSize::Debug(size_t verbosity) const
 {
