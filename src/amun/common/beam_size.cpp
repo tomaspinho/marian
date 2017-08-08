@@ -27,10 +27,10 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
     SentencePtr sentence = sentences.at(i);
     size_t lineNum = sentence->GetLineNum();
 
-    SentenceElement ele = {encOut, i, i * maxBeamSize, 1};
-    sentences_[i] = ele;
+    cerr << "BeamSize lineNum=" << lineNum << " " << sentence->GetLineNum() << endl;
 
-    sentences2_[lineNum] = &sentences_[i];
+    SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, i * maxBeamSize, 1));
+    sentences2_[lineNum] = &ele;
 
     if (sentence->size() > maxLength_) {
       maxLength_ = sentence->size();

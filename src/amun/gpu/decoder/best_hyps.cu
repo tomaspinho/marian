@@ -61,11 +61,11 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   for (size_t batchID = 0; batchID < beamSizes.size(); ++batchID) {
     uint startPos = beamSizes.Get(batchID).startInd;
     for (size_t t = 0; t < beamSizes.Get(batchID).size; ++t) {
-      cerr << startPos << "=" << batchID << " ";
+      //cerr << startPos << "=" << batchID << " ";
       batchMap[startPos++] = batchID;
     }
   }
-  cerr << endl;
+  //cerr << endl;
 
   for (size_t i = 0; i < beamSizeSum; i++) {
     size_t wordIndex = bestKeys[i] % Probs.dim(1);

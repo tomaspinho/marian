@@ -159,7 +159,7 @@ class Decoder {
           size_t maxLength = sourceContext.dim(0);
           size_t batchSize = sourceContext.dim(3);
           //std::cerr << "batchSize=" << batchSize << std::endl;
-          std::cerr << "HiddenState=" << HiddenState.Debug(0) << std::endl;
+          //std::cerr << "HiddenState=" << HiddenState.Debug(0) << std::endl;
 
           HostVector<uint> batchMapping(HiddenState.dim(0));
           size_t k = 0;
@@ -168,7 +168,7 @@ class Decoder {
               batchMapping[k++] = i;
             }
           }
-          std::cerr << "batchMapping=" << mblas::Debug(batchMapping, 2) << std::endl;
+          //std::cerr << "batchMapping=" << mblas::Debug(batchMapping, 2) << std::endl;
 
           dBatchMapping_.resize(batchMapping.size());
           mblas::copy(thrust::raw_pointer_cast(batchMapping.data()),

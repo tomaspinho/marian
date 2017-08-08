@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include "sentences.h"
 #include "enc_out.h"
 
@@ -8,6 +9,9 @@ namespace amunmt {
 
 class BeamSize
 {
+
+public:
+  ///////////////////////////////////////////////////////////////////////////
   struct SentenceElement
   {
     EncOutPtr encOut;
@@ -15,16 +19,27 @@ class BeamSize
     uint startInd;
     uint size;
 
+    SentenceElement() {}
+
+    SentenceElement(EncOutPtr vencOut, size_t vsentenceInd, uint vstartInd, uint vsize)
+    {
+      encOut = vencOut;
+      sentenceInd = vsentenceInd;
+      startInd = vstartInd;
+      size = vsize;
+    }
+
     const Sentence &GetSentence() const
     {
       const Sentences &sentences = encOut->GetSentences();
-      const SentencePtr &sentence = sentences.at(sentenceInd);
+      const SentencePtr sentence = sentences.at(sentenceInd);
       return *sentence;
     }
   };
+  ///////////////////////////////////////////////////////////////////////////
 
-public:
-  typedef std::unordered_map<size_t, SentenceElement*> Coll;
+  //typedef std::unordered_map<size_t, SentenceElement*> Coll;
+  typedef std::map<size_t, SentenceElement*> Coll;
 
   typedef Coll::const_iterator const_iterator;
 
