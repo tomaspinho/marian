@@ -16,9 +16,6 @@ class BeamSize
   };
 
 public:
-  // 1st = start ind, 2nd = size
-  typedef std::pair<uint, uint> Element;
-
   BeamSize();
   virtual ~BeamSize();
 
@@ -44,7 +41,6 @@ public:
   virtual std::string Debug(size_t verbosity = 1) const;
 
 protected:
-  std::vector<Element> sizes_;
   std::vector<SentenceElement> sentences_;
 
   uint total_;
