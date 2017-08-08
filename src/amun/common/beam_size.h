@@ -11,6 +11,8 @@ class BeamSize
   {
     EncOutPtr encOut;
     size_t sentenceInd;
+    uint startInd;
+    uint size;
   };
 
 public:
@@ -25,7 +27,7 @@ public:
   void Set(uint val);
 
   size_t size() const
-  { return sizes_.size(); }
+  { return sentences_.size(); }
 
   uint GetTotal() const;
 
@@ -34,8 +36,8 @@ public:
 
   void Decr(size_t ind);
 
-  const Element &Get(size_t ind) const
-  { return sizes_.at(ind); }
+  const SentenceElement &Get(size_t ind) const
+  { return sentences_.at(ind); }
 
   const Sentence &GetSentence(size_t ind) const;
 

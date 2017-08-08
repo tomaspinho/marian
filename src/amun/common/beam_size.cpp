@@ -20,18 +20,11 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
 
   total_ = sentences.size();
 
-  sizes_.clear();
-  sizes_.resize(sentences.size());
-  for (size_t i = 0; i < sentences.size(); ++i) {
-    Element ele(i * maxBeamSize, 1);
-    sizes_[i] = ele;
-  }
-
   maxLength_ = 0;
   sentences_.resize(sentences.size());
 
   for (size_t i = 0; i < sentences.size(); ++i) {
-    SentenceElement ele = {encOut, i};
+    SentenceElement ele = {encOut, i, i * maxBeamSize, 1};
     sentences_[i] = ele;
 
     const Sentences &sentences = encOut->GetSentences();
@@ -44,8 +37,8 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
 
 void BeamSize::Set(uint val)
 {
-  for (Element& beamSize : sizes_) {
-    beamSize.second = val;
+  for (SentenceElement& ele : sentences_) {
+    ele.size = val;
   }
   total_ = size() * val;
 }
@@ -69,8 +62,9 @@ const Sentence &BeamSize::GetSentence(size_t ind) const
 
 void BeamSize::Decr(size_t ind)
 {
-  assert(sizes_[ind].second > 0);
-  --sizes_[ind].second;
+  assert(sentences_[ind].size > 0);
+  --sentences_[ind].size;
+
   --total_;
 }
 
@@ -78,13 +72,11 @@ std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
 
-  strm << "sizes_=";
-  for (size_t i = 0; i < sizes_.size(); ++i) {
-    const Element &ele = sizes_[i];
-    strm << "(" << ele.first << "," << ele.second << ") ";
+  strm << "sentences_=";
+  for (size_t i = 0; i < sentences_.size(); ++i) {
+    const SentenceElement &ele = sentences_[i];
+    strm << "(" << ele.sentenceInd << "," << ele.startInd << "," << ele.size << ") ";
   }
-
-  strm << " sentences_=" << sentences_.size();
 
   return strm.str();
 }
