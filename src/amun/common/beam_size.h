@@ -17,6 +17,16 @@ class BeamSize
   };
 
 public:
+  typedef std::unordered_map<size_t, SentenceElement*> Coll;
+
+  typedef Coll::const_iterator const_iterator;
+
+  const_iterator begin() const
+  { return sentences2_.begin(); }
+
+  const_iterator end() const
+  { return sentences2_.end(); }
+
   BeamSize();
   virtual ~BeamSize();
 
@@ -38,7 +48,6 @@ public:
 
   ///////////////////////////////////////////////////////////////////////////
   const SentenceElement &Get2(size_t lineNum) const;
-  SentenceElement &Get2(size_t lineNum);
 
   void Decr2(size_t lineNum);
 
@@ -48,11 +57,12 @@ public:
 
 protected:
   std::vector<SentenceElement> sentences_;
-  typedef std::unordered_map<size_t, SentenceElement*> Coll;
   Coll sentences2_;
 
   uint total_;
   uint maxLength_;
+
+  SentenceElement &Get3(size_t lineNum);
 };
 
 }

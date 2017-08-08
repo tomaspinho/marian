@@ -73,7 +73,7 @@ const BeamSize::SentenceElement &BeamSize::Get2(size_t lineNum) const
   return *iter->second;
 }
 
-BeamSize::SentenceElement &BeamSize::Get2(size_t lineNum)
+BeamSize::SentenceElement &BeamSize::Get3(size_t lineNum)
 {
   Coll::iterator iter = sentences2_.find(lineNum);
   assert(iter != sentences2_.end());
@@ -82,7 +82,7 @@ BeamSize::SentenceElement &BeamSize::Get2(size_t lineNum)
 
 void BeamSize::Decr2(size_t lineNum)
 {
-  SentenceElement &ele = Get2(lineNum);
+  SentenceElement &ele = Get3(lineNum);
   assert(ele.size > 0);
   --ele.size;
 

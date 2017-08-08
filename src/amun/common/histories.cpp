@@ -90,7 +90,7 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
           //beamSizes_->Decr(batchId);
           beamSizes_->Decr2(lineNum);
 
-          if (beamSizes_->Get(batchId).size == 0) {
+          if (beamSizes_->Get2(lineNum).size == 0) {
             completed.push_back(batchId);
           }
         }
