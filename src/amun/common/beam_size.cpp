@@ -22,6 +22,7 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
 
   maxLength_ = 0;
   sentences_.resize(sentences.size());
+  sentences2_.clear();
 
   for (size_t i = 0; i < sentences.size(); ++i) {
     const Sentence &sentence = sentences.Get(i);

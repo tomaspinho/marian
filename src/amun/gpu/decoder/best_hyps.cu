@@ -70,6 +70,16 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   }
   //cerr << endl;
 
+  for (BeamSize::const_iterator iter = beamSizes.begin(); iter != beamSizes.end(); ++iter) {
+    size_t lineNum = iter->first;
+    const BeamSize::SentenceElement *ele = iter->second;
+    assert(ele);
+    const Sentence &sentence = ele->GetSentence();
+    cerr << "CalcBeam lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
+    assert(lineNum == sentence.GetLineNum());
+
+  }
+
   for (size_t i = 0; i < beamSizeSum; i++) {
     size_t wordIndex = bestKeys[i] % Probs.dim(1);
     if (isInputFiltered_) {
