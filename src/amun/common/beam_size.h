@@ -64,7 +64,8 @@ public:
   uint GetMaxLength() const
   { return maxLength_; }
 
-  const SentenceElement &Get(size_t ind) const;
+  //const SentenceElement &Get(size_t ind) const;
+  const SentenceElement &GetOnly() const;
 
   const Sentence &GetSentence(size_t ind) const;
 

@@ -51,8 +51,14 @@ uint BeamSize::GetTotal() const
   return total_;
 }
 
-const BeamSize::SentenceElement &BeamSize::Get(size_t ind) const
-{ return sentences_.at(ind); }
+//const BeamSize::SentenceElement &BeamSize::Get(size_t ind) const
+//{ return sentences_.at(ind); }
+
+const BeamSize::SentenceElement &BeamSize::GetOnly() const
+{
+  assert(sentences2_.size() == 1);
+  return *sentences2_.begin()->second;
+}
 
 const Sentence &BeamSize::GetSentence(size_t ind) const
 {

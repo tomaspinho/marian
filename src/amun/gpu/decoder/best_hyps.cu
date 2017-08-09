@@ -59,8 +59,11 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::map<size_t, size_t> batchMap;
   //cerr << "beamSizes.size()=" << beamSizes.size() << " batchMap=";
   for (size_t batchID = 0; batchID < beamSizes.size(); ++batchID) {
-    uint startPos = beamSizes.Get(batchID).startInd;
-    for (size_t t = 0; t < beamSizes.Get(batchID).size; ++t) {
+    const Sentence &sentence = beamSizes.GetSentence(batchID);
+    size_t lineNum = sentence.GetLineNum();
+
+    uint startPos = beamSizes.Get2(lineNum).startInd;
+    for (size_t t = 0; t < beamSizes.Get2(lineNum).size; ++t) {
       //cerr << startPos << "=" << batchID << " ";
       batchMap[startPos++] = batchID;
     }
