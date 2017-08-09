@@ -27,7 +27,7 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
     const Sentence &sentence = sentences.Get(i);
     size_t lineNum = sentence.GetLineNum();
 
-    cerr << "BeamSize lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
+    //cerr << "BeamSize lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
 
     SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, i * maxBeamSize, 1));
     sentences2_[lineNum] = &ele;
