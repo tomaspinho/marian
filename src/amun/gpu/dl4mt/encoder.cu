@@ -17,8 +17,8 @@ std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t t
   std::vector<std::vector<size_t>> matrix(maxLen, std::vector<size_t>(source.size(), 0));
 
   for (size_t j = 0; j < source.size(); ++j) {
-    for (size_t i = 0; i < source.at(j)->GetWords(tab).size(); ++i) {
-        matrix[i][j] = source.at(j)->GetWords(tab)[i];
+    for (size_t i = 0; i < source.Get(j).GetWords(tab).size(); ++i) {
+        matrix[i][j] = source.Get(j).GetWords(tab)[i];
     }
   }
 

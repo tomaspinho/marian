@@ -17,7 +17,7 @@ EncOutGPU::EncOutGPU(SentencesPtr sentences)
   HostVector<uint> hSentenceLengths(sentences->size());
 
   for (size_t i = 0; i < sentences->size(); ++i) {
-    const Sentence &sentence = *sentences->at(i);
+    const Sentence &sentence = sentences->Get(i);
     hSentenceLengths[i] = sentence.GetWords(tab).size();
   }
 

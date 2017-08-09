@@ -24,16 +24,16 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
   sentences_.resize(sentences.size());
 
   for (size_t i = 0; i < sentences.size(); ++i) {
-    SentencePtr sentence = sentences.at(i);
-    size_t lineNum = sentence->GetLineNum();
+    const Sentence &sentence = sentences.Get(i);
+    size_t lineNum = sentence.GetLineNum();
 
-    cerr << "BeamSize lineNum=" << lineNum << " " << sentence->GetLineNum() << endl;
+    cerr << "BeamSize lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
 
     SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, i * maxBeamSize, 1));
     sentences2_[lineNum] = &ele;
 
-    if (sentence->size() > maxLength_) {
-      maxLength_ = sentence->size();
+    if (sentence.size() > maxLength_) {
+      maxLength_ = sentence.size();
     }
   }
 }

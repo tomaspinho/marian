@@ -25,7 +25,7 @@ void Histories::Init(uint maxBeamSize, EncOutPtr encOut)
 
   const Sentences &sentences = encOut->GetSentences();
   for (size_t i = 0; i < sentences.size(); ++i) {
-    const Sentence &sentence = *sentences.at(i);
+    const Sentence &sentence = sentences.Get(i);
     size_t lineNum = sentence.GetLineNum();
     History *history = new History(sentence, normalizeScore_, 3 * sentence.size());
     coll_[lineNum].reset(history);

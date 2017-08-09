@@ -32,8 +32,8 @@ public:
     const Sentence &GetSentence() const
     {
       const Sentences &sentences = encOut->GetSentences();
-      const SentencePtr sentence = sentences.at(sentenceInd);
-      return *sentence;
+      const Sentence &sentence = sentences.Get(sentenceInd);
+      return sentence;
     }
   };
   ///////////////////////////////////////////////////////////////////////////

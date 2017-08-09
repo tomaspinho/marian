@@ -16,9 +16,9 @@ Encoder::Encoder(const OpenCLInfo &openCLInfo, const Weights& model)
 }
 
 size_t GetMaxLength(const Sentences& source, size_t tab) {
-  size_t maxLength = source.at(0)->GetWords(tab).size();
+  size_t maxLength = source.Get(0).GetWords(tab).size();
   for (size_t i = 0; i < source.size(); ++i) {
-    const Sentence &sentence = *source.at(i);
+    const Sentence &sentence = source.Get(i);
     maxLength = std::max(maxLength, sentence.GetWords(tab).size());
   }
   return maxLength;
@@ -29,8 +29,8 @@ std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t t
   std::vector<std::vector<size_t>> matrix(maxLen, std::vector<size_t>(source.size(), 0));
 
   for (size_t j = 0; j < source.size(); ++j) {
-    for (size_t i = 0; i < source.at(j)->GetWords(tab).size(); ++i) {
-        matrix[i][j] = source.at(j)->GetWords(tab)[i];
+    for (size_t i = 0; i < source.Get(j).GetWords(tab).size(); ++i) {
+        matrix[i][j] = source.Get(j).GetWords(tab)[i];
     }
   }
 
@@ -44,7 +44,7 @@ void Encoder::Encode(const Sentences& source, size_t tab, mblas::Matrix& context
 
   std::vector<int> hMapping(maxSentenceLength * source.size(), 0);
   for (size_t i = 0; i < source.size(); ++i) {
-    for (size_t j = 0; j < source.at(i)->GetWords(tab).size(); ++j) {
+    for (size_t j = 0; j < source.Get(i).GetWords(tab).size(); ++j) {
       hMapping[i * maxSentenceLength + j] = 1;
     }
   }
