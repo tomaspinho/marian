@@ -44,17 +44,6 @@ public:
   };
   ///////////////////////////////////////////////////////////////////////////
 
-  //typedef std::unordered_map<size_t, SentenceElement*> Coll;
-  typedef std::map<size_t, SentenceElement*> Coll;
-
-  typedef Coll::const_iterator const_iterator;
-
-  const_iterator begin() const
-  { return sentences2_.begin(); }
-
-  const_iterator end() const
-  { return sentences2_.end(); }
-
   BeamSize();
   virtual ~BeamSize();
 
@@ -83,7 +72,6 @@ public:
 
 protected:
   std::vector<SentenceElement> sentences_;
-  Coll sentences2_;
 
   uint total_;
   uint maxLength_;

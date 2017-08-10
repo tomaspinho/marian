@@ -22,7 +22,6 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
 
   maxLength_ = 0;
   sentences_.resize(sentences.size());
-  sentences2_.clear();
 
   for (size_t i = 0; i < sentences.size(); ++i) {
     const Sentence &sentence = sentences.Get(i);
@@ -31,7 +30,6 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
     //cerr << "BeamSize lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
 
     SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, i * maxBeamSize, 1, i));
-    sentences2_[lineNum] = &ele;
 
     if (sentence.size() > maxLength_) {
       maxLength_ = sentence.size();
@@ -57,8 +55,8 @@ uint BeamSize::GetTotal() const
 
 const BeamSize::SentenceElement &BeamSize::GetOnly() const
 {
-  assert(sentences2_.size() == 1);
-  return *sentences2_.begin()->second;
+  assert(sentences_.size() == 1);
+  return sentences_[0];
 }
 
 const Sentence &BeamSize::GetSentence(size_t ind) const
