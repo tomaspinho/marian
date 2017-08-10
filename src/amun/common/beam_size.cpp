@@ -29,7 +29,7 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
 
     //cerr << "BeamSize lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
 
-    SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, i * maxBeamSize, 1, i));
+    SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, 1));
 
     if (sentence.size() > maxLength_) {
       maxLength_ = sentence.size();
@@ -86,7 +86,7 @@ std::string BeamSize::Debug(size_t verbosity) const
   strm << "sentences_=";
   for (size_t i = 0; i < sentences_.size(); ++i) {
     const SentenceElement &ele = sentences_[i];
-    strm << "(" << ele.sentenceInd << "," << ele.startInd << "," << ele.size << ") ";
+    strm << "(" << ele.sentenceInd << "," << ele.size << ") ";
   }
 
   return strm.str();

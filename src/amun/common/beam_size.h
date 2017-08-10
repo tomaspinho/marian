@@ -16,23 +16,17 @@ public:
   {
     EncOutPtr encOut;
     size_t sentenceInd; // index of the sentence we're translation within encOut.sentences
-    uint startInd; // start ind 0...(beam*batchsize)
     uint size;  // beam size 0..beam
-    uint batchInd;  // index 0..batchsize
 
     SentenceElement() {}
 
     SentenceElement(EncOutPtr vencOut,
                     size_t vsentenceInd,
-                    uint vstartInd,
-                    uint vsize,
-                    uint vbatchInd)
+                    uint vsize)
     {
       encOut = vencOut;
       sentenceInd = vsentenceInd;
-      startInd = vstartInd;
       size = vsize;
-      batchInd = vbatchInd;
     }
 
     const Sentence &GetSentence() const
