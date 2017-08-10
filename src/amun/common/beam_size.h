@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -27,6 +28,12 @@ public:
       encOut = vencOut;
       sentenceInd = vsentenceInd;
       size = vsize;
+    }
+
+    void Decr()
+    {
+      assert(size);
+      --size;
     }
 
     const Sentence &GetSentence() const

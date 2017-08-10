@@ -73,7 +73,7 @@ const BeamSize::SentenceElement &BeamSize::Get(size_t ind) const
 void BeamSize::Decr(size_t ind)
 {
   SentenceElement &ele = sentences_[ind];
-  --ele.size;
+  ele.Decr();
 
   --total_;
 }

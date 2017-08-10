@@ -42,9 +42,6 @@ public:
   const HypothesisPtr &back() const
   { return coll_.back(); }
 
-  bool empty() const
-  { return coll_.empty(); }
-
   void Add(const HypothesisPtr &hypo);
 
   void swap (Beam &other)

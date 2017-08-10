@@ -36,37 +36,6 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
 {
   assert(size() <= beams.size());
 
-  for (const Beams::Coll::value_type &ele: beams) {
-    const Beam &beam = *ele.second;
-    assert(!beam.empty());
-
-    size_t lineNum = beam.GetLineNum();
-
-    Coll::iterator iter = coll_.find(lineNum);
-    assert(iter != coll_.end());
-    HistoryPtr &history = iter->second;
-    assert(history);
-
-    history->Add(beam);
-
-    // output if all hyps is eod
-    bool end = true;
-    for (size_t hypoInd = 0; hypoInd <  beam.size(); ++hypoInd) {
-      const HypothesisPtr &hypo = beam.at(hypoInd);
-      const Sentence &sentence = hypo->GetSentence();
-
-      if (hypo->GetNumWords() < sentence.size() * 3 &&  hypo->GetWord() != EOS_ID) {
-        end = false;
-        break;
-      }
-    }
-
-    if (end) {
-      history->Output(god);
-      coll_.erase(iter);
-    }
-  }
-
   // beam sizes
   size_t batchSize = beamSizes_->size();
   //cerr << "batchSize=" << batchSize << endl;
@@ -76,7 +45,8 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
   std::vector<uint> &completed = ret.second;
 
   for (size_t batchId = 0; batchId < batchSize; ++batchId) {
-    const Sentence &sentence = beamSizes_->GetSentence(batchId);
+    const BeamSize::SentenceElement &ele = beamSizes_->Get(batchId);
+    const Sentence &sentence = ele.GetSentence();
     size_t lineNum = sentence.GetLineNum();
 
     std::pair<bool, const Beam*> beamPair = beams.Get(lineNum);
@@ -85,21 +55,37 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
       const Beam *beam = beamPair.second;
       assert(beam);
 
+      // add new hypos to history
+      Coll::iterator iterHist = coll_.find(lineNum);
+      assert(iterHist != coll_.end());
+      HistoryPtr &history = iterHist->second;
+      assert(history);
+
+      history->Add(*beam);
+
+      // output if all hyps is eod
+      bool end = true;
       for (const HypothesisPtr& hypo : *beam) {
         if (hypo->GetNumWords() < sentence.size() * 3 && hypo->GetWord() != EOS_ID) {
+          end = false;
           survivors.push_back(hypo);
-        } else {
+        }
+        else {
           //beamSizes_->Decr(batchId);
           beamSizes_->Decr(batchId);
 
-          if (beamSizes_->Get(batchId).size == 0) {
+          if (ele.size == 0) {
             completed.push_back(batchId);
           }
         }
       }
+
+      if (end) {
+        history->Output(god);
+        coll_.erase(iterHist);
+      }
     }
   }
-
 
   return ret;
 }
