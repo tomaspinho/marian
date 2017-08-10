@@ -129,7 +129,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   State *state = nullptr;
   State *nextState = nullptr;
   Hypotheses prevHyps;
-  EncOutPtr encOut;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   size_t decoderStep;
 
@@ -141,7 +140,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
 
       // read in next batch
-      encOut = encDecBuffer_.remove();
+      EncOutPtr encOut = encDecBuffer_.remove();
       assert(encOut.get());
 
       if (encOut->GetSentences().size() == 0) {
