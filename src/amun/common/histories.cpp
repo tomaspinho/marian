@@ -63,24 +63,21 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
 
       history->Add(*beam);
 
-      // output if all hyps is eod
-      bool end = true;
+      // see if any output reaches </s> or is over length limit
       for (const HypothesisPtr& hypo : *beam) {
         if (hypo->GetNumWords() < sentence.size() * 3 && hypo->GetWord() != EOS_ID) {
-          end = false;
           survivors.push_back(hypo);
         }
         else {
           //beamSizes_->Decr(batchId);
           beamSizes_->Decr(batchId);
-
-          if (ele.size == 0) {
-            completed.push_back(batchId);
-          }
         }
       }
 
-      if (end) {
+      // output if not more hypos
+      if (ele.size == 0) {
+        completed.push_back(batchId);
+
         history->Output(god);
         coll_.erase(iterHist);
       }
