@@ -44,11 +44,6 @@ public:
 
   void Add(const HypothesisPtr &hypo);
 
-  void swap (Beam &other)
-  {
-    coll_.swap(other.coll_);
-  }
-
   std::string Debug(size_t verbosity = 1) const;
 
 protected:
