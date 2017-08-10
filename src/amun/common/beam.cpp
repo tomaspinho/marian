@@ -28,14 +28,14 @@ std::string Beam::Debug(size_t verbosity) const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-const BeamPtr Beams::Get(size_t ind) const
+std::pair<bool, BeamPtr> Beams::Get(size_t ind) const
 {
   Coll::const_iterator iter = coll_.find(ind);
   if (iter == coll_.end()) {
-    return BeamPtr();
+    return std::pair<bool, BeamPtr>(false, BeamPtr());
   }
   else {
-    return iter->second;
+    return std::pair<bool, BeamPtr>(true, iter->second);
   }
 }
 
