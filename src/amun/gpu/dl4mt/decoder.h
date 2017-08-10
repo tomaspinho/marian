@@ -164,10 +164,7 @@ class Decoder {
           HostVector<uint> batchMapping(HiddenState.dim(0));
           size_t k = 0;
           for (size_t i = 0; i < beamSizes.size(); ++i) {
-            const Sentence &sentence = beamSizes.GetSentence(i);
-            size_t lineNum = sentence.GetLineNum();
-
-            for (size_t j = 0; j < beamSizes.Get2(lineNum).size; ++j) {
+            for (size_t j = 0; j < beamSizes.Get(i).size; ++j) {
               batchMapping[k++] = i;
             }
           }

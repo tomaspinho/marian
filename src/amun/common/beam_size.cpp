@@ -67,31 +67,19 @@ const Sentence &BeamSize::GetSentence(size_t ind) const
   return ele.GetSentence();
 }
 
-///////////////////////////////////////////////////////////////////////////
-const BeamSize::SentenceElement &BeamSize::Get2(size_t lineNum) const
+const BeamSize::SentenceElement &BeamSize::Get(size_t ind) const
 {
-  Coll::const_iterator iter = sentences2_.find(lineNum);
-  assert(iter != sentences2_.end());
-  return *iter->second;
+  return sentences_[ind];
 }
 
-BeamSize::SentenceElement &BeamSize::Get3(size_t lineNum)
+void BeamSize::Decr(size_t ind)
 {
-  Coll::iterator iter = sentences2_.find(lineNum);
-  assert(iter != sentences2_.end());
-  return *iter->second;
-}
-
-void BeamSize::Decr2(size_t lineNum)
-{
-  SentenceElement &ele = Get3(lineNum);
-  assert(ele.size > 0);
+  SentenceElement &ele = sentences_[ind];
   --ele.size;
 
   --total_;
 }
 
-///////////////////////////////////////////////////////////////////////////
 
 std::string BeamSize::Debug(size_t verbosity) const
 {

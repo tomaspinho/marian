@@ -305,9 +305,7 @@ void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& Probs,
 
   const uint vocabSize = Probs.dim(1);
   for (uint i = 0; i < beamSizes.size(); ++i) {
-    const Sentence &sentence = beamSizes.GetSentence(i);
-    size_t lineNum = sentence.GetLineNum();
-    cummulatedBeamSizes[i + 1] = cummulatedBeamSizes[i] + beamSizes.Get2(lineNum).size;
+    cummulatedBeamSizes[i + 1] = cummulatedBeamSizes[i] + beamSizes.Get(i).size;
     batchFirstElementIdxs[i + 1] = ((isFirst) ? (i + 1) : cummulatedBeamSizes[i + 1]) * vocabSize;
   }
 

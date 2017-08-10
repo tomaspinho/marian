@@ -75,12 +75,9 @@ public:
 
   const Sentence &GetSentence(size_t ind) const;
 
-  ///////////////////////////////////////////////////////////////////////////
-  const SentenceElement &Get2(size_t lineNum) const;
+  const SentenceElement &Get(size_t ind) const;
 
-  void Decr2(size_t lineNum);
-
-  ///////////////////////////////////////////////////////////////////////////
+  void Decr(size_t ind);
 
   virtual std::string Debug(size_t verbosity = 1) const;
 
@@ -90,8 +87,6 @@ protected:
 
   uint total_;
   uint maxLength_;
-
-  SentenceElement &Get3(size_t lineNum);
 };
 
 }
