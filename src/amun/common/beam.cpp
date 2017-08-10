@@ -28,18 +28,18 @@ std::string Beam::Debug(size_t verbosity) const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-std::pair<bool, BeamPtr> Beams::Get(size_t lineNum) const
+std::pair<bool, const Beam*> Beams::Get(size_t lineNum) const
 {
   Coll::const_iterator iter = coll_.find(lineNum);
   if (iter == coll_.end()) {
-    return std::pair<bool, BeamPtr>(false, BeamPtr());
+    return std::pair<bool, const Beam*>(false, nullptr);
   }
   else {
-    return std::pair<bool, BeamPtr>(true, iter->second);
+    return std::pair<bool, const Beam*>(true, iter->second.get());
   }
 }
 
-BeamPtr Beams::at(size_t lineNum)
+BeamPtr Beams::Get(size_t lineNum)
 {
   Coll::const_iterator iter = coll_.find(lineNum);
   if (iter == coll_.end()) {
@@ -56,7 +56,7 @@ void Beams::Add(size_t ind, HypothesisPtr &hypo)
 {
   assert(hypo);
   size_t lineNum = hypo->GetLineNum();
-  BeamPtr beam = at(lineNum);
+  BeamPtr beam = Get(lineNum);
   assert(beam);
   beam->Add(hypo);
 }

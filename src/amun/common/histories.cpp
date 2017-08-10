@@ -79,11 +79,13 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
     const Sentence &sentence = beamSizes_->GetSentence(batchId);
     size_t lineNum = sentence.GetLineNum();
 
-    std::pair<bool, BeamPtr> beamPair = beams.Get(lineNum);
+    std::pair<bool, const Beam*> beamPair = beams.Get(lineNum);
 
     if (beamPair.first) {
-      assert(beamPair.second);
-      for (const HypothesisPtr& hypo : *beamPair.second) {
+      const Beam *beam = beamPair.second;
+      assert(beam);
+
+      for (const HypothesisPtr& hypo : *beam) {
         if (hypo->GetNumWords() < sentence.size() * 3 && hypo->GetWord() != EOS_ID) {
           survivors.push_back(hypo);
         } else {
