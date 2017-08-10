@@ -28,9 +28,9 @@ std::string Beam::Debug(size_t verbosity) const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-std::pair<bool, BeamPtr> Beams::Get(size_t ind) const
+std::pair<bool, BeamPtr> Beams::Get(size_t lineNum) const
 {
-  Coll::const_iterator iter = coll_.find(ind);
+  Coll::const_iterator iter = coll_.find(lineNum);
   if (iter == coll_.end()) {
     return std::pair<bool, BeamPtr>(false, BeamPtr());
   }
@@ -39,12 +39,12 @@ std::pair<bool, BeamPtr> Beams::Get(size_t ind) const
   }
 }
 
-BeamPtr Beams::at(size_t ind)
+BeamPtr Beams::at(size_t lineNum)
 {
-  Coll::const_iterator iter = coll_.find(ind);
+  Coll::const_iterator iter = coll_.find(lineNum);
   if (iter == coll_.end()) {
-    BeamPtr beam(new Beam(ind));
-    coll_[ind] = beam;
+    BeamPtr beam(new Beam(lineNum));
+    coll_[lineNum] = beam;
     return beam;
   }
   else {

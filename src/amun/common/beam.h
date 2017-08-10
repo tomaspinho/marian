@@ -80,7 +80,7 @@ public:
   size_t size() const
   { return coll_.size(); }
 
-  std::pair<bool, BeamPtr> Get(size_t ind) const;
+  std::pair<bool, BeamPtr> Get(size_t lineNum) const;
 
   void Add(size_t ind, HypothesisPtr &hypo);
 

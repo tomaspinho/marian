@@ -75,38 +75,6 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
   Hypotheses &survivors = ret.first;
   std::vector<uint> &completed = ret.second;
 
-  /*
-  std::cerr << "beamSizes_=" << beamSizes_->size() << endl;
-  for (BeamSize::const_iterator iter = beamSizes_->begin(); iter != beamSizes_->end(); ++iter) {
-    //size_t lineNum = iter->first;
-    const BeamSize::SentenceElement *ele = iter->second;
-    assert(ele);
-    const Sentence &sentence = ele->GetSentence();
-    size_t lineNum = sentence.GetLineNum();
-
-    cerr << "Histories lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
-    assert(lineNum == sentence.GetLineNum());
-
-    const BeamPtr beam = beams.Get(lineNum);
-    //assert(beam);
-
-    if (beam) {
-      for (const HypothesisPtr& hypo : *beam) {
-        if (hypo->GetNumWords() < sentence.size() * 3 && hypo->GetWord() != EOS_ID) {
-          survivors.push_back(hypo);
-        } else {
-          //beamSizes_->Decr(batchId);
-          beamSizes_->Decr2(lineNum);
-
-          if (beamSizes_->Get2(lineNum).size == 0) {
-            completed.push_back(lineNum);
-          }
-        }
-      }
-    }
-  }
-  */
-
   for (size_t batchId = 0; batchId < batchSize; ++batchId) {
     const Sentence &sentence = beamSizes_->GetSentence(batchId);
     size_t lineNum = sentence.GetLineNum();
