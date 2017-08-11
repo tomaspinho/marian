@@ -58,7 +58,7 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
     encoder_->Encode(*source, tab_, encOut);
   }
 
-  encDecBuffer_.add(encOut);
+  encDecBuffer_.Add(encOut);
   //cerr << "Encode encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
 
   PAUSE_TIMER("Encode");
@@ -140,7 +140,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
 
       // read in next batch
-      EncOutPtr encOut = encDecBuffer_.remove();
+      EncOutPtr encOut = encDecBuffer_.Get();
       assert(encOut.get());
 
       if (encOut->GetSentences().size() == 0) {

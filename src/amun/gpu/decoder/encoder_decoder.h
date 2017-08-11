@@ -10,7 +10,7 @@
 #include "gpu/types-gpu.h"
 #include "gpu/mblas/matrix.h"
 #include "gpu/mblas/handles.h"
-#include "buffer.h"
+#include "enc_out_buffer.h"
 
 
 namespace amunmt {
@@ -63,7 +63,7 @@ class EncoderDecoder : public Scorer {
     DeviceVector<uint> indices_;
       // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
 
-    Buffer<EncOutPtr> encDecBuffer_;
+    EncOutBuffer encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;
 
     void DecodeAsync(const God &god);
