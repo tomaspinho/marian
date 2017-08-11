@@ -64,7 +64,7 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   PAUSE_TIMER("Encode");
 }
 
-void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, EncOutPtr encOut)
+void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, const EncOut &encOut)
 {
   //cerr << "BeginSentenceState encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
   //cerr << "BeginSentenceState encOut->sentencesMask_=" << encOut->sentencesMask_.Debug(0) << endl;
@@ -72,7 +72,7 @@ void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, EncOutPt
 
   EDState& edState = state.get<EDState>();
 
-  decoder_->EmptyState(edState.GetStates(), *encOut, batchSize);
+  decoder_->EmptyState(edState.GetStates(), encOut, batchSize);
 
   decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
 }
@@ -141,7 +141,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       // read in next batch
       EncOutPtr encOut = encDecBuffer_.Get();
-      assert(encOut.get());
+      assert(encOut);
 
       if (encOut->GetSentences().size() == 0) {
         break;
@@ -151,7 +151,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       // init states & histories/beams
       state = NewState();
-      BeginSentenceState(*state, encOut->GetSentences().size(), encOut);
+      BeginSentenceState(*state, encOut->GetSentences().size(), *encOut);
       nextState = NewState();
 
       histories.Init(maxBeamSize, encOut);
