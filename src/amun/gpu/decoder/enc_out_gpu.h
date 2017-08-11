@@ -16,6 +16,9 @@ protected:
   mblas::Matrix sourceContext_;
   mblas::IMatrix sentenceLengths_;
 
+  mblas::Matrix states_;
+  mblas::Matrix embeddings_;
+
   BaseMatrix &GetSourceContextInternal()
   { return sourceContext_; }
 
@@ -24,6 +27,18 @@ protected:
 
   virtual const BaseMatrix &GetSentenceLengthsInternal() const
   { return sentenceLengths_; }
+
+  BaseMatrix &GetStatesInternal()
+  { return states_; }
+
+  const BaseMatrix &GetStatesInternal() const
+  { return states_; }
+
+  BaseMatrix &GetEmbeddingsInternal()
+  { return embeddings_; }
+
+  const BaseMatrix &GetEmbeddingsInternal() const
+  { return embeddings_; }
 
 };
 

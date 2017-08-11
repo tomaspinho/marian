@@ -23,6 +23,22 @@ public:
   const T &GetSentenceLengths() const
   { return static_cast<const T&>(GetSentenceLengthsInternal()); }
 
+  template<class T>
+  T &GetStates()
+  { return static_cast<const T&>(GetStatesInternal()); }
+
+  template<class T>
+  const T &GetStates() const
+  { return static_cast<const T&>(GetStatesInternal()); }
+
+  template<class T>
+  T &GetEmbeddings()
+  { return static_cast<const T&>(GetEmbeddingsInternal()); }
+
+  template<class T>
+  const T &GetEmbeddings() const
+  { return static_cast<const T&>(GetEmbeddingsInternal()); }
+
 protected:
   SentencesPtr sentences_;
 
@@ -30,6 +46,13 @@ protected:
   virtual const BaseMatrix &GetSourceContextInternal() const = 0;
 
   virtual const BaseMatrix &GetSentenceLengthsInternal() const = 0;
+
+  virtual BaseMatrix &GetStatesInternal() = 0;
+  virtual const BaseMatrix &GetStatesInternal() const = 0;
+
+  virtual BaseMatrix &GetEmbeddingsInternal() = 0;
+  virtual const BaseMatrix &GetEmbeddingsInternal() const = 0;
+
 };
 
 typedef std::shared_ptr<EncOut> EncOutPtr;
