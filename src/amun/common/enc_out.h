@@ -25,7 +25,7 @@ public:
 
   template<class T>
   T &GetStates()
-  { return static_cast<const T&>(GetStatesInternal()); }
+  { return static_cast<T&>(GetStatesInternal()); }
 
   template<class T>
   const T &GetStates() const
@@ -33,7 +33,7 @@ public:
 
   template<class T>
   T &GetEmbeddings()
-  { return static_cast<const T&>(GetEmbeddingsInternal()); }
+  { return static_cast<T&>(GetEmbeddingsInternal()); }
 
   template<class T>
   const T &GetEmbeddings() const

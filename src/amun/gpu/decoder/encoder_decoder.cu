@@ -151,6 +151,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       timer.start();
 
       // init states & histories/beams
+      mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
+      mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
+
       state = NewState();
 
       EDState& edState = state->get<EDState>();
