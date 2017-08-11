@@ -394,11 +394,11 @@ class Decoder {
     }
 
     void EmptyState(mblas::Matrix& State,
-                    EncOutPtr encOut,
+                    const EncOut &encOut,
                     size_t batchSize)
     {
-      mblas::Matrix &sourceContext = encOut->GetSourceContext<mblas::Matrix>();
-      const mblas::IMatrix &sourceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
+      const mblas::Matrix &sourceContext = encOut.GetSourceContext<mblas::Matrix>();
+      const mblas::IMatrix &sourceLengths = encOut.GetSentenceLengths<mblas::IMatrix>();
 
       rnn1_.InitializeState(State,
                             sourceContext,

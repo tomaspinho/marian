@@ -72,7 +72,7 @@ void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, EncOutPt
 
   EDState& edState = state.get<EDState>();
 
-  decoder_->EmptyState(edState.GetStates(), encOut, batchSize);
+  decoder_->EmptyState(edState.GetStates(), *encOut, batchSize);
 
   decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
 }
