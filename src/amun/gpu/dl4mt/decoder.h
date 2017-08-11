@@ -35,9 +35,8 @@ class Decoder {
           Assemble(Rows, *w_.E_, indices_);
         }
 
-        size_t GetCols() {
-          return w_.E_->dim(1);
-        }
+        size_t GetCols() const
+        { return w_.E_->dim(1); }
 
         size_t GetRows() const {
           return w_.E_->dim(0);
@@ -93,7 +92,8 @@ class Decoder {
 
         void GetNextState(mblas::Matrix& NextState,
                           const mblas::Matrix& State,
-                          const mblas::Matrix& Context) {
+                          const mblas::Matrix& Context) const
+        {
           gru_.GetNextState(NextState, State, Context);
         }
 
@@ -115,7 +115,8 @@ class Decoder {
 
         void GetNextState(mblas::Matrix& NextState,
                           const mblas::Matrix& State,
-                          const mblas::Matrix& Context) {
+                          const mblas::Matrix& Context) const
+        {
           gru_.GetNextState(NextState, State, Context);
         }
 
@@ -408,7 +409,8 @@ class Decoder {
       alignment_.Init(sourceContext);
     }
 
-    void EmptyEmbedding(mblas::Matrix& Embedding, size_t batchSize = 1) {
+    void EmptyEmbedding(mblas::Matrix& Embedding, size_t batchSize = 1) const
+    {
       Embedding.NewSize(batchSize, embeddings_.GetCols());
       mblas::Zero(Embedding);
     }
@@ -438,7 +440,8 @@ class Decoder {
 
     void GetHiddenState(mblas::Matrix& HiddenState,
                         const mblas::Matrix& PrevState,
-                        const mblas::Matrix& Embedding) {
+                        const mblas::Matrix& Embedding) const
+    {
       rnn1_.GetNextState(HiddenState, PrevState, Embedding);
     }
 
