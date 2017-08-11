@@ -154,13 +154,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
       mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
 
+      BeginSentenceState(bufStates, bufEmbeddings, encOut->GetSentences().size(), *encOut);
+
       state = NewState();
 
       EDState& edState = state->get<EDState>();
       mblas::Matrix &states = edState.GetStates();
       mblas::Matrix &embeddings = edState.GetEmbeddings();
-
-      BeginSentenceState(states, embeddings, encOut->GetSentences().size(), *encOut);
+      states.Copy(bufStates);
+      embeddings.Copy(bufEmbeddings);
 
       nextState = NewState();
 

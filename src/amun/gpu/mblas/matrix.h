@@ -81,28 +81,15 @@ class TMatrix : public BaseMatrix {
       }
     }
 
-    TMatrix(TMatrix&& m)
+    TMatrix(TMatrix&& other)
     : TMatrix()
     {
-      swap(m);
+      swap(other);
     }
 
-    TMatrix(const TMatrix& m)
-    : arrSize_(m.arrSize_)
+    TMatrix(const TMatrix& other)
     {
-      dim_[0] = m.dim_[0];
-      dim_[1] = m.dim_[1];
-      dim_[2] = m.dim_[2];
-      dim_[3] = m.dim_[3];
-
-      HANDLE_ERROR( cudaMalloc(&data_, arrSize_ * sizeof(T)) );
-      //std::cerr << "malloc data2:" << data_ << std::endl;
-      HANDLE_ERROR( cudaMemcpyAsync(
-          data_,
-          m.data_,
-          arrSize_ * sizeof(T),
-          cudaMemcpyDeviceToDevice,
-          CudaStreamHandler::GetStream()) );
+      Copy(other);
     }
 
     ~TMatrix()
@@ -198,26 +185,24 @@ class TMatrix : public BaseMatrix {
       arrSize_ = size;
     }
 
-    /*
-    void ReduceDimensions()
+    void Copy(const TMatrix &other)
     {
-    	if (dim_[2] == 1) {
-    		dim_[2] = dim_[3];
-    		dim_[3] = 1;
-    	}
-    	if (dim_[0] == 1) {
-    		dim_[0] = dim_[2];
-    		dim_[2] = dim_[3];
-    		dim_[3] = 1;
-    	}
-    	if (dim_[1] == 1) {
-    		dim_[1] = dim_[0];
-    		dim_[0] = dim_[2];
-    		dim_[2] = dim_[3];
-    		dim_[3] = 1;
-    	}
+      arrSize_= other.arrSize_;
+
+      dim_[0] = other.dim_[0];
+      dim_[1] = other.dim_[1];
+      dim_[2] = other.dim_[2];
+      dim_[3] = other.dim_[3];
+
+      HANDLE_ERROR( cudaMalloc(&data_, arrSize_ * sizeof(T)) );
+      //std::cerr << "malloc data2:" << data_ << std::endl;
+      HANDLE_ERROR( cudaMemcpyAsync(
+          data_,
+          other.data_,
+          arrSize_ * sizeof(T),
+          cudaMemcpyDeviceToDevice,
+          CudaStreamHandler::GetStream()) );
     }
-    */
 
     virtual std::string Debug(size_t verbosity = 1) const
     {
