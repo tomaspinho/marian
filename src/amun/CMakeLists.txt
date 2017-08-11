@@ -85,6 +85,7 @@ cuda_add_executable(
   common/decoder_main.cpp
   gpu/decoder/beam_size_gpu.cu  
   gpu/decoder/best_hyps.cu  
+  gpu/decoder/enc_out_buffer.cu
   gpu/decoder/enc_out_gpu.cu
   gpu/decoder/encoder_decoder.cu
   gpu/decoder/encoder_decoder_loader.cu

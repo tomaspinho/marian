@@ -52,7 +52,7 @@ State* EncoderDecoder::NewState() const {
 void EncoderDecoder::Encode(const SentencesPtr source) {
   BEGIN_TIMER("Encode");
 
-  EncOutPtr encOut(new mblas::EncOutGPU(source));
+  EncOutPtr encOut(new EncOutGPU(source));
 
   if (source->size()) {
     encoder_->Encode(*source, tab_, encOut);

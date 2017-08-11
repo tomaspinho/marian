@@ -5,7 +5,6 @@ using namespace std;
 
 namespace amunmt {
 namespace GPU {
-namespace mblas {
 
 EncOutGPU::EncOutGPU(SentencesPtr sentences)
 :EncOut(sentences)
@@ -31,7 +30,6 @@ EncOutGPU::EncOutGPU(SentencesPtr sentences)
   //cerr << "sentencesMask_=" << sentencesMask_.Debug(2) << endl;
 }
 
-}
 }
 }
 

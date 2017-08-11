@@ -5,7 +5,6 @@
 
 namespace amunmt {
 namespace GPU {
-namespace mblas {
 
 class EncOutGPU : public EncOut
 {
@@ -31,6 +30,5 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////
 
-}
 }
 }
