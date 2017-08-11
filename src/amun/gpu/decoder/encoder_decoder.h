@@ -68,7 +68,10 @@ class EncoderDecoder : public Scorer {
 
     void DecodeAsync(const God &god);
     void DecodeAsyncInternal(const God &god);
-    void BeginSentenceState(State& state, size_t batchSize, const EncOut &encOut);
+    void BeginSentenceState(mblas::Matrix &states,
+                            mblas::Matrix &embeddings,
+                            size_t batchSize,
+                            const EncOut &encOut);
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };

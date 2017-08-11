@@ -64,17 +64,18 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   PAUSE_TIMER("Encode");
 }
 
-void EncoderDecoder::BeginSentenceState(State& state, size_t batchSize, const EncOut &encOut)
+void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
+                                        mblas::Matrix &embeddings,
+                                        size_t batchSize,
+                                        const EncOut &encOut)
 {
   //cerr << "BeginSentenceState encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
   //cerr << "BeginSentenceState encOut->sentencesMask_=" << encOut->sentencesMask_.Debug(0) << endl;
   //cerr << "batchSize=" << batchSize << endl;
 
-  EDState& edState = state.get<EDState>();
+  decoder_->EmptyState(states, encOut, batchSize);
 
-  decoder_->EmptyState(edState.GetStates(), encOut, batchSize);
-
-  decoder_->EmptyEmbedding(edState.GetEmbeddings(), batchSize);
+  decoder_->EmptyEmbedding(embeddings, batchSize);
 }
 
 void EncoderDecoder::Decode(const State& in, State& out, const BeamSize& beamSizes) {
@@ -151,7 +152,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       // init states & histories/beams
       state = NewState();
-      BeginSentenceState(*state, encOut->GetSentences().size(), *encOut);
+
+      EDState& edState = state->get<EDState>();
+      mblas::Matrix &states = edState.GetStates();
+      mblas::Matrix &embeddings = edState.GetEmbeddings();
+
+      BeginSentenceState(states, embeddings, encOut->GetSentences().size(), *encOut);
+
       nextState = NewState();
 
       histories.Init(maxBeamSize, encOut);
