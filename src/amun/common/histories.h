@@ -39,6 +39,9 @@ public:
     const BeamSize &GetBeamSizes() const
     { return *beamSizes_; }
 
+    BeamSize &GetBeamSizes()
+    { return *beamSizes_; }
+
 protected:
     Coll coll_;
     BeamSize *beamSizes_;

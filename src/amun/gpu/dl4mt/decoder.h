@@ -134,14 +134,15 @@ class Decoder {
           , dBatchMapping_(god.Get<size_t>("mini-batch") * god.Get<size_t>("beam-size"), 0)
         {}
 
-        void Init(const mblas::Matrix& sourceContext) {
+        void Init(BeamSizeGPU& beamSizes, const mblas::Matrix& sourceContext) const
+        {
           using namespace mblas;
 
-          Prod(/*h_[0],*/ SCU_, sourceContext, *w_.U_);
+          Prod(/*h_[0],*/ beamSizes.SCU, sourceContext, *w_.U_);
           //std::cerr << "SCU_=" << SCU_.Debug(1) << std::endl;
 
           if (w_.Gamma_1_->size()) {
-            Normalization(SCU_, SCU_, *w_.Gamma_1_, *w_.B_, 1e-9);
+            Normalization(beamSizes.SCU, beamSizes.SCU, *w_.Gamma_1_, *w_.B_, 1e-9);
           }
         }
 
@@ -149,7 +150,7 @@ class Decoder {
                                      const mblas::Matrix& HiddenState,
                                      const mblas::Matrix& sourceContext,
                                      const mblas::IMatrix &sentenceLengths,
-                                     const BeamSize& beamSizes)
+                                     const BeamSizeGPU& beamSizes)
         {
           // mapping = 1/0 whether each position, in each sentence in the batch is actually a valid word
           // batchMapping = which sentence is each element in the batch. eg 0 0 1 2 2 2 = first 2 belongs to sent0, 3rd is sent1, 4th and 5th is sent2
@@ -191,7 +192,7 @@ class Decoder {
           }
           //std::cerr << "2Temp2_=" << Temp2_.Debug() << std::endl;
 
-          Copy(Temp1_, SCU_);
+          Copy(Temp1_, beamSizes.SCU);
           //std::cerr << "1Temp1_=" << Temp1_.Debug() << std::endl;
 
           Broadcast(Tanh(_1 + _2), Temp1_, Temp2_, dBatchMapping_, maxLength);
@@ -227,7 +228,6 @@ class Decoder {
 
         DeviceVector<uint> dBatchMapping_;
 
-        mblas::Matrix SCU_;
         mblas::Matrix Temp1_;
         mblas::Matrix Temp2_;
         mblas::Matrix A_;
@@ -395,8 +395,9 @@ class Decoder {
     }
 
     void EmptyState(mblas::Matrix& State,
+                    BeamSizeGPU& beamSizes,
                     const EncOut &encOut,
-                    size_t batchSize)
+                    size_t batchSize) const
     {
       const mblas::Matrix &sourceContext = encOut.GetSourceContext<mblas::Matrix>();
       const mblas::IMatrix &sourceLengths = encOut.GetSentenceLengths<mblas::IMatrix>();
@@ -406,7 +407,7 @@ class Decoder {
                             batchSize,
                             sourceLengths);
 
-      alignment_.Init(sourceContext);
+      alignment_.Init(beamSizes, sourceContext);
     }
 
     void EmptyEmbedding(mblas::Matrix& Embedding, size_t batchSize = 1) const
@@ -449,7 +450,7 @@ class Decoder {
                                   const mblas::Matrix& HiddenState,
                                   const mblas::Matrix& sourceContext,
                                   const mblas::IMatrix &sentenceLengths,
-                                  const BeamSize& beamSizes)
+                                  const BeamSizeGPU& beamSizes)
     {
       alignment_.GetAlignedSourceContext(AlignedSourceContext, HiddenState, sourceContext,
                                          sentenceLengths, beamSizes);

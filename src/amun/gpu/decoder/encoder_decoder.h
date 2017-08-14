@@ -20,6 +20,7 @@ class EncoderDecoderState;
 class Encoder;
 class Decoder;
 class Weights;
+class BeamSizeGPU;
 
 /////////////////////////////////////////////////////////////////////////
 class EncoderDecoder : public Scorer {
@@ -70,6 +71,7 @@ class EncoderDecoder : public Scorer {
     void DecodeAsyncInternal(const God &god);
     void BeginSentenceState(mblas::Matrix &states,
                             mblas::Matrix &embeddings,
+                            BeamSizeGPU& beamSizes,
                             size_t batchSize,
                             const EncOut &encOut);
 
