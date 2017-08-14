@@ -60,22 +60,23 @@ class Decoder {
         void InitializeState(mblas::Matrix& State,
                              const mblas::Matrix& sourceContext,
                              const size_t batchSize,
-                             const mblas::IMatrix &sentenceLengths)
+                             const mblas::IMatrix &sentenceLengths) const
         {
           using namespace mblas;
 
           //std::cerr << "State1=" << State.Debug(1) << std::endl;
-          Temp2_.NewSize(batchSize, sourceContext.dim(1), 1, 1);
-          //std::cerr << "2Temp2_=" << Temp2_.Debug(1) << std::endl;
+          mblas::Matrix Temp2;
+          Temp2.NewSize(batchSize, sourceContext.dim(1), 1, 1);
+          //std::cerr << "2Temp2_=" << Temp2.Debug(1) << std::endl;
 
           //std::cerr << "sourceContext=" << sourceContext.Debug(1) << std::endl;
           //std::cerr << "mapping=" << Debug(mapping, 2) << std::endl;
-          Mean(Temp2_, sourceContext, sentenceLengths);
+          Mean(Temp2, sourceContext, sentenceLengths);
 
           //std::cerr << "1State=" << State.Debug(1) << std::endl;
-          //std::cerr << "3Temp2_=" << Temp2_.Debug(1) << std::endl;
+          //std::cerr << "3Temp2_=" << Temp2.Debug(1) << std::endl;
           //std::cerr << "w_.Wi_=" << w_.Wi_->Debug(1) << std::endl;
-          Prod(State, Temp2_, *w_.Wi_);
+          Prod(State, Temp2, *w_.Wi_);
 
           //std::cerr << "2State=" << State.Debug(1) << std::endl;
           //State.ReduceDimensions();
@@ -102,7 +103,6 @@ class Decoder {
         const GRU<Weights2> gru_;
 
         mblas::Matrix Temp1_;
-        mblas::Matrix Temp2_;
 
         RNNHidden(const RNNHidden&) = delete;
     };
