@@ -102,8 +102,6 @@ class Decoder {
         const Weights1& w_;
         const GRU<Weights2> gru_;
 
-        mblas::Matrix Temp1_;
-
         RNNHidden(const RNNHidden&) = delete;
     };
 
