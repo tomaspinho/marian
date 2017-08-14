@@ -68,7 +68,7 @@ void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
                                         mblas::Matrix &embeddings,
                                         BeamSizeGPU& beamSizes,
                                         size_t batchSize,
-                                        const EncOut &encOut)
+                                        const EncOut &encOut) const
 {
   //cerr << "BeginSentenceState encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
   //cerr << "BeginSentenceState encOut->sentencesMask_=" << encOut->sentencesMask_.Debug(0) << endl;

@@ -73,7 +73,7 @@ class EncoderDecoder : public Scorer {
                             mblas::Matrix &embeddings,
                             BeamSizeGPU& beamSizes,
                             size_t batchSize,
-                            const EncOut &encOut);
+                            const EncOut &encOut) const;
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
