@@ -127,7 +127,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   uint maxBeamSize = god.Get<uint>("beam-size");
 
   EDState state;
-  mblas::Matrix nextStateMatrix;
 
   Hypotheses prevHyps;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
@@ -175,6 +174,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     // decode
     boost::timer::cpu_timer timerStep;
+
+    mblas::Matrix nextStateMatrix;
 
     //cerr << "1 state=" << state.Debug(1) << endl;
     //cerr << "1 nextState=" << nextStateMatrix.Debug(1) << endl;
@@ -242,9 +243,11 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
   //cerr << "beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
   indices_.resize(beamStateIds.size());
-  HostVector<uint> tmp = beamStateIds;
+  //HostVector<uint> tmp = beamStateIds;
 
-  mblas::copy(thrust::raw_pointer_cast(tmp.data()),
+  //cerr << "3 beamStateIds=" << Debug(beamStateIds, 2) << endl;
+
+  mblas::copy(beamStateIds.data(),
       beamStateIds.size(),
       thrust::raw_pointer_cast(indices_.data()),
       cudaMemcpyHostToDevice);
