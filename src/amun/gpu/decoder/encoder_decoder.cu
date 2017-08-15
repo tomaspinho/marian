@@ -205,12 +205,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
-    const std::vector<uint> &completed = histOut.second;
+    //const std::vector<uint> &completed = histOut.second;
 
     cerr << "3 state=" << state->Debug(0) << endl;
     cerr << "3 nextState=" << nextState->Debug(0) << endl;
 
-    AssembleBeamState(*nextState, survivors, *state);
+    const EDState& edIn = nextState->get<EDState>();
+    const mblas::Matrix &nextStateMatrix = edIn.GetStates();
+
+    AssembleBeamState(nextStateMatrix, survivors, *state);
 
     cerr << "4 state=" << state->Debug(0) << endl;
     cerr << "4 nextState=" << nextState->Debug(0) << endl;
@@ -238,9 +241,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 }
 
 
-void EncoderDecoder::AssembleBeamState(const State& in,
-                               const Hypotheses& hypos,
-                               State& out) {
+void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
+                                const Hypotheses& hypos,
+                                State& out)
+{
   if (hypos.size() == 0) {
     return;
   }
@@ -254,7 +258,6 @@ void EncoderDecoder::AssembleBeamState(const State& in,
   //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
   //cerr << "beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
-  const EDState& edIn = in.get<EDState>();
   EDState& edOut = out.get<EDState>();
   indices_.resize(beamStateIds.size());
   HostVector<uint> tmp = beamStateIds;
@@ -265,7 +268,7 @@ void EncoderDecoder::AssembleBeamState(const State& in,
       cudaMemcpyHostToDevice);
   //cerr << "indices_=" << mblas::Debug(indices_, 2) << endl;
 
-  mblas::Assemble(edOut.GetStates(), edIn.GetStates(), indices_);
+  mblas::Assemble(edOut.GetStates(), nextStateMatrix, indices_);
   //cerr << "edOut.GetStates()=" << edOut.GetStates().Debug(1) << endl;
 
   //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
