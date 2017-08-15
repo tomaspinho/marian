@@ -37,7 +37,14 @@ class EncoderDecoder : public Scorer {
 
     virtual ~EncoderDecoder();
 
-    virtual void Decode(const State& in, State& out, const BeamSize& beamSizes);
+    virtual void Decode(const State& in, State& out, const BeamSize& beamSizes)
+    {
+      abort();
+    }
+
+    virtual void Decode(const State& in,
+                        mblas::Matrix &nextStateMatrix,
+                        const BeamSize& beamSizes);
 
     virtual State* NewState() const;
 

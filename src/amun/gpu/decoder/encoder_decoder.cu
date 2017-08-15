@@ -79,14 +79,16 @@ void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
   decoder_->EmptyEmbedding(embeddings, batchSize);
 }
 
-void EncoderDecoder::Decode(const State& in, State& out, const BeamSize& beamSizes) {
+void EncoderDecoder::Decode(const State& in,
+                            mblas::Matrix &nextStateMatrix,
+                            const BeamSize& beamSizes)
+{
   BEGIN_TIMER("Decode");
   const EDState& edIn = in.get<EDState>();
-  EDState& edOut = out.get<EDState>();
 
   const BeamSizeGPU &bs = static_cast<const BeamSizeGPU&>(beamSizes);
 
-  decoder_->Decode(edOut.GetStates(),
+  decoder_->Decode(nextStateMatrix,
                      edIn.GetStates(),
                      edIn.GetEmbeddings(),
                      bs);
@@ -185,8 +187,11 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "1 state=" << state->Debug(0) << endl;
     cerr << "1 nextState=" << nextState->Debug(0) << endl;
 
+    EDState& edIn = nextState->get<EDState>();
+    mblas::Matrix &nextStateMatrix = edIn.GetStates();
+
     //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
-    Decode(*state, *nextState, histories.GetBeamSizes());
+    Decode(*state, nextStateMatrix, histories.GetBeamSizes());
 
     cerr << "2 state=" << state->Debug(0) << endl;
     cerr << "2 nextState=" << nextState->Debug(0) << endl;
@@ -209,9 +214,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     cerr << "3 state=" << state->Debug(0) << endl;
     cerr << "3 nextState=" << nextState->Debug(0) << endl;
-
-    const EDState& edIn = nextState->get<EDState>();
-    const mblas::Matrix &nextStateMatrix = edIn.GetStates();
 
     AssembleBeamState(nextStateMatrix, survivors, *state);
 
