@@ -37,30 +37,19 @@ class EncoderDecoder : public Scorer {
 
     virtual ~EncoderDecoder();
 
-    virtual void Decode(const State& in, State& out, const BeamSize& beamSizes)
-    {
-      abort();
-    }
-
-    virtual void Decode(const State& in,
+    virtual void Decode(const EDState& in,
                         mblas::Matrix &nextStateMatrix,
-                        const BeamSize& beamSizes);
+                        const BeamSizeGPU& beamSizes);
 
     virtual State* NewState() const;
 
 
     virtual void Encode(const SentencesPtr source);
 
-    virtual void AssembleBeamState(const State& in,
-                                   const Hypotheses& hypos,
-                                   State& out)
-    {
-      abort();
-    }
 
     virtual void AssembleBeamState(const mblas::Matrix &nextStateMatrix,
                                    const Hypotheses& hypos,
-                                   State& out);
+                                   EDState& out);
 
     void GetAttention(mblas::Matrix& Attention);
 
@@ -70,6 +59,19 @@ class EncoderDecoder : public Scorer {
     size_t GetVocabSize() const;
 
     void Filter(const std::vector<size_t>& filterIds);
+
+    // scorer abstract functions
+    virtual void Decode(const State& in, State& out, const BeamSize& beamSizes)
+    {
+      abort();
+    }
+
+    virtual void AssembleBeamState(const State& in,
+                                   const Hypotheses& hypos,
+                                   State& out)
+    {
+      abort();
+    }
 
   private:
     const Weights& model_;
