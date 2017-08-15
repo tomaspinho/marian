@@ -49,7 +49,7 @@ class EncoderDecoder : public Scorer {
 
     virtual void AssembleBeamState(const mblas::Matrix &nextStateMatrix,
                                    const Hypotheses& hypos,
-                                   EDState& out);
+                                   EDState& out) const;
 
     void GetAttention(mblas::Matrix& Attention);
 
@@ -77,8 +77,7 @@ class EncoderDecoder : public Scorer {
     const Weights& model_;
     std::unique_ptr<Encoder> encoder_;
     std::unique_ptr<Decoder> decoder_;
-    DeviceVector<uint> indices_;
-      // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
+    // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
 
     EncOutBuffer encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;

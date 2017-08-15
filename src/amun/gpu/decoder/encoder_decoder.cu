@@ -31,7 +31,6 @@ EncoderDecoder::EncoderDecoder(
   model_(model),
   encoder_(new Encoder(model_)),
   decoder_(new Decoder(god, model_)),
-  indices_(god.Get<size_t>("beam-size")),
   encDecBuffer_(3)
 
 {
@@ -227,7 +226,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
 void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
                                 const Hypotheses& hypos,
-                                EDState& out)
+                                EDState& out) const
 {
   if (hypos.size() == 0) {
     return;
@@ -242,18 +241,17 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
   //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
   //cerr << "beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
-  indices_.resize(beamStateIds.size());
+  DeviceVector<uint> indices(beamStateIds.size());
   //HostVector<uint> tmp = beamStateIds;
 
   //cerr << "3 beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
   mblas::copy(beamStateIds.data(),
       beamStateIds.size(),
-      thrust::raw_pointer_cast(indices_.data()),
+      thrust::raw_pointer_cast(indices.data()),
       cudaMemcpyHostToDevice);
-  //cerr << "indices_=" << mblas::Debug(indices_, 2) << endl;
 
-  mblas::Assemble(out.GetStates(), nextStateMatrix, indices_);
+  mblas::Assemble(out.GetStates(), nextStateMatrix, indices);
   //cerr << "edOut.GetStates()=" << edOut.GetStates().Debug(1) << endl;
 
   //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
