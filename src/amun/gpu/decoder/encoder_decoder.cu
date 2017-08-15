@@ -202,13 +202,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     Hypotheses &survivors = histOut.first;
     //const std::vector<uint> &completed = histOut.second;
 
-    cerr << "3 state=" << state.Debug(1) << endl;
-    cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
-
     AssembleBeamState(nextStateMatrix, survivors, state);
 
-    cerr << "4 state=" << state.Debug(1) << endl;
-    cerr << "4 nextState=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "3 state=" << state.Debug(1) << endl;
+    cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
 
     /*
     cerr << "completed=" << Debug(completed, 2) << endl;
