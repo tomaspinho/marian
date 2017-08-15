@@ -182,8 +182,14 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     // decode
     boost::timer::cpu_timer timerStep;
 
+    cerr << "1 state=" << state->Debug(0) << endl;
+    cerr << "1 nextState=" << nextState->Debug(0) << endl;
+
     //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     Decode(*state, *nextState, histories.GetBeamSizes());
+
+    cerr << "2 state=" << state->Debug(0) << endl;
+    cerr << "2 nextState=" << nextState->Debug(0) << endl;
 
     //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
     //cerr << "state=" << state->Debug(0) << endl;
@@ -201,10 +207,16 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     Hypotheses &survivors = histOut.first;
     const std::vector<uint> &completed = histOut.second;
 
+    cerr << "3 state=" << state->Debug(0) << endl;
+    cerr << "3 nextState=" << nextState->Debug(0) << endl;
+
     AssembleBeamState(*nextState, survivors, *state);
 
-    //cerr << "completed=" << Debug(completed, 2) << endl;
+    cerr << "4 state=" << state->Debug(0) << endl;
+    cerr << "4 nextState=" << nextState->Debug(0) << endl;
+
     /*
+    cerr << "completed=" << Debug(completed, 2) << endl;
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
     cerr << "beams=" << beams.size() << endl;
