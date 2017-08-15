@@ -37,16 +37,19 @@ class EncoderDecoder : public Scorer {
 
     virtual ~EncoderDecoder();
 
-    virtual void Decode(const State& in, State& out, const BeamSize& beamSizes);
+    virtual void Decode(const EDState& in,
+                        mblas::Matrix &nextStateMatrix,
+                        const BeamSizeGPU& beamSizes);
 
     virtual State* NewState() const;
 
 
     virtual void Encode(const SentencesPtr source);
 
-    virtual void AssembleBeamState(const State& in,
+
+    virtual void AssembleBeamState(const mblas::Matrix &nextStateMatrix,
                                    const Hypotheses& hypos,
-                                   State& out);
+                                   EDState& out) const;
 
     void GetAttention(mblas::Matrix& Attention);
 
@@ -57,12 +60,24 @@ class EncoderDecoder : public Scorer {
 
     void Filter(const std::vector<size_t>& filterIds);
 
+    // scorer abstract functions
+    virtual void Decode(const State& in, State& out, const BeamSize& beamSizes)
+    {
+      abort();
+    }
+
+    virtual void AssembleBeamState(const State& in,
+                                   const Hypotheses& hypos,
+                                   State& out)
+    {
+      abort();
+    }
+
   private:
     const Weights& model_;
     std::unique_ptr<Encoder> encoder_;
     std::unique_ptr<Decoder> decoder_;
-    DeviceVector<uint> indices_;
-      // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
+    // set in Encoder::GetContext() to length (maxSentenceLength * batchSize). 1 if it's a word, 0 otherwise
 
     EncOutBuffer encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;

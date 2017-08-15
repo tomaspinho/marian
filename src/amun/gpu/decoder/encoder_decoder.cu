@@ -31,7 +31,6 @@ EncoderDecoder::EncoderDecoder(
   model_(model),
   encoder_(new Encoder(model_)),
   decoder_(new Decoder(god, model_)),
-  indices_(god.Get<size_t>("beam-size")),
   encDecBuffer_(3)
 
 {
@@ -79,17 +78,15 @@ void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
   decoder_->EmptyEmbedding(embeddings, batchSize);
 }
 
-void EncoderDecoder::Decode(const State& in, State& out, const BeamSize& beamSizes) {
+void EncoderDecoder::Decode(const EDState& in,
+                            mblas::Matrix &nextStateMatrix,
+                            const BeamSizeGPU& beamSizes)
+{
   BEGIN_TIMER("Decode");
-  const EDState& edIn = in.get<EDState>();
-  EDState& edOut = out.get<EDState>();
-
-  const BeamSizeGPU &bs = static_cast<const BeamSizeGPU&>(beamSizes);
-
-  decoder_->Decode(edOut.GetStates(),
-                     edIn.GetStates(),
-                     edIn.GetEmbeddings(),
-                     bs);
+  decoder_->Decode(nextStateMatrix,
+                  in.GetStates(),
+                  in.GetEmbeddings(),
+                  beamSizes);
   PAUSE_TIMER("Decode");
 }
 
@@ -128,8 +125,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
   uint maxBeamSize = god.Get<uint>("beam-size");
 
-  State *state = nullptr;
-  State *nextState = nullptr;
+  EDState state;
+
   Hypotheses prevHyps;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   size_t decoderStep;
@@ -161,15 +158,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                         encOut->GetSentences().size(),
                         *encOut);
 
-      state = NewState();
-
-      EDState& edState = state->get<EDState>();
-      mblas::Matrix &states = edState.GetStates();
-      mblas::Matrix &embeddings = edState.GetEmbeddings();
+      mblas::Matrix &states = state.GetStates();
+      mblas::Matrix &embeddings = state.GetEmbeddings();
       states.Copy(bufStates);
       embeddings.Copy(bufEmbeddings);
-
-      nextState = NewState();
 
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
@@ -182,11 +174,17 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     // decode
     boost::timer::cpu_timer timerStep;
 
-    //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
-    Decode(*state, *nextState, histories.GetBeamSizes());
+    mblas::Matrix nextStateMatrix;
 
-    //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
-    //cerr << "state=" << state->Debug(0) << endl;
+    //cerr << "1 state=" << state.Debug(1) << endl;
+    //cerr << "1 nextState=" << nextStateMatrix.Debug(1) << endl;
+
+    //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
+    const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
+    Decode(state, nextStateMatrix, bsGPU);
+
+    //cerr << "2 state=" << state.Debug(1) << endl;
+    //cerr << "2 nextState=" << nextStateMatrix.Debug(1) << endl;
 
     // beams
     if (decoderStep == 0) {
@@ -199,12 +197,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
-    const std::vector<uint> &completed = histOut.second;
+    //const std::vector<uint> &completed = histOut.second;
 
-    AssembleBeamState(*nextState, survivors, *state);
+    AssembleBeamState(nextStateMatrix, survivors, state);
 
-    //cerr << "completed=" << Debug(completed, 2) << endl;
+    //cerr << "3 state=" << state.Debug(1) << endl;
+    //cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
+
     /*
+    cerr << "completed=" << Debug(completed, 2) << endl;
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
     cerr << "beams=" << beams.size() << endl;
@@ -220,15 +221,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   }
-
-  delete state;
-  delete nextState;
 }
 
 
-void EncoderDecoder::AssembleBeamState(const State& in,
-                               const Hypotheses& hypos,
-                               State& out) {
+void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
+                                const Hypotheses& hypos,
+                                EDState& out) const
+{
   if (hypos.size() == 0) {
     return;
   }
@@ -242,22 +241,21 @@ void EncoderDecoder::AssembleBeamState(const State& in,
   //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
   //cerr << "beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
-  const EDState& edIn = in.get<EDState>();
-  EDState& edOut = out.get<EDState>();
-  indices_.resize(beamStateIds.size());
-  HostVector<uint> tmp = beamStateIds;
+  DeviceVector<uint> indices(beamStateIds.size());
+  //HostVector<uint> tmp = beamStateIds;
 
-  mblas::copy(thrust::raw_pointer_cast(tmp.data()),
+  //cerr << "3 beamStateIds=" << Debug(beamStateIds, 2) << endl;
+
+  mblas::copy(beamStateIds.data(),
       beamStateIds.size(),
-      thrust::raw_pointer_cast(indices_.data()),
+      thrust::raw_pointer_cast(indices.data()),
       cudaMemcpyHostToDevice);
-  //cerr << "indices_=" << mblas::Debug(indices_, 2) << endl;
 
-  mblas::Assemble(edOut.GetStates(), edIn.GetStates(), indices_);
+  mblas::Assemble(out.GetStates(), nextStateMatrix, indices);
   //cerr << "edOut.GetStates()=" << edOut.GetStates().Debug(1) << endl;
 
   //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
-  decoder_->Lookup(edOut.GetEmbeddings(), beamWords);
+  decoder_->Lookup(out.GetEmbeddings(), beamWords);
   //cerr << "edOut.GetEmbeddings()=" << edOut.GetEmbeddings().Debug(1) << endl;
 }
 
