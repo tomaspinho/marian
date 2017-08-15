@@ -131,7 +131,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   uint maxBeamSize = god.Get<uint>("beam-size");
 
   State *state = nullptr;
-  State *nextState = nullptr;
+  mblas::Matrix nextStateMatrix;
+
   Hypotheses prevHyps;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   size_t decoderStep;
@@ -171,8 +172,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       states.Copy(bufStates);
       embeddings.Copy(bufEmbeddings);
 
-      nextState = NewState();
-
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
 
@@ -185,16 +184,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     boost::timer::cpu_timer timerStep;
 
     cerr << "1 state=" << state->Debug(0) << endl;
-    cerr << "1 nextState=" << nextState->Debug(0) << endl;
-
-    EDState& edIn = nextState->get<EDState>();
-    mblas::Matrix &nextStateMatrix = edIn.GetStates();
+    cerr << "1 nextState=" << nextStateMatrix.Debug(0) << endl;
 
     //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     Decode(*state, nextStateMatrix, histories.GetBeamSizes());
 
     cerr << "2 state=" << state->Debug(0) << endl;
-    cerr << "2 nextState=" << nextState->Debug(0) << endl;
+    cerr << "2 nextState=" << nextStateMatrix.Debug(0) << endl;
 
     //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
     //cerr << "state=" << state->Debug(0) << endl;
@@ -213,12 +209,12 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     //const std::vector<uint> &completed = histOut.second;
 
     cerr << "3 state=" << state->Debug(0) << endl;
-    cerr << "3 nextState=" << nextState->Debug(0) << endl;
+    cerr << "3 nextState=" << nextStateMatrix.Debug(0) << endl;
 
     AssembleBeamState(nextStateMatrix, survivors, *state);
 
     cerr << "4 state=" << state->Debug(0) << endl;
-    cerr << "4 nextState=" << nextState->Debug(0) << endl;
+    cerr << "4 nextState=" << nextStateMatrix.Debug(0) << endl;
 
     /*
     cerr << "completed=" << Debug(completed, 2) << endl;
@@ -239,7 +235,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   }
 
   delete state;
-  delete nextState;
 }
 
 
