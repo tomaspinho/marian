@@ -130,7 +130,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
   uint maxBeamSize = god.Get<uint>("beam-size");
 
-  State *state = nullptr;
+  EDState state;
   mblas::Matrix nextStateMatrix;
 
   Hypotheses prevHyps;
@@ -164,11 +164,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                         encOut->GetSentences().size(),
                         *encOut);
 
-      state = NewState();
-
-      EDState& edState = state->get<EDState>();
-      mblas::Matrix &states = edState.GetStates();
-      mblas::Matrix &embeddings = edState.GetEmbeddings();
+      mblas::Matrix &states = state.GetStates();
+      mblas::Matrix &embeddings = state.GetEmbeddings();
       states.Copy(bufStates);
       embeddings.Copy(bufEmbeddings);
 
@@ -183,13 +180,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     // decode
     boost::timer::cpu_timer timerStep;
 
-    cerr << "1 state=" << state->Debug(0) << endl;
+    cerr << "1 state=" << state.Debug(0) << endl;
     cerr << "1 nextState=" << nextStateMatrix.Debug(0) << endl;
 
     //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
-    Decode(*state, nextStateMatrix, histories.GetBeamSizes());
+    Decode(state, nextStateMatrix, histories.GetBeamSizes());
 
-    cerr << "2 state=" << state->Debug(0) << endl;
+    cerr << "2 state=" << state.Debug(0) << endl;
     cerr << "2 nextState=" << nextStateMatrix.Debug(0) << endl;
 
     //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
@@ -208,12 +205,12 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     Hypotheses &survivors = histOut.first;
     //const std::vector<uint> &completed = histOut.second;
 
-    cerr << "3 state=" << state->Debug(0) << endl;
+    cerr << "3 state=" << state.Debug(0) << endl;
     cerr << "3 nextState=" << nextStateMatrix.Debug(0) << endl;
 
-    AssembleBeamState(nextStateMatrix, survivors, *state);
+    AssembleBeamState(nextStateMatrix, survivors, state);
 
-    cerr << "4 state=" << state->Debug(0) << endl;
+    cerr << "4 state=" << state.Debug(0) << endl;
     cerr << "4 nextState=" << nextStateMatrix.Debug(0) << endl;
 
     /*
@@ -233,8 +230,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
   }
-
-  delete state;
 }
 
 
