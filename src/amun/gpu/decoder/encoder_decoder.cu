@@ -176,18 +176,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     // decode
     boost::timer::cpu_timer timerStep;
 
-    cerr << "1 state=" << state.Debug(1) << endl;
-    cerr << "1 nextState=" << nextStateMatrix.Debug(1) << endl;
+    //cerr << "1 state=" << state.Debug(1) << endl;
+    //cerr << "1 nextState=" << nextStateMatrix.Debug(1) << endl;
 
     //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
     Decode(state, nextStateMatrix, bsGPU);
 
-    cerr << "2 state=" << state.Debug(1) << endl;
-    cerr << "2 nextState=" << nextStateMatrix.Debug(1) << endl;
-
-    //cerr << "beamSizes3=" << histories.GetBeamSizes().Debug(2) << endl;
-    //cerr << "state=" << state->Debug(0) << endl;
+    //cerr << "2 state=" << state.Debug(1) << endl;
+    //cerr << "2 nextState=" << nextStateMatrix.Debug(1) << endl;
 
     // beams
     if (decoderStep == 0) {
@@ -204,8 +201,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     AssembleBeamState(nextStateMatrix, survivors, state);
 
-    cerr << "3 state=" << state.Debug(1) << endl;
-    cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
+    //cerr << "3 state=" << state.Debug(1) << endl;
+    //cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
 
     /*
     cerr << "completed=" << Debug(completed, 2) << endl;
