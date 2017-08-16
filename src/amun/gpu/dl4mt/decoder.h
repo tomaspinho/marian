@@ -360,30 +360,33 @@ class Decoder {
     {
       BEGIN_TIMER("Decode");
 
+      mblas::Matrix HiddenState;
+      mblas::Matrix AlignedSourceContext;
+
       BEGIN_TIMER("GetHiddenState");
       //std::cerr << "State=" << State.Debug(1) << std::endl;
       //std::cerr << "Embeddings=" << Embeddings.Debug(1) << std::endl;
-      GetHiddenState(HiddenState_, State, Embeddings);
-      //HiddenState_.ReduceDimensions();
-      //std::cerr << "HiddenState_=" << HiddenState_.Debug(1) << std::endl;
+      GetHiddenState(HiddenState, State, Embeddings);
+      //HiddenState.ReduceDimensions();
+      //std::cerr << "HiddenState=" << HiddenState.Debug(1) << std::endl;
       PAUSE_TIMER("GetHiddenState");
 
       BEGIN_TIMER("GetAlignedSourceContext");
-      GetAlignedSourceContext(AlignedSourceContext_,
-                              HiddenState_,
+      GetAlignedSourceContext(AlignedSourceContext,
+                              HiddenState,
                               beamSizes.GetSourceContext(),
                               beamSizes.GetSentenceLengths(),
                               beamSizes);
-      //std::cerr << "AlignedSourceContext_=" << AlignedSourceContext_.Debug(1) << std::endl;
+      //std::cerr << "AlignedSourceContext=" << AlignedSourceContext.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");
 
       BEGIN_TIMER("GetNextState");
-      GetNextState(NextState, HiddenState_, AlignedSourceContext_);
+      GetNextState(NextState, HiddenState, AlignedSourceContext);
       //std::cerr << "NextState=" << NextState.Debug(1) << std::endl;
       PAUSE_TIMER("GetNextState");
 
       BEGIN_TIMER("GetProbs");
-      GetProbs(probs, NextState, Embeddings, AlignedSourceContext_);
+      GetProbs(probs, NextState, Embeddings, AlignedSourceContext);
       //std::cerr << "Probs_=" << Probs_.Debug(1) << std::endl;
       PAUSE_TIMER("GetProbs");
 
@@ -469,8 +472,6 @@ class Decoder {
     }
 
   private:
-    mblas::Matrix HiddenState_;
-    mblas::Matrix AlignedSourceContext_;
 
     Embeddings<Weights::DecEmbeddings> embeddings_;
     RNNHidden<Weights::DecInit, Weights::DecGRU1> rnn1_;
