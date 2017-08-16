@@ -129,7 +129,6 @@ class Decoder {
       public:
         Alignment(const God &god, const Weights& model)
           : w_(model)
-          , dBatchMapping_(god.Get<size_t>("mini-batch") * god.Get<size_t>("beam-size"), 0)
         {}
 
         void Init(BeamSizeGPU& beamSizes, const mblas::Matrix& sourceContext) const
@@ -152,9 +151,12 @@ class Decoder {
         {
           // mapping = 1/0 whether each position, in each sentence in the batch is actually a valid word
           // batchMapping = which sentence is each element in the batch. eg 0 0 1 2 2 2 = first 2 belongs to sent0, 3rd is sent1, 4th and 5th is sent2
-          // dBatchMapping_ = fixed length (batch*beam) version of dBatchMapping_
+          // dBatchMapping = fixed length (batch*beam) version of dBatchMapping_
 
           using namespace mblas;
+
+          mblas::Matrix Temp1_;
+          mblas::Matrix Temp2_;
 
           size_t maxLength = sourceContext.dim(0);
           size_t batchSize = sourceContext.dim(3);
@@ -170,10 +172,10 @@ class Decoder {
           }
           //std::cerr << "batchMapping=" << mblas::Debug(batchMapping, 2) << std::endl;
 
-          dBatchMapping_.resize(batchMapping.size());
+          DeviceVector<uint> dBatchMapping(batchMapping.size());
           mblas::copy(thrust::raw_pointer_cast(batchMapping.data()),
               batchMapping.size(),
-              thrust::raw_pointer_cast(dBatchMapping_.data()),
+              thrust::raw_pointer_cast(dBatchMapping.data()),
               cudaMemcpyHostToDevice);
 
           //std::cerr << "sourceContext=" << sourceContext.Debug(0) << std::endl;
@@ -193,22 +195,22 @@ class Decoder {
           Copy(Temp1_, beamSizes.SCU);
           //std::cerr << "1Temp1_=" << Temp1_.Debug() << std::endl;
 
-          Broadcast(Tanh(_1 + _2), Temp1_, Temp2_, dBatchMapping_, maxLength);
+          Broadcast(Tanh(_1 + _2), Temp1_, Temp2_, dBatchMapping, maxLength);
 
           //std::cerr << "w_.V_=" << w_.V_->Debug(0) << std::endl;
           //std::cerr << "3Temp1_=" << Temp1_.Debug(0) << std::endl;
 
           Prod(A_, *w_.V_, Temp1_, false, true);
 
-          mblas::Softmax(A_, dBatchMapping_, sentenceLengths, batchSize);
-          mblas::WeightedMean(AlignedSourceContext, A_, sourceContext, dBatchMapping_);
+          mblas::Softmax(A_, dBatchMapping, sentenceLengths, batchSize);
+          mblas::WeightedMean(AlignedSourceContext, A_, sourceContext, dBatchMapping);
 
           /*
           std::cerr << "AlignedSourceContext=" << AlignedSourceContext.Debug() << std::endl;
           std::cerr << "A_=" << A_.Debug() << std::endl;
           std::cerr << "sourceContext=" << sourceContext.Debug() << std::endl;
           std::cerr << "mapping=" << Debug(mapping, 2) << std::endl;
-          std::cerr << "dBatchMapping_=" << Debug(dBatchMapping_, 2) << std::endl;
+          std::cerr << "dBatchMapping=" << Debug(dBatchMapping, 2) << std::endl;
           std::cerr << std::endl;
           */
         }
@@ -224,13 +226,7 @@ class Decoder {
       private:
         const Weights& w_;
 
-        DeviceVector<uint> dBatchMapping_;
-
-        mblas::Matrix Temp1_;
-        mblas::Matrix Temp2_;
         mblas::Matrix A_;
-
-        mblas::Matrix Ones_;
 
         Alignment(const Alignment&) = delete;
     };
