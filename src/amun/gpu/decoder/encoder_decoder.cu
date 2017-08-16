@@ -84,6 +84,7 @@ void EncoderDecoder::Decode(const EDState& in,
 {
   BEGIN_TIMER("Decode");
   decoder_->Decode(nextStateMatrix,
+                  probs_,
                   in.GetStates(),
                   in.GetEmbeddings(),
                   beamSizes);
@@ -264,7 +265,7 @@ void EncoderDecoder::GetAttention(mblas::Matrix& Attention) {
 }
 
 BaseMatrix& EncoderDecoder::GetProbs() {
-  return decoder_->GetProbs();
+  return probs_;
 }
 
 mblas::Matrix& EncoderDecoder::GetAttention() {

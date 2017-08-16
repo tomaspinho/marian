@@ -82,6 +82,8 @@ class EncoderDecoder : public Scorer {
     EncOutBuffer encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;
 
+    mblas::Matrix probs_;
+
     void DecodeAsync(const God &god);
     void DecodeAsyncInternal(const God &god);
     void BeginSentenceState(mblas::Matrix &states,

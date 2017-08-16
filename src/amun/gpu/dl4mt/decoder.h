@@ -353,9 +353,10 @@ class Decoder {
     {}
 
     void Decode(mblas::Matrix& NextState,
-                  const mblas::Matrix& State,
-                  const mblas::Matrix& Embeddings,
-                  const BeamSizeGPU& beamSizes)
+                mblas::Matrix &probs,
+                const mblas::Matrix& State,
+                const mblas::Matrix& Embeddings,
+                const BeamSizeGPU& beamSizes)
     {
       BEGIN_TIMER("Decode");
 
@@ -382,15 +383,11 @@ class Decoder {
       PAUSE_TIMER("GetNextState");
 
       BEGIN_TIMER("GetProbs");
-      GetProbs(Probs_, NextState, Embeddings, AlignedSourceContext_);
+      GetProbs(probs, NextState, Embeddings, AlignedSourceContext_);
       //std::cerr << "Probs_=" << Probs_.Debug(1) << std::endl;
       PAUSE_TIMER("GetProbs");
 
       PAUSE_TIMER("Decode");
-    }
-
-    mblas::Matrix& GetProbs() {
-      return Probs_;
     }
 
     void EmptyState(mblas::Matrix& State,
@@ -474,7 +471,6 @@ class Decoder {
   private:
     mblas::Matrix HiddenState_;
     mblas::Matrix AlignedSourceContext_;
-    mblas::Matrix Probs_;
 
     Embeddings<Weights::DecEmbeddings> embeddings_;
     RNNHidden<Weights::DecInit, Weights::DecGRU1> rnn1_;
