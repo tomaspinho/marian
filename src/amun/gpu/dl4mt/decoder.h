@@ -382,7 +382,7 @@ class Decoder {
       PAUSE_TIMER("GetNextState");
 
       BEGIN_TIMER("GetProbs");
-      GetProbs(NextState, Embeddings, AlignedSourceContext_);
+      GetProbs(Probs_, NextState, Embeddings, AlignedSourceContext_);
       //std::cerr << "Probs_=" << Probs_.Debug(1) << std::endl;
       PAUSE_TIMER("GetProbs");
 
@@ -463,10 +463,12 @@ class Decoder {
     }
 
 
-    void GetProbs(const mblas::Matrix& State,
+    void GetProbs(mblas::Matrix &Probs,
+                  const mblas::Matrix& State,
                   const mblas::Matrix& Embedding,
-                  const mblas::Matrix& AlignedSourceContext) {
-      softmax_.GetProbs(Probs_, State, Embedding, AlignedSourceContext);
+                  const mblas::Matrix& AlignedSourceContext) const
+    {
+      softmax_.GetProbs(Probs, State, Embedding, AlignedSourceContext);
     }
 
   private:
