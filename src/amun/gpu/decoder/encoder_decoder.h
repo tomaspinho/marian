@@ -37,19 +37,10 @@ class EncoderDecoder : public Scorer {
 
     virtual ~EncoderDecoder();
 
-    virtual void Decode(const EDState& in,
-                        mblas::Matrix &nextStateMatrix,
-                        const BeamSizeGPU& beamSizes);
-
     virtual State* NewState() const;
 
 
     virtual void Encode(const SentencesPtr source);
-
-
-    virtual void AssembleBeamState(const mblas::Matrix &nextStateMatrix,
-                                   const Hypotheses& hypos,
-                                   EDState& out) const;
 
     mblas::Matrix& GetAttention();
     virtual BaseMatrix& GetProbs();
@@ -90,6 +81,14 @@ class EncoderDecoder : public Scorer {
                             BeamSizeGPU& beamSizes,
                             size_t batchSize,
                             const EncOut &encOut) const;
+
+    void Decode(const EDState& in,
+                mblas::Matrix &nextStateMatrix,
+                const BeamSizeGPU& beamSizes);
+
+    void AssembleBeamState(const mblas::Matrix &nextStateMatrix,
+                           const Hypotheses& hypos,
+                           EDState& out) const;
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
