@@ -231,7 +231,6 @@ class Decoder {
         mblas::Matrix A_;
 
         mblas::Matrix Ones_;
-        mblas::Matrix Sums_;
 
         Alignment(const Alignment&) = delete;
     };
