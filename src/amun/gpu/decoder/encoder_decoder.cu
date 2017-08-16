@@ -178,15 +178,23 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     mblas::Matrix nextStateMatrix;
 
-    //cerr << "1 state=" << state.Debug(1) << endl;
-    //cerr << "1 nextState=" << nextStateMatrix.Debug(1) << endl;
+    /*
+    cerr << "1 state=" << state.Debug(1) << endl;
+    cerr << "1 nextState=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "1 probs_=" << probs_.Debug(1) << endl;
+    cerr << "1 attention_=" << attention_.Debug(2) << endl;
+    */
 
     //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
     Decode(state, nextStateMatrix, bsGPU);
 
-    //cerr << "2 state=" << state.Debug(1) << endl;
-    //cerr << "2 nextState=" << nextStateMatrix.Debug(1) << endl;
+    /*
+    cerr << "2 state=" << state.Debug(1) << endl;
+    cerr << "2 nextState=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "2 probs_=" << probs_.Debug(1) << endl;
+    cerr << "2 attention_=" << attention_.Debug(2) << endl;
+    */
 
     // beams
     if (decoderStep == 0) {
@@ -203,10 +211,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     AssembleBeamState(nextStateMatrix, survivors, state);
 
-    //cerr << "3 state=" << state.Debug(1) << endl;
-    //cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
 
     /*
+    cerr << "3 state=" << state.Debug(1) << endl;
+    cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "3 probs_=" << probs_.Debug(1) << endl;
+    cerr << "3 attention_=" << attention_.Debug(1) << endl;
+
     cerr << "completed=" << Debug(completed, 2) << endl;
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
