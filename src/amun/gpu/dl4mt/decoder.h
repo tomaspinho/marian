@@ -201,10 +201,10 @@ class Decoder {
           //std::cerr << "w_.V_=" << w_.V_->Debug(0) << std::endl;
           //std::cerr << "3Temp1_=" << Temp1.Debug(0) << std::endl;
 
-          Prod(A_, *w_.V_, Temp1, false, true);
+          Prod(attention, *w_.V_, Temp1, false, true);
 
-          mblas::Softmax(A_, dBatchMapping, sentenceLengths, batchSize);
-          mblas::WeightedMean(AlignedSourceContext, A_, sourceContext, dBatchMapping);
+          mblas::Softmax(attention, dBatchMapping, sentenceLengths, batchSize);
+          mblas::WeightedMean(AlignedSourceContext, attention, sourceContext, dBatchMapping);
 
           /*
           std::cerr << "AlignedSourceContext=" << AlignedSourceContext.Debug() << std::endl;
@@ -216,18 +216,8 @@ class Decoder {
           */
         }
 
-        void GetAttention(mblas::Matrix& Attention) {
-          mblas::Copy(Attention, A_);
-        }
-
-        mblas::Matrix& GetAttention() {
-          return A_;
-        }
-
       private:
         const Weights& w_;
-
-        mblas::Matrix A_;
 
         Alignment(const Alignment&) = delete;
     };
@@ -422,16 +412,8 @@ class Decoder {
       softmax_.Filter(ids);
     }
 
-    void GetAttention(mblas::Matrix& Attention) {
-      alignment_.GetAttention(Attention);
-    }
-
     size_t GetVocabSize() const {
       return embeddings_.GetRows();
-    }
-
-    mblas::Matrix& GetAttention() {
-      return alignment_.GetAttention();
     }
 
   private:

@@ -51,8 +51,6 @@ class EncoderDecoder : public Scorer {
                                    const Hypotheses& hypos,
                                    EDState& out) const;
 
-    void GetAttention(mblas::Matrix& Attention);
-
     mblas::Matrix& GetAttention();
     virtual BaseMatrix& GetProbs();
 

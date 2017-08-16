@@ -261,16 +261,12 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
   //cerr << "edOut.GetEmbeddings()=" << edOut.GetEmbeddings().Debug(1) << endl;
 }
 
-void EncoderDecoder::GetAttention(mblas::Matrix& Attention) {
-  decoder_->GetAttention(Attention);
-}
-
 BaseMatrix& EncoderDecoder::GetProbs() {
   return probs_;
 }
 
 mblas::Matrix& EncoderDecoder::GetAttention() {
-  return decoder_->GetAttention();
+  return attention_;
 }
 
 size_t EncoderDecoder::GetVocabSize() const {
