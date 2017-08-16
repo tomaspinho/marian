@@ -85,6 +85,7 @@ void EncoderDecoder::Decode(const EDState& in,
   BEGIN_TIMER("Decode");
   decoder_->Decode(nextStateMatrix,
                   probs_,
+                  attention_,
                   in.GetStates(),
                   in.GetEmbeddings(),
                   beamSizes);

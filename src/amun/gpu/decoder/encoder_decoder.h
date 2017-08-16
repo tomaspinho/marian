@@ -83,6 +83,7 @@ class EncoderDecoder : public Scorer {
     std::unique_ptr<std::thread> decThread_;
 
     mblas::Matrix probs_;
+    mblas::Matrix attention_;
 
     void DecodeAsync(const God &god);
     void DecodeAsyncInternal(const God &god);

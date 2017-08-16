@@ -144,6 +144,7 @@ class Decoder {
         }
 
         void GetAlignedSourceContext(mblas::Matrix& AlignedSourceContext,
+                                     mblas::Matrix &attention,
                                      const mblas::Matrix& HiddenState,
                                      const mblas::Matrix& sourceContext,
                                      const mblas::IMatrix &sentenceLengths,
@@ -155,8 +156,8 @@ class Decoder {
 
           using namespace mblas;
 
-          mblas::Matrix Temp1_;
-          mblas::Matrix Temp2_;
+          mblas::Matrix Temp1;
+          mblas::Matrix Temp2;
 
           size_t maxLength = sourceContext.dim(0);
           size_t batchSize = sourceContext.dim(3);
@@ -182,25 +183,25 @@ class Decoder {
           //std::cerr << "sentenceLengths=" << sentenceLengths.Debug(2) << std::endl;
           //std::cerr << "maxLength=" << maxLength << std::endl;
 
-          Prod(/*h_[1],*/ Temp2_, HiddenState, *w_.W_);
-          //std::cerr << "1Temp2_=" << Temp2_.Debug() << std::endl;
+          Prod(/*h_[1],*/ Temp2, HiddenState, *w_.W_);
+          //std::cerr << "1Temp2_=" << Temp2.Debug() << std::endl;
 
           if (w_.Gamma_2_->size()) {
-            Normalization(Temp2_, Temp2_, *w_.Gamma_2_, 1e-9);
+            Normalization(Temp2, Temp2, *w_.Gamma_2_, 1e-9);
           } else {
-            BroadcastVec(_1 + _2, Temp2_, *w_.B_/*, s_[1]*/);
+            BroadcastVec(_1 + _2, Temp2, *w_.B_/*, s_[1]*/);
           }
-          //std::cerr << "2Temp2_=" << Temp2_.Debug() << std::endl;
+          //std::cerr << "2Temp2_=" << Temp2.Debug() << std::endl;
 
-          Copy(Temp1_, beamSizes.SCU);
-          //std::cerr << "1Temp1_=" << Temp1_.Debug() << std::endl;
+          Copy(Temp1, beamSizes.SCU);
+          //std::cerr << "1Temp1_=" << Temp1.Debug() << std::endl;
 
-          Broadcast(Tanh(_1 + _2), Temp1_, Temp2_, dBatchMapping, maxLength);
+          Broadcast(Tanh(_1 + _2), Temp1, Temp2, dBatchMapping, maxLength);
 
           //std::cerr << "w_.V_=" << w_.V_->Debug(0) << std::endl;
-          //std::cerr << "3Temp1_=" << Temp1_.Debug(0) << std::endl;
+          //std::cerr << "3Temp1_=" << Temp1.Debug(0) << std::endl;
 
-          Prod(A_, *w_.V_, Temp1_, false, true);
+          Prod(A_, *w_.V_, Temp1, false, true);
 
           mblas::Softmax(A_, dBatchMapping, sentenceLengths, batchSize);
           mblas::WeightedMean(AlignedSourceContext, A_, sourceContext, dBatchMapping);
@@ -349,6 +350,7 @@ class Decoder {
 
     void Decode(mblas::Matrix& NextState,
                 mblas::Matrix &probs,
+                mblas::Matrix &attention,
                 const mblas::Matrix& State,
                 const mblas::Matrix& Embeddings,
                 const BeamSizeGPU& beamSizes)
@@ -368,6 +370,7 @@ class Decoder {
 
       BEGIN_TIMER("GetAlignedSourceContext");
       GetAlignedSourceContext(AlignedSourceContext,
+                              attention,
                               HiddenState,
                               beamSizes.GetSourceContext(),
                               beamSizes.GetSentenceLengths(),
@@ -441,13 +444,18 @@ class Decoder {
     }
 
     void GetAlignedSourceContext(mblas::Matrix& AlignedSourceContext,
+                                  mblas::Matrix &probs,
                                   const mblas::Matrix& HiddenState,
                                   const mblas::Matrix& sourceContext,
                                   const mblas::IMatrix &sentenceLengths,
                                   const BeamSizeGPU& beamSizes)
     {
-      alignment_.GetAlignedSourceContext(AlignedSourceContext, HiddenState, sourceContext,
-                                         sentenceLengths, beamSizes);
+      alignment_.GetAlignedSourceContext(AlignedSourceContext,
+                                          probs,
+                                          HiddenState,
+                                          sourceContext,
+                                          sentenceLengths,
+                                          beamSizes);
     }
 
     void GetNextState(mblas::Matrix& State,
