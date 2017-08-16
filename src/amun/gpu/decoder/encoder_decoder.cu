@@ -129,6 +129,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
   EDState state;
 
+  uint remaining;
   Hypotheses prevHyps;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   size_t decoderStep;
@@ -169,6 +170,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       prevHyps = histories.GetFirstHyps();
 
       decoderStep = 0;
+      remaining = 32;
     }
 
     //cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;
@@ -207,7 +209,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
-    //const std::vector<uint> &completed = histOut.second;
+    const std::vector<uint> &completed = histOut.second;
 
     AssembleBeamState(nextStateMatrix, survivors, state);
 
@@ -231,8 +233,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     prevHyps.swap(survivors);
     ++decoderStep;
+    remaining -= completed.size();
 
-    LOG(progress)->info("Step took {}", timerStep.format(3, "%ws"));
+    LOG(progress)->info("Step took {}, survivors={}, completed={}, remaining={}",
+                        timerStep.format(3, "%ws"),
+                        survivors.size(),
+                        completed.size(),
+                        remaining);
   }
 }
 
