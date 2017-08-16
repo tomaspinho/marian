@@ -249,47 +249,52 @@ class Decoder {
         void GetProbs(mblas::Matrix& Probs,
                   const mblas::Matrix& State,
                   const mblas::Matrix& Embedding,
-                  const mblas::Matrix& AlignedSourceContext) {
+                  const mblas::Matrix& AlignedSourceContext) const
+        {
           using namespace mblas;
 
+          mblas::Matrix T1;
+          mblas::Matrix T2;
+          mblas::Matrix T3;
+
           BEGIN_TIMER("GetProbs.Prod");
-          Prod(/*h_[0],*/ T1_, State, *w_.W1_);
+          Prod(/*h_[0],*/ T1, State, *w_.W1_);
           PAUSE_TIMER("GetProbs.Prod");
 
           BEGIN_TIMER("GetProbs.Normalization/BroadcastVec");
           if (w_.Gamma_1_->size()) {
-            Normalization(T1_, T1_, *w_.Gamma_1_, *w_.B1_, 1e-9);
+            Normalization(T1, T1, *w_.Gamma_1_, *w_.B1_, 1e-9);
           } else {
-            BroadcastVec(_1 + _2, T1_, *w_.B1_ /*,s_[0]*/);
+            BroadcastVec(_1 + _2, T1, *w_.B1_ /*,s_[0]*/);
           }
           PAUSE_TIMER("GetProbs.Normalization/BroadcastVec");
 
           BEGIN_TIMER("GetProbs.Prod2");
-          Prod(/*h_[1],*/ T2_, Embedding, *w_.W2_);
+          Prod(/*h_[1],*/ T2, Embedding, *w_.W2_);
           PAUSE_TIMER("GetProbs.Prod2");
 
           BEGIN_TIMER("GetProbs.Normalization/BroadcastVec2");
           if (w_.Gamma_0_->size()) {
-            Normalization(T2_, T2_, *w_.Gamma_0_, *w_.B2_, 1e-9);
+            Normalization(T2, T2, *w_.Gamma_0_, *w_.B2_, 1e-9);
           } else {
-            BroadcastVec(_1 + _2, T2_, *w_.B2_ /*,s_[1]*/);
+            BroadcastVec(_1 + _2, T2, *w_.B2_ /*,s_[1]*/);
           }
           PAUSE_TIMER("GetProbs.Normalization/BroadcastVec2");
 
           BEGIN_TIMER("GetProbs.Prod3");
-          Prod(/*h_[2],*/ T3_, AlignedSourceContext, *w_.W3_);
+          Prod(/*h_[2],*/ T3, AlignedSourceContext, *w_.W3_);
           PAUSE_TIMER("GetProbs.Prod3");
 
           BEGIN_TIMER("GetProbs.Normalization/BroadcastVec3");
           if (w_.Gamma_2_->size()) {
-            Normalization(T3_, T3_, *w_.Gamma_2_, *w_.B3_, 1e-9);
+            Normalization(T3, T3, *w_.Gamma_2_, *w_.B3_, 1e-9);
           } else {
-            BroadcastVec(_1 + _2, T3_, *w_.B3_ /*,s_[2]*/);
+            BroadcastVec(_1 + _2, T3, *w_.B3_ /*,s_[2]*/);
           }
           PAUSE_TIMER("GetProbs.Normalization/BroadcastVec3");
 
           BEGIN_TIMER("GetProbs.Element");
-          Element(Tanh(_1 + _2 + _3), T1_, T2_, T3_);
+          Element(Tanh(_1 + _2 + _3), T1, T2, T3);
           PAUSE_TIMER("GetProbs.Element");
 
           std::shared_ptr<mblas::Matrix> w4, b4;
@@ -302,7 +307,7 @@ class Decoder {
           }
 
           BEGIN_TIMER("GetProbs.Prod4");
-          Prod(Probs, T1_, *w4);
+          Prod(Probs, T1, *w4);
           PAUSE_TIMER("GetProbs.Prod4");
 
           BEGIN_TIMER("GetProbs.BroadcastVec");
@@ -329,12 +334,8 @@ class Decoder {
         const Weights& w_;
 
         bool filtered_;
-        mblas::Matrix FilteredW4_;
-        mblas::Matrix FilteredB4_;
-
-        mblas::Matrix T1_;
-        mblas::Matrix T2_;
-        mblas::Matrix T3_;
+        mutable mblas::Matrix FilteredW4_;
+        mutable mblas::Matrix FilteredB4_;
 
         mblas::Matrix TempW4;
         mblas::Matrix TempB4;
@@ -456,7 +457,8 @@ class Decoder {
 
     void GetNextState(mblas::Matrix& State,
                       const mblas::Matrix& HiddenState,
-                      const mblas::Matrix& AlignedSourceContext) {
+                      const mblas::Matrix& AlignedSourceContext) const
+    {
       rnn2_.GetNextState(State, HiddenState, AlignedSourceContext);
     }
 
