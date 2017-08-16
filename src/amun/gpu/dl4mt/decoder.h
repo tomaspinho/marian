@@ -148,7 +148,7 @@ class Decoder {
                                      const mblas::Matrix& HiddenState,
                                      const mblas::Matrix& sourceContext,
                                      const mblas::IMatrix &sentenceLengths,
-                                     const BeamSizeGPU& beamSizes)
+                                     const BeamSizeGPU& beamSizes) const
         {
           // mapping = 1/0 whether each position, in each sentence in the batch is actually a valid word
           // batchMapping = which sentence is each element in the batch. eg 0 0 1 2 2 2 = first 2 belongs to sent0, 3rd is sent1, 4th and 5th is sent2
@@ -343,7 +343,7 @@ class Decoder {
                 mblas::Matrix &attention,
                 const mblas::Matrix& State,
                 const mblas::Matrix& Embeddings,
-                const BeamSizeGPU& beamSizes)
+                const BeamSizeGPU& beamSizes) const
     {
       BEGIN_TIMER("Decode");
 
@@ -430,7 +430,7 @@ class Decoder {
                                   const mblas::Matrix& HiddenState,
                                   const mblas::Matrix& sourceContext,
                                   const mblas::IMatrix &sentenceLengths,
-                                  const BeamSizeGPU& beamSizes)
+                                  const BeamSizeGPU& beamSizes) const
     {
       alignment_.GetAlignedSourceContext(AlignedSourceContext,
                                           probs,
