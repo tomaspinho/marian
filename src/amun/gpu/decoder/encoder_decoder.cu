@@ -170,7 +170,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       prevHyps = histories.GetFirstHyps();
 
       decoderStep = 0;
-      remaining = 32;
+      remaining = god.Get<uint>("mini-batch");
     }
 
     //cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;
