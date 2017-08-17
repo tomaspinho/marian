@@ -176,6 +176,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       //cerr << "sentences=" << sentences.size() << " " << sentences.GetMaxLength() << endl;
 
+      // simulate completed vector
+      remaining = god.Get<uint>("mini-batch");
+      std::vector<uint> completed2(32);
+      for (uint i = 0; i < remaining; ++i) {
+        completed2[i] = i;
+      }
+
       // init states & histories/beams
       const mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
       const mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
@@ -197,7 +204,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       prevHyps = histories.GetFirstHyps();
 
       decoderStep = 0;
-      remaining = god.Get<uint>("mini-batch");
     }
 
     // decode
