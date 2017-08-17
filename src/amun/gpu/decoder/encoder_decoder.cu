@@ -177,7 +177,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                         sourceContext,
                         sourceLengths,
                         batchSize);
-      cerr << "1SCU=" << SCU->Debug(1) << endl;
+      //cerr << "1SCU=" << SCU->Debug(1) << endl;
 
       mblas::Matrix &states = state.GetStates();
       mblas::Matrix &embeddings = state.GetEmbeddings();
@@ -243,6 +243,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "3 state=" << state.Debug(1) << endl;
     cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
     cerr << "3 probs_=" << probs_.Debug(1) << endl;
+    cerr << "3 attention_=" << attention_.Debug(2) << endl;
+    cerr << "completed=" << Debug(completed, 2) << endl;
 
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
@@ -251,10 +253,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "nextState=" << nextState->Debug(0) << endl;
     cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
     cerr << "histories=" << histories.size() << endl;
-    */
-    //cerr << "3 attention_=" << attention_.Debug(2) << endl;
-    //cerr << "completed=" << Debug(completed, 2) << endl;
+    cerr << "SCU=" << SCU->Debug(1) << endl;
     cerr << endl;
+    */
   }
 }
 
