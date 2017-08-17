@@ -239,7 +239,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
     cerr << "histories=" << histories.size() << endl;
     */
-    cerr << "3 attention_=" << attention_.Debug(1) << endl;
+    cerr << "3 attention_=" << attention_.Debug(2) << endl;
     cerr << "completed=" << Debug(completed, 2) << endl;
     cerr << endl;
   }

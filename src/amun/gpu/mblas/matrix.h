@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <sstream>
+#include <iomanip>
 #include <thrust/execution_policy.h>
 #include <thrust/functional.h>
 
@@ -228,8 +229,19 @@ class TMatrix : public BaseMatrix {
               stream) );
           HANDLE_ERROR( cudaStreamSynchronize(stream) );
 
+          /*
           for (size_t i = 0; i < size(); ++i) {
             strm << " " << h_data[i];
+          }
+          */
+          strm << std::setprecision(2) << std::endl;
+
+          for (uint row = 0; row < dim(0); ++row) {
+            for (uint col = 0; col < dim(1); ++col) {
+              uint id = row * dim(1) + col;
+              strm << h_data[id] << " ";
+            }
+            strm << std::endl;
           }
         }
       }
