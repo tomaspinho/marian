@@ -84,6 +84,7 @@ class EncoderDecoder : public Scorer {
                             size_t batchSize) const;
 
     void Decode(const EDState& in,
+                const mblas::Matrix& SCU,
                 mblas::Matrix &nextStateMatrix,
                 const BeamSizeGPU& beamSizes);
 

@@ -19,6 +19,8 @@ protected:
   mblas::Matrix states_;
   mblas::Matrix embeddings_;
 
+  mblas::Matrix SCU_;
+
   BaseMatrix &GetSourceContextInternal()
   { return sourceContext_; }
 
@@ -39,6 +41,12 @@ protected:
 
   const BaseMatrix &GetEmbeddingsInternal() const
   { return embeddings_; }
+
+  BaseMatrix &GetSCUInternal()
+  { return SCU_; }
+
+  const BaseMatrix &GetSCUInternal() const
+  { return SCU_; }
 
 };
 

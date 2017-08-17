@@ -8,8 +8,6 @@ namespace GPU {
 class BeamSizeGPU : public amunmt::BeamSize
 {
 public:
-  mblas::Matrix SCU;
-
   BeamSizeGPU();
   ~BeamSizeGPU();
 

@@ -39,6 +39,14 @@ public:
   const T &GetEmbeddings() const
   { return static_cast<const T&>(GetEmbeddingsInternal()); }
 
+  template<class T>
+  T &GetSCU()
+  { return static_cast<T&>(GetSCUInternal()); }
+
+  template<class T>
+  const T &GetSCU() const
+  { return static_cast<const T&>(GetSCUInternal()); }
+
 protected:
   SentencesPtr sentences_;
 
@@ -53,6 +61,8 @@ protected:
   virtual BaseMatrix &GetEmbeddingsInternal() = 0;
   virtual const BaseMatrix &GetEmbeddingsInternal() const = 0;
 
+  virtual BaseMatrix &GetSCUInternal() = 0;
+  virtual const BaseMatrix &GetSCUInternal() const = 0;
 };
 
 typedef std::shared_ptr<EncOut> EncOutPtr;

@@ -148,6 +148,7 @@ class Decoder {
                                      const mblas::Matrix& HiddenState,
                                      const mblas::Matrix& sourceContext,
                                      const mblas::IMatrix &sentenceLengths,
+                                     const mblas::Matrix& SCU,
                                      const BeamSizeGPU& beamSizes) const
         {
           // mapping = 1/0 whether each position, in each sentence in the batch is actually a valid word
@@ -193,7 +194,7 @@ class Decoder {
           }
           //std::cerr << "2Temp2_=" << Temp2.Debug() << std::endl;
 
-          Copy(Temp1, beamSizes.SCU);
+          Copy(Temp1, SCU);
           //std::cerr << "1Temp1_=" << Temp1.Debug() << std::endl;
 
           Broadcast(Tanh(_1 + _2), Temp1, Temp2, dBatchMapping, maxLength);
@@ -343,6 +344,7 @@ class Decoder {
                 mblas::Matrix &attention,
                 const mblas::Matrix& State,
                 const mblas::Matrix& Embeddings,
+                const mblas::Matrix& SCU,
                 const BeamSizeGPU& beamSizes) const
     {
       BEGIN_TIMER("Decode");
@@ -364,6 +366,7 @@ class Decoder {
                               HiddenState,
                               beamSizes.GetSourceContext(),
                               beamSizes.GetSentenceLengths(),
+                              SCU,
                               beamSizes);
       //std::cerr << "AlignedSourceContext=" << AlignedSourceContext.Debug(1) << std::endl;
       PAUSE_TIMER("GetAlignedSourceContext");
@@ -428,6 +431,7 @@ class Decoder {
                                   const mblas::Matrix& HiddenState,
                                   const mblas::Matrix& sourceContext,
                                   const mblas::IMatrix &sentenceLengths,
+                                  const mblas::Matrix& SCU,
                                   const BeamSizeGPU& beamSizes) const
     {
       alignment_.GetAlignedSourceContext(AlignedSourceContext,
@@ -435,6 +439,7 @@ class Decoder {
                                           HiddenState,
                                           sourceContext,
                                           sentenceLengths,
+                                          SCU,
                                           beamSizes);
     }
 
