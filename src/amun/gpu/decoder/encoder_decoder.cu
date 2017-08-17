@@ -145,11 +145,14 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       EncOutPtr encOut = encDecBuffer_.Get();
       assert(encOut);
 
-      if (encOut->GetSentences().size() == 0) {
+      const Sentences &sentences = encOut->GetSentences();
+      if (sentences.size() == 0) {
         break;
       }
 
       timer.start();
+
+      cerr << "sentences=" << sentences.size() << " " << sentences.GetMaxLength() << endl;
 
       // init states & histories/beams
       mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
@@ -214,23 +217,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     AssembleBeamState(nextStateMatrix, survivors, state);
 
 
-    /*
-    cerr << "3 state=" << state.Debug(1) << endl;
-    cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "3 probs_=" << probs_.Debug(1) << endl;
-    cerr << "3 attention_=" << attention_.Debug(1) << endl;
-
-    cerr << "completed=" << Debug(completed, 2) << endl;
-    cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
-    cerr << "survivors=" << survivors.size() << endl;
-    cerr << "beams=" << beams.size() << endl;
-    cerr << "state=" << state->Debug(0) << endl;
-    cerr << "nextState=" << nextState->Debug(0) << endl;
-    cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
-    cerr << "histories=" << histories.size() << endl;
-    cerr << endl;
-    */
-
     prevHyps.swap(survivors);
     ++decoderStep;
     remaining -= completed.size();
@@ -240,6 +226,22 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                         survivors.size(),
                         completed.size(),
                         remaining);
+    /*
+    cerr << "3 state=" << state.Debug(1) << endl;
+    cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "3 probs_=" << probs_.Debug(1) << endl;
+
+    cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
+    cerr << "survivors=" << survivors.size() << endl;
+    cerr << "beams=" << beams.size() << endl;
+    cerr << "state=" << state->Debug(0) << endl;
+    cerr << "nextState=" << nextState->Debug(0) << endl;
+    cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
+    cerr << "histories=" << histories.size() << endl;
+    */
+    cerr << "3 attention_=" << attention_.Debug(1) << endl;
+    cerr << "completed=" << Debug(completed, 2) << endl;
+    cerr << endl;
   }
 }
 
