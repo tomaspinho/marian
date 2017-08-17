@@ -153,7 +153,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   uint remaining;
   Hypotheses prevHyps;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
-  const mblas::Matrix *SCU = nullptr;
+  mblas::Matrix SCU;
   size_t decoderStep;
 
   while (true) {
@@ -179,14 +179,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       // init states & histories/beams
       const mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
       const mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
+      const mblas::Matrix &bufSCU = encOut->GetSCU<mblas::Matrix>();
 
       mblas::Matrix &states = state.GetStates();
       mblas::Matrix &embeddings = state.GetEmbeddings();
       states.Copy(bufStates);
       embeddings.Copy(bufEmbeddings);
+      SCU.Copy(bufSCU);
 
-      SCU = &encOut->GetSCU<mblas::Matrix>();
-      //cerr << "1SCU=" << SCU->Debug(1) << endl;
+      cerr << "1SCU=" << SCU.Debug(1) << endl;
 
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
@@ -209,7 +210,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
-    Decode(state, *SCU, nextStateMatrix, bsGPU);
+    Decode(state, SCU, nextStateMatrix, bsGPU);
 
     /*
     cerr << "2 state=" << state.Debug(1) << endl;
