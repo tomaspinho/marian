@@ -178,7 +178,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       // simulate completed vector
       remaining = god.Get<uint>("mini-batch");
-      std::vector<uint> completed2(32);
+      std::vector<uint> completed2(remaining);
       for (uint i = 0; i < remaining; ++i) {
         completed2[i] = i;
       }
