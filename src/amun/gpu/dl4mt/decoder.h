@@ -131,15 +131,15 @@ class Decoder {
           : w_(model)
         {}
 
-        void Init(BeamSizeGPU& beamSizes, const mblas::Matrix& sourceContext) const
+        void Init(mblas::Matrix &SCU, const mblas::Matrix& sourceContext) const
         {
           using namespace mblas;
 
-          Prod(/*h_[0],*/ beamSizes.SCU, sourceContext, *w_.U_);
+          Prod(/*h_[0],*/ SCU, sourceContext, *w_.U_);
           //std::cerr << "SCU_=" << SCU_.Debug(1) << std::endl;
 
           if (w_.Gamma_1_->size()) {
-            Normalization(beamSizes.SCU, beamSizes.SCU, *w_.Gamma_1_, *w_.B_, 1e-9);
+            Normalization(SCU, SCU, *w_.Gamma_1_, *w_.B_, 1e-9);
           }
         }
 
@@ -382,7 +382,7 @@ class Decoder {
     }
 
     void EmptyState(mblas::Matrix& State,
-                    BeamSizeGPU& beamSizes,
+                    mblas::Matrix &SCU,
                     const mblas::Matrix &sourceContext,
                     const mblas::IMatrix &sourceLengths,
                     size_t batchSize) const
@@ -392,7 +392,7 @@ class Decoder {
                             batchSize,
                             sourceLengths);
 
-      alignment_.Init(beamSizes, sourceContext);
+      alignment_.Init(SCU, sourceContext);
     }
 
     void EmptyEmbedding(mblas::Matrix& Embedding, size_t batchSize = 1) const

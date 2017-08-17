@@ -65,16 +65,13 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 
 void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
                                         mblas::Matrix &embeddings,
-                                        BeamSizeGPU& beamSizes,
+                                        mblas::Matrix &SCU,
                                         const mblas::Matrix &sourceContext,
                                         const mblas::IMatrix &sourceLengths,
                                         size_t batchSize) const
 {
-  //cerr << "BeginSentenceState encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
-  //cerr << "BeginSentenceState encOut->sentencesMask_=" << encOut->sentencesMask_.Debug(0) << endl;
-  //cerr << "batchSize=" << batchSize << endl;
   decoder_->EmptyState(states,
-                      beamSizes,
+                      SCU,
                       sourceContext,
                       sourceLengths,
                       batchSize);
@@ -158,7 +155,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       timer.start();
 
-      cerr << "sentences=" << sentences.size() << " " << sentences.GetMaxLength() << endl;
+      //cerr << "sentences=" << sentences.size() << " " << sentences.GetMaxLength() << endl;
 
       // init states & histories/beams
       mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
@@ -168,12 +165,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       const mblas::IMatrix &sourceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
       size_t batchSize = encOut->GetSentences().size();
 
+      mblas::Matrix &SCU = static_cast<BeamSizeGPU&>(histories.GetBeamSizes()).SCU;
+
       BeginSentenceState(bufStates,
                         bufEmbeddings,
-                        static_cast<BeamSizeGPU&>(histories.GetBeamSizes()),
+                        SCU,
                         sourceContext,
                         sourceLengths,
                         batchSize);
+      cerr << "1SCU=" << SCU.Debug(1) << endl;
 
       mblas::Matrix &states = state.GetStates();
       mblas::Matrix &embeddings = state.GetEmbeddings();
@@ -186,8 +186,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       decoderStep = 0;
       remaining = god.Get<uint>("mini-batch");
     }
-
-    //cerr << "beamSizes1=" << histories.GetBeamSizes().Debug(2) << endl;
 
     // decode
     boost::timer::cpu_timer timerStep;
@@ -251,7 +249,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "histories=" << histories.size() << endl;
     */
     //cerr << "3 attention_=" << attention_.Debug(2) << endl;
-    cerr << "completed=" << Debug(completed, 2) << endl;
+    //cerr << "completed=" << Debug(completed, 2) << endl;
+    mblas::Matrix &SCU = static_cast<BeamSizeGPU&>(histories.GetBeamSizes()).SCU;
+    cerr << "2SCU=" << SCU.Debug(1) << endl;
     cerr << endl;
   }
 }
