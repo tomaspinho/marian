@@ -55,6 +55,22 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 
   if (source->size()) {
     encoder_->Encode(*source, tab_, encOut);
+
+    mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
+    mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
+
+    const mblas::Matrix &sourceContext = encOut->GetSourceContext<mblas::Matrix>();
+    const mblas::IMatrix &sourceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
+    size_t batchSize = encOut->GetSentences().size();
+
+    mblas::Matrix &SCU = encOut->GetSCU<mblas::Matrix>();
+
+    BeginSentenceState(bufStates,
+                      bufEmbeddings,
+                      SCU,
+                      sourceContext,
+                      sourceLengths,
+                      batchSize);
   }
 
   encDecBuffer_.Add(encOut);
@@ -161,28 +177,16 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       //cerr << "sentences=" << sentences.size() << " " << sentences.GetMaxLength() << endl;
 
       // init states & histories/beams
-      mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
-      mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
-
-      const mblas::Matrix &sourceContext = encOut->GetSourceContext<mblas::Matrix>();
-      const mblas::IMatrix &sourceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
-      size_t batchSize = encOut->GetSentences().size();
-
-      mblas::Matrix &SCUNonConst = encOut->GetSCU<mblas::Matrix>();
-      SCU = &SCUNonConst;
-
-      BeginSentenceState(bufStates,
-                        bufEmbeddings,
-                        SCUNonConst,
-                        sourceContext,
-                        sourceLengths,
-                        batchSize);
-      //cerr << "1SCU=" << SCU->Debug(1) << endl;
+      const mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
+      const mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
 
       mblas::Matrix &states = state.GetStates();
       mblas::Matrix &embeddings = state.GetEmbeddings();
       states.Copy(bufStates);
       embeddings.Copy(bufEmbeddings);
+
+      SCU = &encOut->GetSCU<mblas::Matrix>();
+      //cerr << "1SCU=" << SCU->Debug(1) << endl;
 
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
