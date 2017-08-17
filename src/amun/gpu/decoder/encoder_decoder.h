@@ -79,8 +79,9 @@ class EncoderDecoder : public Scorer {
     void BeginSentenceState(mblas::Matrix &states,
                             mblas::Matrix &embeddings,
                             BeamSizeGPU& beamSizes,
-                            size_t batchSize,
-                            const EncOut &encOut) const;
+                            const mblas::Matrix &sourceContext,
+                            const mblas::IMatrix &sourceLengths,
+                            size_t batchSize) const;
 
     void Decode(const EDState& in,
                 mblas::Matrix &nextStateMatrix,

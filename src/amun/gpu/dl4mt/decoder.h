@@ -383,12 +383,10 @@ class Decoder {
 
     void EmptyState(mblas::Matrix& State,
                     BeamSizeGPU& beamSizes,
-                    const EncOut &encOut,
+                    const mblas::Matrix &sourceContext,
+                    const mblas::IMatrix &sourceLengths,
                     size_t batchSize) const
     {
-      const mblas::Matrix &sourceContext = encOut.GetSourceContext<mblas::Matrix>();
-      const mblas::IMatrix &sourceLengths = encOut.GetSentenceLengths<mblas::IMatrix>();
-
       rnn1_.InitializeState(State,
                             sourceContext,
                             batchSize,
