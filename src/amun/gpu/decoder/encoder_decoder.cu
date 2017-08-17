@@ -187,7 +187,11 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       embeddings.Copy(bufEmbeddings);
       SCU.Copy(bufSCU);
 
+      /*
+      cerr << "1states=" << states.Debug(1) << endl;
+      cerr << "1embeddings=" << embeddings.Debug(1) << endl;
       cerr << "1SCU=" << SCU.Debug(1) << endl;
+      */
 
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
@@ -201,23 +205,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     mblas::Matrix nextStateMatrix;
 
-    /*
-    cerr << "1 state=" << state.Debug(1) << endl;
-    cerr << "1 nextState=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "1 probs_=" << probs_.Debug(1) << endl;
-    cerr << "1 attention_=" << attention_.Debug(2) << endl;
-    */
-
     //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
     Decode(state, SCU, nextStateMatrix, bsGPU);
-
-    /*
-    cerr << "2 state=" << state.Debug(1) << endl;
-    cerr << "2 nextState=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "2 probs_=" << probs_.Debug(1) << endl;
-    cerr << "2 attention_=" << attention_.Debug(2) << endl;
-    */
 
     // beams
     if (decoderStep == 0) {
@@ -245,7 +235,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                         completed.size(),
                         remaining);
     /*
-    cerr << "3 state=" << state.Debug(1) << endl;
     cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
     cerr << "3 probs_=" << probs_.Debug(1) << endl;
     cerr << "3 attention_=" << attention_.Debug(2) << endl;
@@ -254,11 +243,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
     cerr << "beams=" << beams.size() << endl;
-    cerr << "state=" << state->Debug(0) << endl;
-    cerr << "nextState=" << nextState->Debug(0) << endl;
     cerr << "beamSizes5=" << histories.GetBeamSizes().Debug(2) << endl;
     cerr << "histories=" << histories.size() << endl;
-    cerr << "SCU=" << SCU->Debug(1) << endl;
+    cerr << "3 state=" << state.Debug(1) << endl;
+    cerr << "3SCU=" << SCU.Debug(1) << endl;
     cerr << endl;
     */
   }
