@@ -87,6 +87,42 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
     }
   }
 
+  /*
+  for (Beams::const_iterator iter = beams.begin(); iter != beams.end(); ++iter) {
+    size_t lineNum = iter->first;
+    const Beam *beam = iter->second.get();
+    assert(beam);
+
+    // add new hypos to history
+    Coll::iterator iterHist = coll_.find(lineNum);
+    assert(iterHist != coll_.end());
+    HistoryPtr &history = iterHist->second;
+    assert(history);
+
+    history->Add(*beam);
+
+    // see if any output reaches </s> or is over length limit
+    for (const HypothesisPtr& hypo : *beam) {
+      const Sentence &sentence = hypo->GetSentence();
+      if (hypo->GetNumWords() < sentence.size() * 3 && hypo->GetWord() != EOS_ID) {
+        survivors.push_back(hypo);
+      }
+      else {
+        //beamSizes_->Decr(batchId);
+        beamSizes_->Decr(batchId);
+      }
+    }
+
+    // output if not more hypos
+    if (ele.size == 0) {
+      completed.push_back(batchId);
+
+      history->Output(god);
+      coll_.erase(iterHist);
+    }
+  }
+  */
+
   return ret;
 }
 
