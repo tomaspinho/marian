@@ -69,6 +69,8 @@ public:
 
   void Decr(size_t ind);
 
+  void DeleteEmpty();
+
   virtual std::string Debug(size_t verbosity = 1) const;
 
 protected:

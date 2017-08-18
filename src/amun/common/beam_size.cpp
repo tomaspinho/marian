@@ -78,6 +78,19 @@ void BeamSize::Decr(size_t ind)
   --total_;
 }
 
+void BeamSize::DeleteEmpty()
+{
+  size_t i = 0;
+  while (i < sentences_.size()) {
+    const SentenceElement &ele = sentences_[i];
+    if (ele.size) {
+      ++i;
+    }
+    else {
+      sentences_.erase(sentences_.begin() + i);
+    }
+  }
+}
 
 std::string BeamSize::Debug(size_t verbosity) const
 {
