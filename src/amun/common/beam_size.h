@@ -68,13 +68,20 @@ public:
   const SentenceElement &Get(size_t ind) const;
 
   void Decr(size_t ind);
+  void DecrByLineNum(uint lineNum);
 
   void DeleteEmpty();
 
   virtual std::string Debug(size_t verbosity = 1) const;
 
+  const SentenceElement &GetByLineNum(uint lineNum) const;
+  SentenceElement &GetByLineNum(uint lineNum);
+
 protected:
   std::vector<SentenceElement> sentences_;
+
+  typedef std::unordered_map<size_t, SentenceElement*> Map;
+  Map sentencesMap_;
 
   uint total_;
   uint maxLength_;
