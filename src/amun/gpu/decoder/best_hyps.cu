@@ -113,12 +113,12 @@ std::vector<SoftAlignmentPtr> BestHyps::GetAlignments(const BaseMatrix &attentio
   std::vector<SoftAlignmentPtr> alignments;
 
   if (const GPU::EncoderDecoder* encdec = dynamic_cast<const GPU::EncoderDecoder*>(&scorer)) {
-    const mblas::Matrix &attention = static_cast<const mblas::Matrix&>(attention);
-    size_t attLength = attention.dim(1);
+    const mblas::Matrix &attentionGPU = static_cast<const mblas::Matrix&>(attention);
+    size_t attLength = attentionGPU.dim(1);
 
     SoftAlignment *softAlignment = new SoftAlignment(attLength);
     mblas::copy(
-        attention.data() + hypIndex * attLength,
+        attentionGPU.data() + hypIndex * attLength,
         attLength,
         thrust::raw_pointer_cast(softAlignment->data()),
         cudaMemcpyDeviceToHost
@@ -130,30 +130,6 @@ std::vector<SoftAlignmentPtr> BestHyps::GetAlignments(const BaseMatrix &attentio
     amunmt_UTIL_THROW2("Return Alignment is allowed only with Nematus scorer.");
   }
 
-  return alignments;
-}
-
-std::vector<SoftAlignmentPtr> BestHyps::GetAlignments(const std::vector<ScorerPtr>& scorers,
-                                            size_t hypIndex) {
-  std::vector<SoftAlignmentPtr> alignments;
-  for (auto& scorer : scorers) {
-    if (GPU::EncoderDecoder* encdec = dynamic_cast<GPU::EncoderDecoder*>(scorer.get())) {
-      const mblas::Matrix &attention = encdec->GetAttention();
-      size_t attLength = attention.dim(1);
-
-      SoftAlignment *softAlignment = new SoftAlignment(attLength);
-      mblas::copy(
-          attention.data() + hypIndex * attLength,
-          attLength,
-          thrust::raw_pointer_cast(softAlignment->data()),
-          cudaMemcpyDeviceToHost
-      );
-
-      alignments.emplace_back(softAlignment);
-    } else {
-      amunmt_UTIL_THROW2("Return Alignment is allowed only with Nematus scorer.");
-    }
-  }
   return alignments;
 }
 

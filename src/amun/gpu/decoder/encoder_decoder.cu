@@ -322,11 +322,6 @@ BaseMatrix& EncoderDecoder::GetProbs() {
   assert(false);
 }
 
-mblas::Matrix& EncoderDecoder::GetAttention() {
-  //return attention_;
-  assert(false);
-}
-
 size_t EncoderDecoder::GetVocabSize() const {
   return decoder_->GetVocabSize();
 }

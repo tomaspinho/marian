@@ -41,7 +41,6 @@ class EncoderDecoder : public Scorer {
 
     virtual void Encode(const SentencesPtr source);
 
-    mblas::Matrix& GetAttention();
     virtual BaseMatrix& GetProbs();
 
     size_t GetVocabSize() const;
