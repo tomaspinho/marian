@@ -1,4 +1,5 @@
 #include "best_hyps.h"
+#include "common/utils.h"
 
 using namespace std;
 
@@ -50,6 +51,8 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::vector<unsigned> bestKeys;
 
   FindBests(beamSizes, Probs, bestCosts, bestKeys, isFirst);
+  cerr << "bestCosts=" << amunmt::Debug(bestCosts, 2) << endl;
+  cerr << "bestKeys=" << amunmt::Debug(bestKeys, 2) << endl;
 
   std::vector<HostVector<float>> breakDowns;
   if (returnNBestList_) {
@@ -60,7 +63,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   size_t tmp = 0;
   for (size_t batchID = 0; batchID < beamSizes.size(); ++batchID) {
     for (size_t t = 0; t < beamSizes.Get(batchID).size; ++t) {
-      cerr << "hypoToBatch=" << tmp << "->" << batchID << endl;
+      //cerr << "hypoToBatch=" << tmp << "->" << batchID << endl;
       hypoToBatch[tmp++] = batchID;
     }
   }
