@@ -26,6 +26,7 @@ BestHyps::BestHyps(const God &god)
 
 void BestHyps::CalcBeam(
     const Hypotheses& prevHyps,
+    BaseMatrix &probs,
     Scorer& scorer,
     const Words& filterIndices,
     Beams &beams,

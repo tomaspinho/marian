@@ -19,6 +19,7 @@ class BestHyps : public BestHypsBase
 
     void CalcBeam(
         const Hypotheses& prevHyps,
+        BaseMatrix &probs,
         Scorer& scorer,
         const Words& filterIndices,
         Beams &beams,

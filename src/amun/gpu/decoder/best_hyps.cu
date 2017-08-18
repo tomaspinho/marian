@@ -19,6 +19,7 @@ BestHyps::BestHyps(const God &god)
 {}
 
 void BestHyps::CalcBeam(const Hypotheses& prevHyps,
+                        BaseMatrix &probs,
                         Scorer& scorer,
                         const Words& filterIndices,
                         Beams &beams,
@@ -28,7 +29,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
 
   using namespace mblas;
 
-  mblas::Matrix& Probs = static_cast<mblas::Matrix&>(scorer.GetProbs());
+  mblas::Matrix& probsGPU = static_cast<mblas::Matrix&>(probs);
 
   HostVector<float> vCosts;
   for (auto& h : prevHyps) {
@@ -38,10 +39,10 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
 
   const bool isFirst = (vCosts[0] == 0.0f) ? true : false;
 
-  BroadcastVecColumn(_1 + _2, Probs, Costs);
+  BroadcastVecColumn(_1 + _2, probsGPU, Costs);
 
   if (forbidUNK_) {
-    DisAllowUNK(Probs);
+    DisAllowUNK(probsGPU);
   }
 
   size_t beamSizeSum = beamSizes.GetTotal();
@@ -50,7 +51,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
 
-  nthElement_.getNBestList(beamSizes, Probs, bestCosts, bestKeys, isFirst);
+  nthElement_.getNBestList(beamSizes, probsGPU, bestCosts, bestKeys, isFirst);
   //cerr << "bestCosts=" << amunmt::Debug(bestCosts, 2) << endl;
   //cerr << "bestKeys=" << amunmt::Debug(bestKeys, 2) << endl;
 
@@ -69,12 +70,12 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   }
 
   for (size_t i = 0; i < beamSizeSum; i++) {
-    size_t wordIndex = bestKeys[i] % Probs.dim(1);
+    size_t wordIndex = bestKeys[i] % probsGPU.dim(1);
     if (isInputFiltered_) {
       wordIndex = filterIndices[wordIndex];
     }
 
-    size_t hypIndex  = bestKeys[i] / Probs.dim(1);
+    size_t hypIndex  = bestKeys[i] / probsGPU.dim(1);
     //std::cerr << "hypIndex=" << hypIndex << std::endl;
     float cost = bestCosts[i];
 

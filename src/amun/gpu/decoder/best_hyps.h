@@ -32,6 +32,7 @@ class BestHyps : public BestHypsBase
                                                 size_t hypIndex);
     void CalcBeam(
         const Hypotheses& prevHyps,
+        BaseMatrix &probs,
         Scorer& scorer,
         const Words& filterIndices,
         Beams &beams,

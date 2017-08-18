@@ -235,7 +235,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     }
 
     Beams beams;
-    search_.BestHyps()->CalcBeam(prevHyps, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
+    search_.BestHyps()->CalcBeam(prevHyps, probs_, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
 
     /*
     cerr << "4state=" << state.Debug(1) << endl;
