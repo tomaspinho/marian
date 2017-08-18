@@ -318,8 +318,8 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
 }
 
 BaseMatrix& EncoderDecoder::GetProbs() {
-  //return probs_;
   assert(false);
+  return *(new mblas::Matrix());
 }
 
 size_t EncoderDecoder::GetVocabSize() const {
