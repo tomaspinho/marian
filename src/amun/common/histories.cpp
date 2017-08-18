@@ -82,6 +82,9 @@ std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god
         coll_.erase(iterHist);
       }
     }
+    else {
+      assert(ele.size == 0);
+    }
   }
 
   return ret;
