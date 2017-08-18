@@ -211,9 +211,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     mblas::Matrix nextStateMatrix;
 
-    //cerr << "beamSizes2=" << beamSizes.Debug(2) << endl;
+    cerr << "1state=" << state.Debug(0) << endl;
+    cerr << "1SCU=" << SCU.Debug(0) << endl;
+    cerr << "1nextStateMatrix=" << nextStateMatrix.Debug(0) << endl;
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
     Decode(state, SCU, nextStateMatrix, bsGPU);
+    cerr << "2state=" << state.Debug(0) << endl;
+    cerr << "2SCU=" << SCU.Debug(0) << endl;
+    cerr << "2nextStateMatrix=" << nextStateMatrix.Debug(0) << endl;
+    cerr << endl;
 
     // beams
     if (decoderStep == 0) {
