@@ -95,14 +95,6 @@ void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
   decoder_->EmptyEmbedding(embeddings, batchSize);
 }
 
-void EncoderDecoder::Decode(const EDState& in,
-                            const mblas::Matrix& SCU,
-                            mblas::Matrix &nextStateMatrix,
-                            const BeamSizeGPU& beamSizes)
-{
-}
-
-
 void EncoderDecoder::DecodeAsync(const God &god)
 {
   //cerr << "BeginSentenceState encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
@@ -220,8 +212,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                     SCU,
                     bsGPU);
     PAUSE_TIMER("Decode");
-
-    Decode(state, SCU, nextStateMatrix, bsGPU);
 
     /*
     cerr << "3state=" << state.Debug(1) << endl;
