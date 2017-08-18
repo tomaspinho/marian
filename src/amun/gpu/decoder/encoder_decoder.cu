@@ -196,7 +196,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       cerr << "1state=" << state.Debug(1) << endl;
       cerr << "1SCU=" << SCU.Debug(1) << endl;
-
+      cerr << "1probs_=" << probs_.Debug(1) << endl;
+      cerr << "1attention_=" << attention_.Debug(1) << endl;
 
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
@@ -212,6 +213,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "2state=" << state.Debug(1) << endl;
     cerr << "2SCU=" << SCU.Debug(1) << endl;
     cerr << "2nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "2probs_=" << probs_.Debug(1) << endl;
+    cerr << "2attention_=" << attention_.Debug(1) << endl;
 
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
     Decode(state, SCU, nextStateMatrix, bsGPU);
@@ -219,6 +222,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "3state=" << state.Debug(1) << endl;
     cerr << "3SCU=" << SCU.Debug(1) << endl;
     cerr << "3nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "3probs_=" << probs_.Debug(1) << endl;
+    cerr << "3attention_=" << attention_.Debug(1) << endl;
 
     // beams
     if (decoderStep == 0) {
@@ -232,6 +237,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "4state=" << state.Debug(1) << endl;
     cerr << "4SCU=" << SCU.Debug(1) << endl;
     cerr << "4nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "4probs_=" << probs_.Debug(1) << endl;
+    cerr << "4attention_=" << attention_.Debug(1) << endl;
 
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
@@ -240,12 +247,16 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "5state=" << state.Debug(1) << endl;
     cerr << "5SCU=" << SCU.Debug(1) << endl;
     cerr << "5nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "5probs_=" << probs_.Debug(1) << endl;
+    cerr << "5attention_=" << attention_.Debug(1) << endl;
 
     AssembleBeamState(nextStateMatrix, survivors, state);
 
     cerr << "6state=" << state.Debug(1) << endl;
     cerr << "6SCU=" << SCU.Debug(1) << endl;
     cerr << "6nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
+    cerr << "6probs_=" << probs_.Debug(1) << endl;
+    cerr << "6attention_=" << attention_.Debug(1) << endl;
 
     prevHyps.swap(survivors);
     ++decoderStep;
