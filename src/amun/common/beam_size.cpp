@@ -100,10 +100,13 @@ std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
 
-  strm << "sentences_=";
-  for (size_t i = 0; i < sentences_.size(); ++i) {
-    const SentenceElement &ele = sentences_[i];
-    strm << "(" << ele.sentenceInd << "," << ele.size << ") ";
+  strm << "sentences_=" << sentences_.size();
+
+  if (verbosity) {
+    for (size_t i = 0; i < sentences_.size(); ++i) {
+      const SentenceElement &ele = sentences_[i];
+      strm << " (" << ele.sentenceInd << "," << ele.size << ")";
+    }
   }
 
   return strm.str();
