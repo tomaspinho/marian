@@ -18,16 +18,19 @@ public:
     EncOutPtr encOut;
     size_t sentenceInd; // index of the sentence we're translation within encOut.sentences
     uint size;  // beam size 0..beam
+    uint hypoStartInd;
 
     SentenceElement() {}
 
     SentenceElement(EncOutPtr vencOut,
                     size_t vsentenceInd,
-                    uint vsize)
+                    uint vsize,
+                    uint vhypoStartInd)
     {
       encOut = vencOut;
       sentenceInd = vsentenceInd;
       size = vsize;
+      hypoStartInd = vhypoStartInd;
     }
 
     void Decr()

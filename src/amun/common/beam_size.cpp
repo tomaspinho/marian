@@ -29,7 +29,7 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
 
     //cerr << "BeamSize lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
 
-    SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, 1));
+    SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, 1, i));
     sentencesMap_[lineNum] = &ele;
 
     if (sentence.size() > maxLength_) {
