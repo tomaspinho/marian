@@ -61,17 +61,19 @@ const BeamSize::SentenceElement &BeamSize::GetOnly() const
 
 const Sentence &BeamSize::GetSentence(size_t ind) const
 {
-  const SentenceElement &ele = sentences_.at(ind);
+  const SentenceElement &ele = Get(ind);
   return ele.GetSentence();
 }
 
 const BeamSize::SentenceElement &BeamSize::Get(size_t ind) const
 {
+  assert(ind < sentences_.size());
   return sentences_[ind];
 }
 
 void BeamSize::Decr(size_t ind)
 {
+  assert(ind < sentences_.size());
   SentenceElement &ele = sentences_[ind];
   ele.Decr();
 
