@@ -50,9 +50,9 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
 
-  FindBests(beamSizes, Probs, bestCosts, bestKeys, isFirst);
-  cerr << "bestCosts=" << amunmt::Debug(bestCosts, 2) << endl;
-  cerr << "bestKeys=" << amunmt::Debug(bestKeys, 2) << endl;
+  nthElement_.getNBestList(beamSizes, Probs, bestCosts, bestKeys, isFirst);
+  //cerr << "bestCosts=" << amunmt::Debug(bestCosts, 2) << endl;
+  //cerr << "bestKeys=" << amunmt::Debug(bestKeys, 2) << endl;
 
   std::vector<HostVector<float>> breakDowns;
   if (returnNBestList_) {

@@ -26,14 +26,6 @@ class BestHyps : public BestHypsBase
       SetColumn(Prob, UNK_ID, std::numeric_limits<float>::lowest());
     }
 
-    void FindBests(const BeamSize& beamSizes,
-                   mblas::Matrix& Probs,
-                   std::vector<float>& outCosts,
-                   std::vector<unsigned>& outKeys,
-                   const bool isFirst) {
-      nthElement_.getNBestList(beamSizes, Probs, outCosts, outKeys, isFirst);
-    }
-
     std::vector<SoftAlignmentPtr> GetAlignments(Scorer& scorer, size_t hypIndex);
 
     std::vector<SoftAlignmentPtr> GetAlignments(const std::vector<ScorerPtr>& scorers,
