@@ -199,12 +199,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     mblas::Matrix nextStateMatrix;
     mblas::Matrix attention;
+    mblas::Matrix probs;
 
     /*
     cerr << "2state=" << state.Debug(1) << endl;
     cerr << "2SCU=" << SCU.Debug(1) << endl;
     cerr << "2nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "2probs_=" << probs_.Debug(1) << endl;
+    cerr << "2probs_=" << probs.Debug(1) << endl;
     cerr << "2attention_=" << attention.Debug(1) << endl;
     */
 
@@ -212,7 +213,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     BEGIN_TIMER("Decode");
     decoder_->Decode(nextStateMatrix,
-                    probs_,
+                    probs,
                     attention,
                     state.GetStates(),
                     state.GetEmbeddings(),
@@ -226,7 +227,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "3state=" << state.Debug(1) << endl;
     cerr << "3SCU=" << SCU.Debug(1) << endl;
     cerr << "3nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "3probs_=" << probs_.Debug(1) << endl;
+    cerr << "3probs_=" << probs.Debug(1) << endl;
     cerr << "3attention_=" << attention.Debug(1) << endl;
     */
     // beams
@@ -235,13 +236,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     }
 
     Beams beams;
-    search_.BestHyps()->CalcBeam(prevHyps, probs_, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
+    search_.BestHyps()->CalcBeam(prevHyps, probs, attention, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
 
     /*
     cerr << "4state=" << state.Debug(1) << endl;
     cerr << "4SCU=" << SCU.Debug(1) << endl;
     cerr << "4nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "4probs_=" << probs_.Debug(1) << endl;
+    cerr << "4probs_=" << probs.Debug(1) << endl;
     cerr << "4attention_=" << attention.Debug(1) << endl;
     */
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
@@ -252,7 +253,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "5state=" << state.Debug(1) << endl;
     cerr << "5SCU=" << SCU.Debug(1) << endl;
     cerr << "5nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "5probs_=" << probs_.Debug(1) << endl;
+    cerr << "5probs_=" << probs.Debug(1) << endl;
     cerr << "5attention_=" << attention.Debug(1) << endl;
     */
     AssembleBeamState(nextStateMatrix, survivors, state);
@@ -260,7 +261,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "6state=" << state.Debug(1) << endl;
     cerr << "6SCU=" << SCU.Debug(1) << endl;
     cerr << "6nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "6probs_=" << probs_.Debug(1) << endl;
+    cerr << "6probs_=" << probs.Debug(1) << endl;
     cerr << "6attention_=" << attention.Debug(1) << endl;
     */
     prevHyps.swap(survivors);
@@ -274,7 +275,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                         remaining);
     /*
     cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "3 probs_=" << probs_.Debug(1) << endl;
+    cerr << "3 probs=" << probs.Debug(1) << endl;
     cerr << "3 attention=" << attention.Debug(2) << endl;
     cerr << "completed=" << Debug(completed, 2) << endl;
 
@@ -327,8 +328,8 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
 }
 
 BaseMatrix& EncoderDecoder::GetProbs() {
-  return probs_;
-  //assert(false);
+  //return probs_;
+  assert(false);
 }
 
 mblas::Matrix& EncoderDecoder::GetAttention() {

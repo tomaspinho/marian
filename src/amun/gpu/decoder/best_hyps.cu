@@ -20,7 +20,8 @@ BestHyps::BestHyps(const God &god)
 
 void BestHyps::CalcBeam(const Hypotheses& prevHyps,
                         BaseMatrix &probs,
-                        Scorer& scorer,
+                        const BaseMatrix &attention,
+                        const Scorer& scorer,
                         const Words& filterIndices,
                         Beams &beams,
                         const BeamSize &beamSizes)
@@ -83,7 +84,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
     HypothesisPtr hyp;
     if (returnAttentionWeights_) {
       hyp.reset(new Hypothesis(prevHyp, wordIndex, hypIndex, cost,
-                               GetAlignments(scorer, hypIndex)));
+                               GetAlignments(attention, scorer, hypIndex)));
     } else {
       hyp.reset(new Hypothesis(prevHyp, wordIndex, hypIndex, cost));
     }
@@ -107,12 +108,12 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
 
 }
 
-std::vector<SoftAlignmentPtr> BestHyps::GetAlignments(Scorer& scorer, size_t hypIndex)
+std::vector<SoftAlignmentPtr> BestHyps::GetAlignments(const BaseMatrix &attention, const Scorer& scorer, size_t hypIndex)
 {
   std::vector<SoftAlignmentPtr> alignments;
 
-  if (GPU::EncoderDecoder* encdec = dynamic_cast<GPU::EncoderDecoder*>(&scorer)) {
-    const mblas::Matrix &attention = encdec->GetAttention();
+  if (const GPU::EncoderDecoder* encdec = dynamic_cast<const GPU::EncoderDecoder*>(&scorer)) {
+    const mblas::Matrix &attention = static_cast<const mblas::Matrix&>(attention);
     size_t attLength = attention.dim(1);
 
     SoftAlignment *softAlignment = new SoftAlignment(attLength);

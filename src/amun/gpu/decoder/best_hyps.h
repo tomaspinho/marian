@@ -26,14 +26,15 @@ class BestHyps : public BestHypsBase
       SetColumn(Prob, UNK_ID, std::numeric_limits<float>::lowest());
     }
 
-    std::vector<SoftAlignmentPtr> GetAlignments(Scorer& scorer, size_t hypIndex);
+    std::vector<SoftAlignmentPtr> GetAlignments(const BaseMatrix &attention, const Scorer& scorer, size_t hypIndex);
 
     std::vector<SoftAlignmentPtr> GetAlignments(const std::vector<ScorerPtr>& scorers,
                                                 size_t hypIndex);
     void CalcBeam(
         const Hypotheses& prevHyps,
         BaseMatrix &probs,
-        Scorer& scorer,
+        const BaseMatrix &attention,
+        const Scorer& scorer,
         const Words& filterIndices,
         Beams &beams,
         const BeamSize &beamSizes);

@@ -31,7 +31,8 @@ class BestHypsBase
     virtual void CalcBeam(
         const Hypotheses& prevHyps,
         BaseMatrix &probs,
-        Scorer& scorer,
+        const BaseMatrix &attention,
+        const Scorer& scorer,
         const Words& filterIndices,
         Beams &beams,
         const BeamSize &beamSizes) = 0;
