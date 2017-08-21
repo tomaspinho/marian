@@ -432,9 +432,93 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, const Mat
 
 void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps);
 
-void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whichDim, Matrix &matrix);
+/////////////////////////////////////////////////////////////////////////
+template<typename T>
+__global__ void gShrinkMatrix0(const MatrixWrapper<uint> newInd,
+                              MatrixWrapper<T> in,
+                              MatrixWrapper<T> out)
+{
+  assert(blockIdx.x < out.dim(0));
+  assert(blockIdx.y < out.dim(2));
+  assert(blockIdx.z < out.dim(3));
 
-void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whichDim, IMatrix &matrix);
+  int cols = out.dim(1);
+  uint col = threadIdx.x;
+
+  while (col < cols) {
+    uint inInd = newInd[blockIdx.x];
+    out(blockIdx.x, col, blockIdx.y, blockIdx.z) = in(inInd, col, blockIdx.y, blockIdx.z);
+
+    col += MAX_THREADS;
+  }
+}
+
+template<typename T>
+__global__ void gShrinkMatrix3(const MatrixWrapper<uint> newInd,
+                              MatrixWrapper<T> in,
+                              MatrixWrapper<T> out)
+{
+  assert(blockIdx.x < out.dim(0));
+  assert(blockIdx.y < out.dim(2));
+  assert(blockIdx.z < out.dim(3));
+
+  int cols = out.dim(1);
+  uint col = threadIdx.x;
+
+  while (col < cols) {
+    uint inInd = newInd[blockIdx.z];
+    out(blockIdx.x, col, blockIdx.y, blockIdx.z) = in(blockIdx.x, col, blockIdx.y, inInd);
+
+    col += MAX_THREADS;
+  }
+
+}
+
+template<typename T>
+void ShrinkMatrix(size_t sizeShrink,
+                  const DeviceVector<uint> &newInd,
+                  uint whichDim,
+                  TMatrix<T> &matrix)
+{
+  thread_local TMatrix<T> out;
+
+  out.NewSize(matrix.dim(0) - (whichDim==0?sizeShrink:0),
+              matrix.dim(1) - (whichDim==1?sizeShrink:0),
+              matrix.dim(2) - (whichDim==2?sizeShrink:0),
+              matrix.dim(3) - (whichDim==3?sizeShrink:0));
+
+  /*
+  cerr << "sizeShrink=" << sizeShrink
+      << " matrix=" << matrix.Debug(0)
+      << " out=" << out.Debug(0) << endl;
+  */
+
+  const MatrixWrapper<uint> newIndWrap(newInd);
+  MatrixWrapper<T> inWrap(matrix);
+  MatrixWrapper<T> outWrap(out);
+
+  if (whichDim == 0) {
+    int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
+    dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
+
+    const cudaStream_t &stream = CudaStreamHandler::GetStream();
+
+    gShrinkMatrix0<<<nBlocks, nThreads, 0, stream>>>(newIndWrap, inWrap, outWrap);
+  }
+  else if (whichDim == 3) {
+    int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
+    dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
+
+    const cudaStream_t &stream = CudaStreamHandler::GetStream();
+
+    gShrinkMatrix3<<<nBlocks, nThreads, 0, stream>>>(newIndWrap, inWrap, outWrap);
+  }
+  else {
+    assert(false);
+  }
+
+  out.swap(matrix);
+}
 
 /////////////////////////////////////////////////////////////////////////
 
