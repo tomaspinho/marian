@@ -858,22 +858,6 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps
   Normalization(out, in, alpha, nullptr, eps);
 }
 
-__global__ void gRandomizeMemory(int *data)
-{
-  clock_t start = clock();
-
-}
-
-void RandomizeMemory()
-{
-  int *data;
-  HANDLE_ERROR( cudaMalloc((void**)&data, 8 * 1024 ^ 3) );
-
-  uint threads = 1024;
-  uint blocks = 8 * 1024 ^ 3 / threads;
-  gRandomizeMemory<<<blocks, threads>>>(data);
-}
-
 __global__ void gShrinkMatrix0(const MatrixWrapper<uint> newInd,
                               MatrixWrapper<uint> in,
                               MatrixWrapper<uint> out)
@@ -934,7 +918,11 @@ void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whic
   int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
   dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
 
-  gShrinkMatrix3<<<nBlocks, nThreads>>>(newIndWrap, inWrap, outWrap);
+  const cudaStream_t &stream = CudaStreamHandler::GetStream();
+
+  gShrinkMatrix3<<<nBlocks, nThreads, 0, stream>>>(newIndWrap, inWrap, outWrap);
+
+  HANDLE_ERROR( cudaStreamSynchronize(stream));
 
   out.swap(matrix);
 }
@@ -960,7 +948,11 @@ void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whic
   int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
   dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
 
-  gShrinkMatrix0<<<nBlocks, nThreads>>>(newIndWrap, inWrap, outWrap);
+  const cudaStream_t &stream = CudaStreamHandler::GetStream();
+
+  gShrinkMatrix0<<<nBlocks, nThreads, 0, stream>>>(newIndWrap, inWrap, outWrap);
+
+  HANDLE_ERROR( cudaStreamSynchronize(stream));
 
   out.swap(matrix);
 
