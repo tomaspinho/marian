@@ -254,6 +254,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "6probs_=" << probs.Debug(1) << endl;
     cerr << "6attention_=" << attention.Debug(1) << endl;
     */
+
+    BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
+
+    ShrinkBatch(completed,
+                histories.GetBeamSizes(),
+                bsGPU2.GetSourceContext(),
+                bsGPU2.GetSentenceLengths(),
+                SCU);
+
     prevHyps.swap(survivors);
     ++decoderStep;
     remaining -= completed.size();
@@ -330,6 +339,14 @@ void EncoderDecoder::Filter(const std::vector<size_t>& filterIds) {
   decoder_->Filter(filterIds);
 }
 
+void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
+                                BeamSize &beamSize,
+                                mblas::Matrix &sourceContext,
+                                mblas::IMatrix &sentenceLengths,
+                                mblas::Matrix &SCU)
+{
+
+}
 
 }
 }

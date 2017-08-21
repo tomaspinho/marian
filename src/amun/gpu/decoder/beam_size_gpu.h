@@ -16,7 +16,13 @@ public:
   const mblas::Matrix &GetSourceContext() const
   { return *sourceContext_; }
 
+  mblas::Matrix &GetSourceContext()
+  { return *sourceContext_; }
+
   const mblas::IMatrix &GetSentenceLengths() const
+  { return *sentenceLengths_; }
+
+  mblas::IMatrix &GetSentenceLengths()
   { return *sentenceLengths_; }
 
   std::string Debug(size_t verbosity = 1) const;

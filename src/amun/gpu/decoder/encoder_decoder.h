@@ -82,6 +82,12 @@ class EncoderDecoder : public Scorer {
                            const Hypotheses& hypos,
                            EDState& out) const;
 
+    void ShrinkBatch(const std::vector<uint> &completed,
+                    BeamSize &beamSize,
+                    mblas::Matrix &sourceContext,
+                    mblas::IMatrix &sentenceLengths,
+                    mblas::Matrix &SCU);
+
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
 
