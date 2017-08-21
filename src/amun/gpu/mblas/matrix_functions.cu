@@ -906,9 +906,11 @@ void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whic
               matrix.dim(2) - (whichDim==2?sizeShrink:0),
               matrix.dim(3) - (whichDim==3?sizeShrink:0));
 
+  /*
   cerr << "sizeShrink=" << sizeShrink
       << " matrix=" << matrix.Debug(0)
       << " out=" << out.Debug(0) << endl;
+  */
 
   const MatrixWrapper<uint> newIndWrap(newInd);
   MatrixWrapper<float> inWrap(matrix);
@@ -922,8 +924,6 @@ void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whic
 
   gShrinkMatrix3<<<nBlocks, nThreads, 0, stream>>>(newIndWrap, inWrap, outWrap);
 
-  HANDLE_ERROR( cudaStreamSynchronize(stream));
-
   out.swap(matrix);
 }
 
@@ -936,9 +936,11 @@ void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whic
               matrix.dim(2) - (whichDim==2?sizeShrink:0),
               matrix.dim(3) - (whichDim==3?sizeShrink:0));
 
+  /*
   cerr << "sizeShrink=" << sizeShrink
       << " matrix=" << matrix.Debug(0)
       << " out=" << out.Debug(0) << endl;
+  */
 
   const MatrixWrapper<uint> newIndWrap(newInd);
   MatrixWrapper<uint> inWrap(matrix);
@@ -951,8 +953,6 @@ void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whic
   const cudaStream_t &stream = CudaStreamHandler::GetStream();
 
   gShrinkMatrix0<<<nBlocks, nThreads, 0, stream>>>(newIndWrap, inWrap, outWrap);
-
-  HANDLE_ERROR( cudaStreamSynchronize(stream));
 
   out.swap(matrix);
 

@@ -267,13 +267,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     ++decoderStep;
     remaining -= completed.size();
 
-    /*
+
     LOG(progress)->info("Step took {}, survivors={}, completed={}, remaining={}",
                         timerStep.format(3, "%ws"),
                         survivors.size(),
                         completed.size(),
                         remaining);
-    */
+
     /*
     cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
     cerr << "3 probs=" << probs.Debug(1) << endl;
@@ -347,7 +347,7 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
                                 mblas::IMatrix &sentenceLengths,
                                 mblas::Matrix &SCU)
 {
-  cerr << "completed=" << Debug(completed, 2) << endl;
+  //cerr << "completed=" << Debug(completed, 2) << endl;
   if (completed.size() == 0) {
     return;
   }
@@ -356,7 +356,7 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   size_t origBeamSize = beamSize.size();
   beamSize.DeleteEmpty(completed);
   size_t newBeamSize = beamSize.size();
-  cerr << "origBeamSize=" << origBeamSize << " newBeamSize=" << newBeamSize << endl;
+  //cerr << "origBeamSize=" << origBeamSize << " newBeamSize=" << newBeamSize << endl;
 
   // old ind -> new ind
   std::vector<uint> newIndices(newBeamSize, 99999);
@@ -371,16 +371,16 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
       ++newInd;
     }
   }
-  cerr << "newIndices=" << Debug(newIndices, 2) << endl;
+  //cerr << "newIndices=" << Debug(newIndices, 2) << endl;
 
   // shrink matrices
 
   size_t sizeShrink = completed.size();
   DeviceVector<uint> d_newIndices(newIndices);
   ShrinkMatrix(sizeShrink, d_newIndices, 3, sourceContext);
-  //ShrinkMatrix(sizeShrink, d_newInd, 3, SCU);
+  ShrinkMatrix(sizeShrink, d_newIndices, 3, SCU);
 
-  //ShrinkMatrix(sizeShrink, d_newInd, 0, sentenceLengths);
+  ShrinkMatrix(sizeShrink, d_newIndices, 0, sentenceLengths);
 
 
 }
