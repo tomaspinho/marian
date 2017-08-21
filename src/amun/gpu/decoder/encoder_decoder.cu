@@ -346,7 +346,7 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
                                 mblas::Matrix &SCU)
 {
   cerr << "completed=" << Debug(completed, 2) << endl;
-  beamSize.DeleteEmpty(completed);
+  //beamSize.DeleteEmpty(completed);
 
 }
 

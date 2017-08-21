@@ -100,7 +100,7 @@ void BeamSize::DeleteEmpty(const std::vector<uint> &completed)
 {
   std::vector<uint> c2(completed);
   std::sort(c2.rbegin(), c2.rend());
-  cerr << "c2=" << amunmt::Debug(c2, 2) << endl;
+  //cerr << "c2=" << amunmt::Debug(c2, 2) << endl;
 
   for (size_t i = 0; i < c2.size(); ++i) {
     size_t ind = c2[i];
