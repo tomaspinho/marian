@@ -480,7 +480,8 @@ void ShrinkMatrix(size_t sizeShrink,
                   uint whichDim,
                   TMatrix<T> &matrix)
 {
-  thread_local TMatrix<T> out;
+  //thread_local TMatrix<T> out;
+  TMatrix<T> out;
 
   out.NewSize(matrix.dim(0) - (whichDim==0?sizeShrink:0),
               matrix.dim(1) - (whichDim==1?sizeShrink:0),
