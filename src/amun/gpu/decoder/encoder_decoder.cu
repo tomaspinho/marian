@@ -346,7 +346,28 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
                                 mblas::Matrix &SCU)
 {
   cerr << "completed=" << Debug(completed, 2) << endl;
+  if (completed.size() == 0) {
+    return;
+  }
+
   //beamSize.DeleteEmpty(completed);
+
+  // matrices
+  std::vector<uint> newInd(beamSize.size(), 99999);
+
+  uint shift = 0;
+  for (size_t i = 0; i < newInd.size(); ++i) {
+    if (shift < completed.size() && completed[shift] == i) {
+      ++shift;
+    }
+    else {
+      assert(shift <= i);
+      newInd[i - shift] = i;
+    }
+  }
+  cerr << "newInd=" << Debug(newInd, 2) << endl;
+
+  DeviceVector<uint> d_newInd(newInd);
 
 }
 
