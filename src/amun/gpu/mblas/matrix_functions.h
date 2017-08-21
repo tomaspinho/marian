@@ -498,20 +498,15 @@ void ShrinkMatrix(size_t sizeShrink,
   MatrixWrapper<T> inWrap(matrix);
   MatrixWrapper<T> outWrap(out);
 
+  int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
+  dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
+
+  const cudaStream_t &stream = CudaStreamHandler::GetStream();
+
   if (whichDim == 0) {
-    int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
-    dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
-
-    const cudaStream_t &stream = CudaStreamHandler::GetStream();
-
     gShrinkMatrix0<<<nBlocks, nThreads, 0, stream>>>(newIndWrap, inWrap, outWrap);
   }
   else if (whichDim == 3) {
-    int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
-    dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
-
-    const cudaStream_t &stream = CudaStreamHandler::GetStream();
-
     gShrinkMatrix3<<<nBlocks, nThreads, 0, stream>>>(newIndWrap, inWrap, outWrap);
   }
   else {
