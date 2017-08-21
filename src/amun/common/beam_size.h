@@ -74,6 +74,7 @@ public:
   void DecrByLineNum(uint lineNum);
 
   void DeleteEmpty();
+  void DeleteEmpty(const std::vector<uint> &completed);
 
   virtual std::string Debug(size_t verbosity = 1) const;
 
