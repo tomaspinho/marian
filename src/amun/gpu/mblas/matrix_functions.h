@@ -432,6 +432,10 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, const Mat
 
 void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps);
 
+void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whichDim, Matrix &matrix);
+
+void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whichDim, IMatrix &matrix);
+
 /////////////////////////////////////////////////////////////////////////
 
 } // namespace mblas

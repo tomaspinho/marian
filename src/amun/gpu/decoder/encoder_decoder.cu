@@ -350,11 +350,11 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
     return;
   }
 
-  //beamSize.DeleteEmpty(completed);
+  // shrink beam
+  beamSize.DeleteEmpty(completed);
 
-  // matrices
+  // old ind -> new ind
   std::vector<uint> newInd(beamSize.size(), 99999);
-
   uint shift = 0;
   for (size_t i = 0; i < newInd.size(); ++i) {
     if (shift < completed.size() && completed[shift] == i) {
@@ -367,7 +367,15 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   }
   cerr << "newInd=" << Debug(newInd, 2) << endl;
 
+  // shrink matrices
+
+  size_t sizeShrink = completed.size();
   DeviceVector<uint> d_newInd(newInd);
+  ShrinkMatrix(sizeShrink, d_newInd, 3, sourceContext);
+  ShrinkMatrix(sizeShrink, d_newInd, 3, SCU);
+
+  ShrinkMatrix(sizeShrink, d_newInd, 0, sentenceLengths);
+
 
 }
 

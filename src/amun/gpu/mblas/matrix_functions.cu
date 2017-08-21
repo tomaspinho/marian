@@ -874,6 +874,98 @@ void RandomizeMemory()
   gRandomizeMemory<<<blocks, threads>>>(data);
 }
 
+__global__ void gShrinkMatrix0(const MatrixWrapper<uint> newInd,
+                              MatrixWrapper<uint> in,
+                              MatrixWrapper<uint> out)
+{
+  assert(blockIdx.x < out.dim(0));
+  assert(blockIdx.y < out.dim(2));
+  assert(blockIdx.z < out.dim(3));
+
+  int cols = out.dim(1);
+  uint col = threadIdx.x;
+
+  while (col < cols) {
+    uint inInd = newInd[blockIdx.x];
+    out(blockIdx.x, col, blockIdx.y, blockIdx.z) = in(inInd, col, blockIdx.y, blockIdx.z);
+
+    col += MAX_THREADS;
+  }
+}
+
+__global__ void gShrinkMatrix3(const MatrixWrapper<uint> newInd,
+                              MatrixWrapper<float> in,
+                              MatrixWrapper<float> out)
+{
+  assert(blockIdx.x < out.dim(0));
+  assert(blockIdx.y < out.dim(2));
+  assert(blockIdx.z < out.dim(3));
+
+  int cols = out.dim(1);
+  uint col = threadIdx.x;
+
+  while (col < cols) {
+    uint inInd = newInd[blockIdx.z];
+    out(blockIdx.x, col, blockIdx.y, blockIdx.z) = in(blockIdx.x, col, blockIdx.y, inInd);
+
+    col += MAX_THREADS;
+  }
+
+}
+
+void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whichDim, Matrix &matrix)
+{
+  thread_local Matrix out;
+
+  out.NewSize(matrix.dim(0) - (whichDim==0?sizeShrink:0),
+              matrix.dim(1) - (whichDim==1?sizeShrink:0),
+              matrix.dim(2) - (whichDim==2?sizeShrink:0),
+              matrix.dim(3) - (whichDim==3?sizeShrink:0));
+
+  cerr << "sizeShrink=" << sizeShrink
+      << " matrix=" << matrix.Debug(0)
+      << " out=" << out.Debug(0) << endl;
+
+  const MatrixWrapper<uint> newIndWrap(newInd);
+  MatrixWrapper<float> inWrap(matrix);
+  MatrixWrapper<float> outWrap(out);
+
+  assert(whichDim == 3);
+  int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
+  dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
+
+  gShrinkMatrix3<<<nBlocks, nThreads>>>(newIndWrap, inWrap, outWrap);
+
+  out.swap(matrix);
+}
+
+void ShrinkMatrix(size_t sizeShrink, const DeviceVector<uint> &newInd, uint whichDim, IMatrix &matrix)
+{
+  thread_local IMatrix out;
+
+  out.NewSize(matrix.dim(0) - (whichDim==0?sizeShrink:0),
+              matrix.dim(1) - (whichDim==1?sizeShrink:0),
+              matrix.dim(2) - (whichDim==2?sizeShrink:0),
+              matrix.dim(3) - (whichDim==3?sizeShrink:0));
+
+  cerr << "sizeShrink=" << sizeShrink
+      << " matrix=" << matrix.Debug(0)
+      << " out=" << out.Debug(0) << endl;
+
+  const MatrixWrapper<uint> newIndWrap(newInd);
+  MatrixWrapper<uint> inWrap(matrix);
+  MatrixWrapper<uint> outWrap(out);
+
+  assert(whichDim == 0);
+  int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
+  dim3 nBlocks(out.dim(0), out.dim(2), out.dim(3));
+
+  gShrinkMatrix0<<<nBlocks, nThreads>>>(newIndWrap, inWrap, outWrap);
+
+  out.swap(matrix);
+
+}
+
 }  // namespace mblas
 }  // namespace GPU
 }  // namespace amunmt
