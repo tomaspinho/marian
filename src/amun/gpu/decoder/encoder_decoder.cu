@@ -267,11 +267,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     ++decoderStep;
     remaining -= completed.size();
 
+    /*
     LOG(progress)->info("Step took {}, survivors={}, completed={}, remaining={}",
                         timerStep.format(3, "%ws"),
                         survivors.size(),
                         completed.size(),
                         remaining);
+    */
     /*
     cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
     cerr << "3 probs=" << probs.Debug(1) << endl;
@@ -351,30 +353,34 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   }
 
   // shrink beam
+  size_t origBeamSize = beamSize.size();
   beamSize.DeleteEmpty(completed);
+  size_t newBeamSize = beamSize.size();
+  cerr << "origBeamSize=" << origBeamSize << " newBeamSize=" << newBeamSize << endl;
 
   // old ind -> new ind
-  std::vector<uint> newInd(beamSize.size(), 99999);
-  uint shift = 0;
-  for (size_t i = 0; i < newInd.size(); ++i) {
-    if (shift < completed.size() && completed[shift] == i) {
-      ++shift;
+  std::vector<uint> newIndices(newBeamSize, 99999);
+  uint newInd = 0;
+  uint completedInd = 0;
+  for (size_t origInd = 0; origInd < origBeamSize; ++origInd) {
+    if (completedInd < completed.size() && completed[completedInd] == origInd) {
+      ++completedInd;
     }
     else {
-      assert(shift <= i);
-      newInd[i - shift] = i;
+      newIndices[newInd] = origInd;
+      ++newInd;
     }
   }
-  cerr << "newInd=" << Debug(newInd, 2) << endl;
+  cerr << "newIndices=" << Debug(newIndices, 2) << endl;
 
   // shrink matrices
 
   size_t sizeShrink = completed.size();
-  DeviceVector<uint> d_newInd(newInd);
-  ShrinkMatrix(sizeShrink, d_newInd, 3, sourceContext);
-  ShrinkMatrix(sizeShrink, d_newInd, 3, SCU);
+  DeviceVector<uint> d_newIndices(newIndices);
+  ShrinkMatrix(sizeShrink, d_newIndices, 3, sourceContext);
+  //ShrinkMatrix(sizeShrink, d_newInd, 3, SCU);
 
-  ShrinkMatrix(sizeShrink, d_newInd, 0, sentenceLengths);
+  //ShrinkMatrix(sizeShrink, d_newInd, 0, sentenceLengths);
 
 
 }
