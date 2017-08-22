@@ -859,6 +859,20 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps
 }
 
 
+void AddToMatrix(uint whichDim,
+                 TMatrix<float> &dest,
+                 const TMatrix<float> &source)
+{
+
+}
+
+void AddToMatrix(uint whichDim,
+                 TMatrix<uint> &dest,
+                 const TMatrix<uint> &source)
+{
+
+}
+
 }  // namespace mblas
 }  // namespace GPU
 }  // namespace amunmt

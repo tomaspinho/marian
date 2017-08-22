@@ -259,7 +259,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      //encDecBuffer_.Get(numCompleted, newSentences);
+      encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
@@ -405,9 +405,25 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
 {
   beamSize.AddNewSentences(newSentences);
 
+  cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
+
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
+    const EncOutPtr encOut = ele.encOut;
+    size_t sentenceInd = ele.sentenceInd;
+    cerr << "sentenceInd=" << sentenceInd << endl;
 
+    const mblas::Matrix &origSourceContext = encOut->GetSourceContext<mblas::Matrix>();
+    AddToMatrix(3, sourceContext, origSourceContext);
+    cerr << "origSourceContext=" << origSourceContext.Debug(0) << endl;
+
+    const mblas::IMatrix &origSentenceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
+    AddToMatrix(0, sentenceLengths, origSentenceLengths);
+    cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
+
+    const mblas::Matrix &origSCU = encOut->GetSCU<mblas::Matrix>();
+    AddToMatrix(3, SCU, origSCU);
+    cerr << "origSCU=" << origSCU.Debug(0) << endl;
 
   }
 

@@ -516,6 +516,14 @@ void ShrinkMatrix(size_t sizeShrink,
   out.swap(matrix);
 }
 
+void AddToMatrix(uint whichDim,
+                 TMatrix<float> &dest,
+                 const TMatrix<float> &source);
+
+void AddToMatrix(uint whichDim,
+                 TMatrix<uint> &dest,
+                 const TMatrix<uint> &source);
+
 /////////////////////////////////////////////////////////////////////////
 
 } // namespace mblas
