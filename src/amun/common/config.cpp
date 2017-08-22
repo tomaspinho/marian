@@ -246,6 +246,8 @@ void Config::AddOptions(size_t argc, char** argv) {
      "Log level for progress logging to stderr (trace - debug - info - warn - err(or) - critical - off).")
     ("log-info",po::value<std::string>()->default_value("info")->implicit_value("info"),
      "Log level for informative messages to stderr (trace - debug - info - warn - err(or) - critical - off).")
+    ("constant-sentence-length", po::value<size_t>()->default_value(0),
+      "Parameter for use when creating attention matrices.")
   ;
 
   po::options_description search("Search options");
