@@ -270,6 +270,12 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                 bsGPU2.GetSentenceLengths(),
                 SCU);
 
+    AddToBatch(newSentences,
+              histories.GetBeamSizes(),
+              bsGPU2.GetSourceContext(),
+              bsGPU2.GetSentenceLengths(),
+              SCU);
+
     prevHyps.swap(survivors);
     ++decoderStep;
     remaining -= completed.size();
@@ -293,9 +299,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "histories=" << histories.size() << endl;
     cerr << "3 state=" << state.Debug(1) << endl;
     cerr << "3SCU=" << SCU.Debug(1) << endl;
-    cerr << "completed=" << Debug(completed, 2) << endl;
-    cerr << endl;
     */
+    cerr << "completed=" << Debug(completed, 2) << endl;
+    cerr << "newSentences=" << newSentences.size() << endl;
+    cerr << endl;
   }
 }
 
@@ -388,7 +395,19 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   ShrinkMatrix(sizeShrink, d_newIndices, 3, SCU);
 
   ShrinkMatrix(sizeShrink, d_newIndices, 0, sentenceLengths);
+}
 
+void EncoderDecoder::AddToBatch(const std::vector<EncOutBuffer::SentenceElement> &newSentences,
+                BeamSize &beamSize,
+                mblas::Matrix &sourceContext,
+                mblas::IMatrix &sentenceLengths,
+                mblas::Matrix &SCU)
+{
+  for (size_t i = 0; i < newSentences.size(); ++i) {
+    const EncOutBuffer::SentenceElement &ele = newSentences[i];
+
+
+  }
 
 }
 

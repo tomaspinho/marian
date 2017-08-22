@@ -88,6 +88,12 @@ class EncoderDecoder : public Scorer {
                     mblas::IMatrix &sentenceLengths,
                     mblas::Matrix &SCU);
 
+    void AddToBatch(const std::vector<EncOutBuffer::SentenceElement> &newSentences,
+                    BeamSize &beamSize,
+                    mblas::Matrix &sourceContext,
+                    mblas::IMatrix &sentenceLengths,
+                    mblas::Matrix &SCU);
+
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
 

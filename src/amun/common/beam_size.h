@@ -76,6 +76,8 @@ public:
   void DeleteEmpty();
   void DeleteEmpty(const std::vector<uint> &completed);
 
+  void AddNewSentences(const std::vector<SentenceElement> &newSentences);
+
   virtual std::string Debug(size_t verbosity = 1) const;
 
   const SentenceElement &GetByLineNum(uint lineNum) const;

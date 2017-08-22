@@ -111,6 +111,11 @@ void BeamSize::DeleteEmpty(const std::vector<uint> &completed)
   }
 }
 
+void BeamSize::AddNewSentences(const std::vector<SentenceElement> &newSentences)
+{
+
+}
+
 std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
