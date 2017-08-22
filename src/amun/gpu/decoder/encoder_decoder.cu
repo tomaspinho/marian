@@ -177,8 +177,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       /*
       cerr << "1state=" << state.Debug(1) << endl;
-      cerr << "1SCU=" << SCU.Debug(1) << endl;
       */
+      cerr << "1SCU=" << SCU.Debug(1) << endl;
 
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
@@ -259,7 +259,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      encDecBuffer_.Get(numCompleted, newSentences);
+      //encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
@@ -405,7 +405,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
 {
   beamSize.AddNewSentences(newSentences);
 
-  cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
+  //cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
 
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
