@@ -575,13 +575,12 @@ void EnlargeMatrix(uint whichDim, uint val,
   out.swap(matrix);
 }
 
-void AddToMatrix(uint whichDim,
-                 TMatrix<float> &dest,
-                 const TMatrix<float> &source);
+void CopyDimension(uint whichDim,
+                   uint outInd,
+                   uint inInd,
+                   TMatrix<float> &out,
+                   const TMatrix<float> &in);
 
-void AddToMatrix(uint whichDim,
-                 TMatrix<uint> &dest,
-                 const TMatrix<uint> &source);
 
 /////////////////////////////////////////////////////////////////////////
 

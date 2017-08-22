@@ -860,20 +860,15 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps
 
 /////////////////////////////////////////////////////////////////////////
 
-
-void AddToMatrix(uint whichDim,
-                 TMatrix<float> &dest,
-                 const TMatrix<float> &source)
+void CopyDimension(uint whichDim,
+                   uint outInd,
+                   uint inInd,
+                   TMatrix<float> &out,
+                   const TMatrix<float> &in)
 {
 
 }
 
-void AddToMatrix(uint whichDim,
-                 TMatrix<uint> &dest,
-                 const TMatrix<uint> &source)
-{
-
-}
 
 /////////////////////////////////////////////////////////////////////////
 

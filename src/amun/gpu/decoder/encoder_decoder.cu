@@ -404,7 +404,10 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
                 mblas::IMatrix &sentenceLengths,
                 mblas::Matrix &SCU)
 {
-  //cerr << "newSentences=" << newSentences.size() << endl;
+  cerr << "newSentences=" << newSentences.size() << endl;
+  cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
+  cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
+  cerr << "SCU=" << SCU.Debug(0) << endl;
 
   beamSize.AddNewSentences(newSentences);
 
@@ -420,16 +423,14 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     cerr << "sentenceInd=" << sentenceInd << endl;
 
     const mblas::Matrix &origSourceContext = encOut->GetSourceContext<mblas::Matrix>();
-    AddToMatrix(3, sourceContext, origSourceContext);
     cerr << "origSourceContext=" << origSourceContext.Debug(0) << endl;
 
     const mblas::IMatrix &origSentenceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
-    AddToMatrix(0, sentenceLengths, origSentenceLengths);
     cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
 
     const mblas::Matrix &origSCU = encOut->GetSCU<mblas::Matrix>();
-    AddToMatrix(3, SCU, origSCU);
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
+
 
   }
 
