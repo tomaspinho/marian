@@ -516,6 +516,13 @@ void ShrinkMatrix(size_t sizeShrink,
   out.swap(matrix);
 }
 
+/////////////////////////////////////////////////////////////////////////
+
+void CopyMatrix(Matrix &out, const Matrix &in);
+
+void EnlargeMatrix(uint whichDim, uint val,
+                 TMatrix<float> &matrix);
+
 void AddToMatrix(uint whichDim,
                  TMatrix<float> &dest,
                  const TMatrix<float> &source);

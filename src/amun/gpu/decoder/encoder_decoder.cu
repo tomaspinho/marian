@@ -404,9 +404,13 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
                 mblas::IMatrix &sentenceLengths,
                 mblas::Matrix &SCU)
 {
+  cerr << "newSentences=" << newSentences.size() << endl;
+
   beamSize.AddNewSentences(newSentences);
 
-  //cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
+  uint numNewSentences = newSentences.size();
+  EnlargeMatrix(3, numNewSentences, sourceContext);
+  EnlargeMatrix(3, numNewSentences, SCU);
 
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
