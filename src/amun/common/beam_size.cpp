@@ -113,7 +113,12 @@ void BeamSize::DeleteEmpty(const std::vector<uint> &completed)
 
 void BeamSize::AddNewSentences(const std::vector<EncOut::SentenceElement> &newSentences)
 {
+  for (size_t i = 0; i < newSentences.size(); ++i) {
+    const EncOut::SentenceElement &inEle = newSentences[i];
+    SentenceElement outEle(inEle.encOut, inEle.sentenceInd, 1);
 
+    sentences_.push_back(outEle);
+  }
 }
 
 std::string BeamSize::Debug(size_t verbosity) const
