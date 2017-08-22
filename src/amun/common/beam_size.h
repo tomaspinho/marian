@@ -18,19 +18,16 @@ public:
     EncOutPtr encOut;
     size_t sentenceInd; // index of the sentence we're translation within encOut.sentences
     uint size;  // beam size 0..beam
-    uint hypoStartInd;
 
     SentenceElement() {}
 
     SentenceElement(EncOutPtr vencOut,
                     size_t vsentenceInd,
-                    uint vsize,
-                    uint vhypoStartInd)
+                    uint vsize)
     {
       encOut = vencOut;
       sentenceInd = vsentenceInd;
       size = vsize;
-      hypoStartInd = vhypoStartInd;
     }
 
     void Decr()
@@ -76,7 +73,7 @@ public:
   void DeleteEmpty();
   void DeleteEmpty(const std::vector<uint> &completed);
 
-  void AddNewSentences(const std::vector<SentenceElement> &newSentences);
+  void AddNewSentences(const std::vector<EncOut::SentenceElement> &newSentences);
 
   virtual std::string Debug(size_t verbosity = 1) const;
 

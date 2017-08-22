@@ -256,10 +256,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     */
 
     size_t numCompleted = completed.size();
-    std::vector<EncOutBuffer::SentenceElement> newSentences;
+    std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      encDecBuffer_.Get(numCompleted, newSentences);
+      //encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
@@ -299,10 +299,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "histories=" << histories.size() << endl;
     cerr << "3 state=" << state.Debug(1) << endl;
     cerr << "3SCU=" << SCU.Debug(1) << endl;
-    */
     cerr << "completed=" << Debug(completed, 2) << endl;
     cerr << "newSentences=" << newSentences.size() << endl;
     cerr << endl;
+    */
   }
 }
 
@@ -397,14 +397,16 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   ShrinkMatrix(sizeShrink, d_newIndices, 0, sentenceLengths);
 }
 
-void EncoderDecoder::AddToBatch(const std::vector<EncOutBuffer::SentenceElement> &newSentences,
+void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newSentences,
                 BeamSize &beamSize,
                 mblas::Matrix &sourceContext,
                 mblas::IMatrix &sentenceLengths,
                 mblas::Matrix &SCU)
 {
+  beamSize.AddNewSentences(newSentences);
+
   for (size_t i = 0; i < newSentences.size(); ++i) {
-    const EncOutBuffer::SentenceElement &ele = newSentences[i];
+    const EncOut::SentenceElement &ele = newSentences[i];
 
 
   }

@@ -29,7 +29,7 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
 
     //cerr << "BeamSize lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
 
-    SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, 1, i));
+    SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, 1));
     sentencesMap_[lineNum] = &ele;
 
     if (sentence.size() > maxLength_) {
@@ -111,7 +111,7 @@ void BeamSize::DeleteEmpty(const std::vector<uint> &completed)
   }
 }
 
-void BeamSize::AddNewSentences(const std::vector<SentenceElement> &newSentences)
+void BeamSize::AddNewSentences(const std::vector<EncOut::SentenceElement> &newSentences)
 {
 
 }

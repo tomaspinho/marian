@@ -3,9 +3,28 @@
 
 namespace amunmt {
 
+class EncOut;
+typedef std::shared_ptr<EncOut> EncOutPtr;
+
 class EncOut
 {
 public:
+
+  /////////////////////////////////////////////////////////////////////////////
+  struct SentenceElement
+  {
+    EncOutPtr encOut;
+    size_t sentenceInd; // index of the sentence we're translation within encOut.sentences
+
+    SentenceElement(EncOutPtr vencOut,
+                    size_t vsentenceInd)
+    :encOut(vencOut)
+    ,sentenceInd(vsentenceInd)
+    {}
+
+  };
+  /////////////////////////////////////////////////////////////////////////////
+
   EncOut(SentencesPtr sentences);
 
   const Sentences &GetSentences() const
@@ -64,7 +83,5 @@ protected:
   virtual BaseMatrix &GetSCUInternal() = 0;
   virtual const BaseMatrix &GetSCUInternal() const = 0;
 };
-
-typedef std::shared_ptr<EncOut> EncOutPtr;
 
 }
