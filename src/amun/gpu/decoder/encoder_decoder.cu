@@ -255,6 +255,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "6attention_=" << attention.Debug(1) << endl;
     */
 
+    size_t numCompleted = completed.size();
+    std::vector<EncOutBuffer::SentenceElement> newSentences;
+
+    if (numCompleted) {
+      encDecBuffer_.Get(numCompleted, newSentences);
+    }
+
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
 
     ShrinkBatch(completed,
@@ -278,7 +285,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
     cerr << "3 probs=" << probs.Debug(1) << endl;
     cerr << "3 attention=" << attention.Debug(2) << endl;
-    cerr << "completed=" << Debug(completed, 2) << endl;
 
     cerr << "beamSizes=" << Debug(beamSizes, 2) << endl;
     cerr << "survivors=" << survivors.size() << endl;
@@ -287,6 +293,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "histories=" << histories.size() << endl;
     cerr << "3 state=" << state.Debug(1) << endl;
     cerr << "3SCU=" << SCU.Debug(1) << endl;
+    cerr << "completed=" << Debug(completed, 2) << endl;
     cerr << endl;
     */
   }

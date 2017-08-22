@@ -18,5 +18,30 @@ EncOutPtr EncOutBuffer::Get()
   return buffer_.remove();
 }
 
+void EncOutBuffer::Get(size_t num, std::vector<SentenceElement> &ret)
+{
+  for (size_t currNum = 0; currNum < num; ++currNum) {
+    if (unfinishedEncOutPtr_.get() == nullptr) {
+      unfinishedEncOutPtr_ = Get();
+      unfinishedInd_ = 0;
+    }
+
+    assert(unfinishedEncOutPtr_);
+    SentenceElement ele(unfinishedEncOutPtr_, unfinishedInd_);
+    ret.push_back(ele);
+
+    ++unfinishedInd_;
+
+    const EncOut &encOut = *unfinishedEncOutPtr_;
+    const Sentences &sentences = encOut.GetSentences();
+    if (unfinishedInd_ == sentences.size()) {
+      // last sentence
+      unfinishedEncOutPtr_.reset();
+    }
+
+  }
+
+}
+
 }
 }
