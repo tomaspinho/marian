@@ -97,7 +97,7 @@ class Encoder {
   public:
     Encoder(const Weights& model);
 
-    void Encode(const Sentences& words, size_t tab,
+    void Encode(const God &god, const Sentences& words, size_t tab,
                     EncOutPtr &encOut);
 
   private:

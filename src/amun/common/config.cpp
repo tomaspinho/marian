@@ -319,6 +319,7 @@ void Config::AddOptions(size_t argc, char** argv) {
   SET_OPTION("maxi-batch", size_t);
   SET_OPTION("mini-batch-words", int);
   SET_OPTION("max-length", size_t);
+  SET_OPTION("constant-sentence-length", size_t);
 #ifdef CUDA
   SET_OPTION("gpu-threads", size_t);
   SET_OPTION("devices", std::vector<size_t>);

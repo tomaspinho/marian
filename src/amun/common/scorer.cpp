@@ -10,6 +10,7 @@ Scorer::Scorer(const God &god,
 , config_(config)
 , tab_(tab)
 , search_(search)
+, god_(god)
 {
 }
 

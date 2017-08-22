@@ -1,5 +1,6 @@
 #include "encoder.h"
 #include "common/sentences.h"
+#include "common/god.h"
 
 using namespace std;
 
@@ -25,10 +26,17 @@ std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t t
   return matrix;
 }
 
-void Encoder::Encode(const Sentences& source, size_t tab,
+void Encoder::Encode(const God &god, const Sentences& source, size_t tab,
                      EncOutPtr &encOut)
 {
-  size_t maxSentenceLength = source.GetMaxLength();
+  size_t maxSentenceLength = god.Get<size_t>("constant-sentence-length");
+  if (maxSentenceLength == 0) {
+    maxSentenceLength = source.GetMaxLength();
+  }
+  else {
+    assert(source.GetMaxLength() <= maxSentenceLength);
+  }
+  //cerr << "maxSentenceLength=" << maxSentenceLength << endl;
 
   //cerr << "GetContext1=" << context.Debug(1) << endl;
   encOut->GetSourceContext<mblas::Matrix>().NewSize(maxSentenceLength,

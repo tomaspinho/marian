@@ -54,7 +54,7 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   EncOutPtr encOut(new EncOutGPU(source));
 
   if (source->size()) {
-    encoder_->Encode(*source, tab_, encOut);
+    encoder_->Encode(god_, *source, tab_, encOut);
 
     mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
     mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
@@ -71,6 +71,7 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
                       sourceContext,
                       sourceLengths,
                       batchSize);
+
   }
 
   encDecBuffer_.Add(encOut);
@@ -177,8 +178,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       /*
       cerr << "1state=" << state.Debug(1) << endl;
-      */
       cerr << "1SCU=" << SCU.Debug(1) << endl;
+      */
 
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();

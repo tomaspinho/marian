@@ -72,6 +72,7 @@ class Scorer {
     const YAML::Node& config_;
     size_t tab_;
     const Search &search_;
+    const God &god_;
 };
 
 class SourceIndependentScorer : public Scorer {
