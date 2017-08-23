@@ -865,7 +865,16 @@ __global__ void gCopyDimension0(uint whichDim,
                               MatrixWrapper<float> out,
                               const MatrixWrapper<float> in)
 {
+  assert(whichDim == 0);
 
+  int cols = out.dim(1);
+  uint col = threadIdx.x;
+
+  while (col < cols) {
+    out(outInd, col, blockIdx.x, blockIdx.y) = in(inInd, col, blockIdx.x, blockIdx.y);
+
+    col += MAX_THREADS;
+  }
 }
 
 __global__ void gCopyDimension3(uint whichDim,
@@ -876,9 +885,13 @@ __global__ void gCopyDimension3(uint whichDim,
 {
   assert(whichDim == 3);
 
-  int id = threadIdx.x + blockIdx.x * blockDim.x;
-  if (id < in.dim(whichDim)) {
-    //out
+  int cols = out.dim(1);
+  uint col = threadIdx.x;
+
+  while (col < cols) {
+    out(blockIdx.x, col, blockIdx.y, outInd) = in(blockIdx.x, col, blockIdx.y, inInd);
+
+    col += MAX_THREADS;
   }
 }
 
@@ -888,21 +901,45 @@ void CopyDimension(uint whichDim,
                    TMatrix<float> &out,
                    const TMatrix<float> &in)
 {
-  assert(out.dim(whichDim) == in.dim(whichDim));
+  assert(outInd < out.dim(whichDim));
+  assert(inInd < in.dim(whichDim));
 
-  uint size = in.dim(whichDim);
+  assert(whichDim!=0? out.dim(0) == in.dim(0) : true);
+  assert(whichDim!=1? out.dim(1) == in.dim(1) : true);
+  assert(whichDim!=2? out.dim(2) == in.dim(2) : true);
+  assert(whichDim!=3? out.dim(3) == in.dim(3) : true);
+
+  /*
+  size_t dim[SHAPE_SIZE];
+  dim[0] = out.dim(0);
+  dim[1] = out.dim(1);
+  dim[2] = out.dim(2);
+  dim[3] = out.dim(3);
+  dim[whichDim] = 0;
+
+  uint size = dim[0] * dim[1] * dim[2] * dim[3];
   uint threads = std::min(size, (uint) MAX_THREADS);
   uint blocks  = (size / threads) + 1;
+  */
 
   const cudaStream_t &stream = CudaStreamHandler::GetStream();
   MatrixWrapper<float> outWrap(out);
   const MatrixWrapper<float> inWrap(in);
 
   if (whichDim == 0) {
-    gCopyDimension0<<<blocks, threads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
+    int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
+    dim3 nBlocks(out.dim(2), out.dim(3));
+
+    gCopyDimension0<<<nBlocks, nThreads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
   }
   else if (whichDim == 3) {
-    gCopyDimension3<<<blocks, threads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
+    int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
+    dim3 nBlocks(out.dim(0), out.dim(2));
+
+    gCopyDimension3<<<nBlocks, nThreads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
+  }
+  else {
+    assert(false);
   }
 }
 
