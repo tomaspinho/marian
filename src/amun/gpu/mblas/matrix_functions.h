@@ -555,7 +555,6 @@ void CopyMatrix(TMatrix<T> &out, const TMatrix<T> &in)
   MatrixWrapper<T> outWrap(out);
   const MatrixWrapper<T> inWrap(in);
 
-
   gCopyMatrix<<<blocks, threads, 0, stream>>>(outWrap, inWrap);
 }
 

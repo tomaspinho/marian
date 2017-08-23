@@ -409,6 +409,8 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
   cerr << "SCU=" << SCU.Debug(0) << endl;
 
+  size_t currOutInd = beamSize.size();
+
   beamSize.AddNewSentences(newSentences);
 
   uint numNewSentences = newSentences.size();
@@ -431,7 +433,16 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     const mblas::Matrix &origSCU = encOut->GetSCU<mblas::Matrix>();
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
 
+    assert(currOutInd < sourceContext.dim(3));
+    CopyDimension(3, currOutInd, sentenceInd, sourceContext, origSourceContext);
 
+    //assert(currOutInd < sentenceLengths.dim(0));
+    //CopyDimension(0, currOutInd, sentenceInd, sentenceLengths, origSentenceLengths);
+
+    assert(currOutInd < SCU.dim(3));
+    CopyDimension(3, currOutInd, sentenceInd, SCU, origSCU);
+
+    ++currOutInd;
   }
 
 }

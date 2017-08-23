@@ -859,6 +859,28 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps
 }
 
 /////////////////////////////////////////////////////////////////////////
+__global__ void gCopyDimension0(uint whichDim,
+                              uint outInd,
+                              uint inInd,
+                              MatrixWrapper<float> out,
+                              const MatrixWrapper<float> in)
+{
+
+}
+
+__global__ void gCopyDimension3(uint whichDim,
+                              uint outInd,
+                              uint inInd,
+                              MatrixWrapper<float> out,
+                              const MatrixWrapper<float> in)
+{
+  assert(whichDim == 3);
+
+  int id = threadIdx.x + blockIdx.x * blockDim.x;
+  if (id < in.dim(whichDim)) {
+    //out
+  }
+}
 
 void CopyDimension(uint whichDim,
                    uint outInd,
@@ -866,7 +888,22 @@ void CopyDimension(uint whichDim,
                    TMatrix<float> &out,
                    const TMatrix<float> &in)
 {
+  assert(out.dim(whichDim) == in.dim(whichDim));
 
+  uint size = in.dim(whichDim);
+  uint threads = std::min(size, (uint) MAX_THREADS);
+  uint blocks  = (size / threads) + 1;
+
+  const cudaStream_t &stream = CudaStreamHandler::GetStream();
+  MatrixWrapper<float> outWrap(out);
+  const MatrixWrapper<float> inWrap(in);
+
+  if (whichDim == 0) {
+    gCopyDimension0<<<blocks, threads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
+  }
+  else if (whichDim == 3) {
+    gCopyDimension3<<<blocks, threads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
+  }
 }
 
 
