@@ -233,9 +233,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "3attention_=" << attention.Debug(1) << endl;
     */
     // beams
-    if (decoderStep == 0) {
-      histories.SetBeamSize(search_.MaxBeamSize());
-    }
+    histories.SetNewBeamSize(search_.MaxBeamSize());
 
     HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
     HANDLE_ERROR( cudaDeviceSynchronize());
@@ -287,7 +285,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      encDecBuffer_.Get(numCompleted, newSentences);
+      //encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());

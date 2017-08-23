@@ -38,12 +38,16 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
   }
 }
 
-void BeamSize::Set(uint val)
+void BeamSize::SetNewBeamSize(uint val)
 {
   for (SentenceElement& ele : sentences_) {
-    ele.size = val;
+    if (ele.first) {
+      total_ = total_ - ele.size  + val;
+
+      ele.size = val;
+      ele.first = false;
+    }
   }
-  total_ = size() * val;
 }
 
 uint BeamSize::GetTotal() const
@@ -72,6 +76,11 @@ const BeamSize::SentenceElement &BeamSize::Get(size_t ind) const
   return sentences_[ind];
 }
 
+BeamSize::SentenceElement &BeamSize::Get(size_t ind)
+{
+  assert(ind < sentences_.size());
+  return sentences_[ind];
+}
 
 void BeamSize::Decr(size_t ind)
 {

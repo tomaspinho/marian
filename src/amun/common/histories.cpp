@@ -147,9 +147,9 @@ Hypotheses Histories::GetFirstHyps() const
   return hypos;
 }
 
-void Histories::SetBeamSize(uint val)
+void Histories::SetNewBeamSize(uint val)
 {
-  beamSizes_->Set(val);
+  beamSizes_->SetNewBeamSize(val);
 }
 
 

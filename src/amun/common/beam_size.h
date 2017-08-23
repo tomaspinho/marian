@@ -18,6 +18,7 @@ public:
     EncOutPtr encOut;
     size_t sentenceInd; // index of the sentence we're translation within encOut.sentences
     uint size;  // beam size 0..beam
+    bool first;
 
     SentenceElement() {}
 
@@ -28,6 +29,7 @@ public:
       encOut = vencOut;
       sentenceInd = vsentenceInd;
       size = vsize;
+      first = true;
     }
 
     void Decr()
@@ -50,7 +52,7 @@ public:
 
   virtual void Init(uint maxBeamSize, EncOutPtr encOut);
 
-  void Set(uint val);
+  void SetNewBeamSize(uint val);
 
   size_t size() const
   { return sentences_.size(); }
@@ -66,6 +68,7 @@ public:
   const Sentence &GetSentence(size_t ind) const;
 
   const SentenceElement &Get(size_t ind) const;
+  SentenceElement &Get(size_t ind);
 
   void Decr(size_t ind);
   void DecrByLineNum(uint lineNum);
