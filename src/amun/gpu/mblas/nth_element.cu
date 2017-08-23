@@ -359,16 +359,32 @@ void NthElement::getNBestList(mblas::Matrix &probs,
                               const HostVector<uint>& batchFirstElementIdxs,
                               const HostVector<uint>& cummulatedBeamSizes)
 {
+  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+  HANDLE_ERROR( cudaDeviceSynchronize());
+  cerr << "4.1getNBestList=" << endl;
+
   const uint vocabSize = probs.dim(1);
   const uint numBlocks = uint(maxBeamSize_ * vocabSize / (2 * BLOCK_SIZE)) + uint(maxBeamSize_ * vocabSize % (2 * BLOCK_SIZE) != 0);
   const uint numBatches = batchFirstElementIdxs.size() - 1;
 
+  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+  HANDLE_ERROR( cudaDeviceSynchronize());
+  cerr << "4.2getNBestList=" << endl;
+
   d_out.NewSize(maxBatchSize_ * numBlocks, 1, 1, 1);
+
+  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+  HANDLE_ERROR( cudaDeviceSynchronize());
+  cerr << "4.3getNBestList=" << endl;
 
   //cerr << "cummulatedBeamSizes=" << cummulatedBeamSizes.size() << endl;
   d_batchPosition.NewSize(batchFirstElementIdxs.size(), 1, 1, 1);
   d_cumBeamSizes.NewSize(cummulatedBeamSizes.size(), 1, 1, 1);
   assert(d_batchPosition.size() == d_cumBeamSizes.size());
+
+  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+  HANDLE_ERROR( cudaDeviceSynchronize());
+  cerr << "4.4getNBestList=" << endl;
 
   mblas::copy(thrust::raw_pointer_cast(batchFirstElementIdxs.data()),
               batchFirstElementIdxs.size(),
@@ -385,13 +401,29 @@ void NthElement::getNBestList(mblas::Matrix &probs,
   mblas::MatrixWrapper<NthOut> resWrap(d_res, false);
   mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
 
+  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+  HANDLE_ERROR( cudaDeviceSynchronize());
+  cerr << "4.5getNBestList=" << endl;
+
+  cerr << "outWrap=" << outWrap.Debug() << endl;
+  cerr << "probsWrap=" << probsWrap.Debug() << endl;
+  cerr << "batchPositionWrap=" << batchPositionWrap.Debug() << endl;
+  cerr << "numBatches=" << numBatches << endl;
+
   gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
     (outWrap, probsWrap, batchPositionWrap, numBatches);
+
+  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+  HANDLE_ERROR( cudaDeviceSynchronize());
+  cerr << "4.6getNBestList=" << endl;
 
   gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
     (outWrap, probsWrap, batchPositionWrap, resWrap, cumBeamSizesWrap,
      numBlocks);
 
+  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+  HANDLE_ERROR( cudaDeviceSynchronize());
+  cerr << "4.7getNBestList=" << endl;
   /*
   cerr << "numBlocks=" << numBlocks << endl;
   cerr << "numBatches=" << numBatches << endl;
