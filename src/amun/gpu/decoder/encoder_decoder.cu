@@ -285,7 +285,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      //encDecBuffer_.Get(numCompleted, newSentences);
+      encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());

@@ -26,6 +26,7 @@ public:
                     size_t vsentenceInd,
                     uint vsize)
     {
+      //std::cerr << "new SentenceElement=" << vsentenceInd << std::endl;
       encOut = vencOut;
       sentenceInd = vsentenceInd;
       size = vsize;

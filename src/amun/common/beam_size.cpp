@@ -42,7 +42,9 @@ void BeamSize::SetNewBeamSize(uint val)
 {
   for (SentenceElement& ele : sentences_) {
     if (ele.first) {
-      total_ = total_ - ele.size  + val;
+      //std::cerr << "SetNewBeamSize=" << ele.sentenceInd << std::endl;
+
+      total_ += val - ele.size;
 
       ele.size = val;
       ele.first = false;
