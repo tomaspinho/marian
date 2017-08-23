@@ -194,7 +194,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     mblas::Matrix attention;
     mblas::Matrix probs;
 
-    /*
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "1DecodeAsyncInternal=" << endl;
+   /*
     cerr << "2state=" << state.Debug(1) << endl;
     cerr << "2SCU=" << SCU.Debug(1) << endl;
     cerr << "2nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
@@ -203,6 +206,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     */
 
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
+
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "2DecodeAsyncInternal=" << endl;
 
     BEGIN_TIMER("Decode");
     decoder_->Decode(nextStateMatrix,
@@ -213,6 +220,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                     SCU,
                     bsGPU);
     PAUSE_TIMER("Decode");
+
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "3DecodeAsyncInternal=" << endl;
 
     /*
     cerr << "3state=" << state.Debug(1) << endl;
@@ -226,8 +237,16 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       histories.SetBeamSize(search_.MaxBeamSize());
     }
 
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "4DecodeAsyncInternal=" << endl;
+
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, probs, attention, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
+
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "5DecodeAsyncInternal=" << endl;
 
     /*
     cerr << "4state=" << state.Debug(1) << endl;
@@ -239,6 +258,10 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
     const std::vector<uint> &completed = histOut.second;
+
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "6DecodeAsyncInternal=" << endl;
 
     /*
     cerr << "5state=" << state.Debug(1) << endl;
@@ -256,14 +279,22 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "6attention_=" << attention.Debug(1) << endl;
     */
 
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "7DecodeAsyncInternal=" << endl;
+
     size_t numCompleted = completed.size();
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      //encDecBuffer_.Get(numCompleted, newSentences);
+      encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
+
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "8DecodeAsyncInternal=" << endl;
 
     ShrinkBatch(completed,
                 histories.GetBeamSizes(),
@@ -271,11 +302,19 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                 bsGPU2.GetSentenceLengths(),
                 SCU);
 
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "9DecodeAsyncInternal=" << endl;
+
     AddToBatch(newSentences,
               histories.GetBeamSizes(),
               bsGPU2.GetSourceContext(),
               bsGPU2.GetSentenceLengths(),
               SCU);
+
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    HANDLE_ERROR( cudaDeviceSynchronize());
+    cerr << "10DecodeAsyncInternal=" << endl;
 
     prevHyps.swap(survivors);
     ++decoderStep;
@@ -443,8 +482,10 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     mblas::CopyDimension<float>(3, currOutInd, sentenceInd, SCU, origSCU);
 
     ++currOutInd;
+    cerr << "currOutInd=" << currOutInd << endl;
   }
 
+  cerr << "DONE AddToBatch" << endl;
 }
 
 }

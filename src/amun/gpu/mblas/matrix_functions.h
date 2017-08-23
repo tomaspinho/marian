@@ -635,6 +635,13 @@ void CopyDimension(uint whichDim,
   assert(whichDim!=2? out.dim(2) == in.dim(2) : true);
   assert(whichDim!=3? out.dim(3) == in.dim(3) : true);
 
+  std::cerr << "CopyDimension="
+            << whichDim << " "
+            << outInd << " "
+            << inInd << " "
+            << out.Debug(0) << " "
+            << in.Debug(0) << " "
+            << std::endl;
   /*
   size_t dim[SHAPE_SIZE];
   dim[0] = out.dim(0);
@@ -657,12 +664,16 @@ void CopyDimension(uint whichDim,
     dim3 nBlocks(out.dim(2), out.dim(3));
 
     gCopyDimension0<<<nBlocks, nThreads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
+    HANDLE_ERROR( cudaStreamSynchronize(stream));
+    HANDLE_ERROR( cudaDeviceSynchronize());
   }
   else if (whichDim == 3) {
     int nThreads = std::min(MAX_THREADS, (int)out.dim(1));
     dim3 nBlocks(out.dim(0), out.dim(2));
 
     gCopyDimension3<<<nBlocks, nThreads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
+    HANDLE_ERROR( cudaStreamSynchronize(stream));
+    HANDLE_ERROR( cudaDeviceSynchronize());
   }
   else {
     assert(false);
