@@ -434,13 +434,13 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
 
     assert(currOutInd < sourceContext.dim(3));
-    CopyDimension(3, currOutInd, sentenceInd, sourceContext, origSourceContext);
+    mblas::CopyDimension<float>(3, currOutInd, sentenceInd, sourceContext, origSourceContext);
 
-    //assert(currOutInd < sentenceLengths.dim(0));
-    //CopyDimension(0, currOutInd, sentenceInd, sentenceLengths, origSentenceLengths);
+    assert(currOutInd < sentenceLengths.dim(0));
+    mblas::CopyDimension<uint>(0, currOutInd, sentenceInd, sentenceLengths, origSentenceLengths);
 
     assert(currOutInd < SCU.dim(3));
-    CopyDimension(3, currOutInd, sentenceInd, SCU, origSCU);
+    mblas::CopyDimension<float>(3, currOutInd, sentenceInd, SCU, origSCU);
 
     ++currOutInd;
   }
