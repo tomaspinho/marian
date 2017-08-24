@@ -258,7 +258,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      //encDecBuffer_.Get(numCompleted, newSentences);
+      encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
@@ -409,7 +409,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
   cerr << "SCU=" << SCU.Debug(0) << endl;
-  cerr << "states=" << states.Debug(0) << endl;
+  cerr << "1states=" << states.Debug(0) << endl;
 
   size_t currOutInd = beamSize.size();
 
@@ -419,6 +419,8 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   EnlargeMatrix(3, numNewSentences, sourceContext);
   EnlargeMatrix(0, numNewSentences, sentenceLengths);
   EnlargeMatrix(3, numNewSentences, SCU);
+  EnlargeMatrix(0, numNewSentences, states);
+  cerr << "2states=" << states.Debug(0) << endl;
 
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
@@ -445,6 +447,9 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
 
     assert(currOutInd < SCU.dim(3));
     mblas::CopyDimension<float>(3, currOutInd, sentenceInd, SCU, origSCU);
+
+    assert(currOutInd < states.dim(0));
+    mblas::CopyDimension<float>(0, currOutInd, sentenceInd, states, origStates);
 
     ++currOutInd;
   }
