@@ -115,6 +115,8 @@ void BeamSize::AddNewSentences(const std::vector<EncOut::SentenceElement> &newSe
     SentenceElement outEle(inEle.encOut, inEle.sentenceInd, 1);
 
     sentences_.push_back(outEle);
+
+    total_ += outEle.size;
   }
 }
 
