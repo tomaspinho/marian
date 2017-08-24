@@ -196,8 +196,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
 
-    cerr << "2bsGPU=" << bsGPU.Debug(1) << endl;
-    cerr << "2probs_=" << probs.Debug(1) << endl;
+    //cerr << "2bsGPU=" << bsGPU.Debug(1) << endl;
+    //cerr << "2probs_=" << probs.Debug(1) << endl;
 
     BEGIN_TIMER("Decode");
     decoder_->Decode(nextStateMatrix,
@@ -215,8 +215,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     // beams
     histories.SetNewBeamSize(search_.MaxBeamSize());
 
-    //cerr << "4bsGPU=" << bsGPU.Debug(0) << endl;
-    //cerr << "4probs_=" << probs.Debug(0) << endl;
+    cerr << "4bsGPU=" << bsGPU.Debug(1) << endl;
+    cerr << "4probs_=" << probs.Debug(1) << endl;
 
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, probs, attention, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());

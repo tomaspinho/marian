@@ -232,6 +232,10 @@ public:
   __device__ __host__
   uint indices2Id(uint a, uint b, uint c, uint d) const
   {
+    if (a >= dim(0)) {
+      printf("a=%u \n", a);
+    }
+
     assert(a < dim(0));
     assert(b < dim(1));
     assert(c < dim(2));

@@ -44,8 +44,8 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
     sdata[tid] = -3.40282e+38f;
 
     if (i < end) {
-      //sdata[tid] = probsWrap(hypoInd, vocabInd, 0, 0);
-      sdata[tid] = probsWrap[i];
+      sdata[tid] = probsWrap(hypoInd, vocabInd, 0, 0);
+      //sdata[tid] = probsWrap[i];
       indices[tid] = i;
     }
 
@@ -318,11 +318,11 @@ void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& probs,
   d_res.NewSize(numHypos, 1, 1, 1);
   h_res.resize(numHypos);
 
+  cerr << "cummulatedBeamSizes=" << mblas::Debug(cummulatedBeamSizes, 2) << endl;
   /*
   cerr << endl;
   cerr << "numHypos=" << numHypos << endl;
   cerr << "beamSizes=" << beamSizes.Debug(2) << endl;
-  cerr << "cummulatedBeamSizes=" << mblas::Debug(cummulatedBeamSizes, 2) << endl;
   cerr << "batchFirstElementIdxs=" << mblas::Debug(batchFirstElementIdxs, 2) << endl;
   cerr << "1Probs=" << Probs.Debug() << endl;
   */
