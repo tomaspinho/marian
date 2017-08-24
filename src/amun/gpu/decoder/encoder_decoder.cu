@@ -414,7 +414,8 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   cerr << "1states=" << states.Debug(0) << endl;
   cerr << "1embeddings=" << embeddings.Debug(0) << endl;
 
-  size_t currOutInd = beamSize.size();
+  size_t currBatchInd = beamSize.size();
+  size_t currHypoInd = states.dim(0);
 
   beamSize.AddNewSentences(newSentences);
 
@@ -440,29 +441,31 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     const mblas::Matrix &origEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
 
     cerr << "sentenceInd=" << sentenceInd << endl;
-    cerr << "currOutInd=" << currOutInd << endl;
+    cerr << "currBatchInd=" << currBatchInd << endl;
+    cerr << "currHypoInd=" << currHypoInd << endl;
     cerr << "origSourceContext=" << origSourceContext.Debug(0) << endl;
     cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
     cerr << "origStates=" << origStates.Debug(0) << endl;
     cerr << "origEmbeddings=" << origEmbeddings.Debug(0) << endl;
 
-    assert(currOutInd < sourceContext.dim(3));
-    mblas::CopyDimension<float>(3, currOutInd, sentenceInd, sourceContext, origSourceContext);
+    assert(currBatchInd < sourceContext.dim(3));
+    mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, sourceContext, origSourceContext);
 
-    assert(currOutInd < sentenceLengths.dim(0));
-    mblas::CopyDimension<uint>(0, currOutInd, sentenceInd, sentenceLengths, origSentenceLengths);
+    assert(currBatchInd < sentenceLengths.dim(0));
+    mblas::CopyDimension<uint>(0, currBatchInd, sentenceInd, sentenceLengths, origSentenceLengths);
 
-    assert(currOutInd < SCU.dim(3));
-    mblas::CopyDimension<float>(3, currOutInd, sentenceInd, SCU, origSCU);
+    assert(currBatchInd < SCU.dim(3));
+    mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, SCU, origSCU);
 
-    assert(currOutInd < states.dim(0));
-    mblas::CopyDimension<float>(0, currOutInd, sentenceInd, states, origStates);
+    assert(currBatchInd < states.dim(0));
+    mblas::CopyDimension<float>(0, currHypoInd, sentenceInd, states, origStates);
 
-    assert(currOutInd < embeddings.dim(0));
-    mblas::CopyDimension<float>(0, currOutInd, sentenceInd, embeddings, origEmbeddings);
+    assert(currBatchInd < embeddings.dim(0));
+    mblas::CopyDimension<float>(0, currHypoInd, sentenceInd, embeddings, origEmbeddings);
 
-    ++currOutInd;
+    ++currBatchInd;
+    ++currHypoInd;
   }
 }
 
