@@ -292,8 +292,8 @@ NthElement::~NthElement()
 }
 
 void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& probs,
-                  std::vector<float>& outCosts, std::vector<uint>& outKeys,
-                  const bool isFirst) {
+                  std::vector<float>& outCosts, std::vector<uint>& outKeys)
+{
   /*
   cerr << "beamSizes=" << beamSizes.size() << endl;
   cerr << Debug(beamSizes, 2) << endl;

@@ -38,9 +38,6 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   }
   mblas::copy(vCosts.begin(), vCosts.end(), Costs.begin());
 
-  const bool isFirst = (vCosts[0] == 0.0f) ? true : false;
-  cerr << "isFirst=" << isFirst << endl;
-
   BroadcastVecColumn(_1 + _2, probsGPU, Costs);
 
   if (forbidUNK_) {
@@ -53,7 +50,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
 
-  nthElement_.getNBestList(beamSizes, probsGPU, bestCosts, bestKeys, isFirst);
+  nthElement_.getNBestList(beamSizes, probsGPU, bestCosts, bestKeys);
   //cerr << "bestCosts=" << amunmt::Debug(bestCosts, 2) << endl;
   //cerr << "bestKeys=" << amunmt::Debug(bestKeys, 2) << endl;
 
