@@ -194,13 +194,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     mblas::Matrix attention;
     mblas::Matrix probs;
 
-   /*
-    cerr << "2state=" << state.Debug(1) << endl;
-    cerr << "2SCU=" << SCU.Debug(1) << endl;
-    cerr << "2nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "2attention_=" << attention.Debug(1) << endl;
-    */
-
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
 
     cerr << "2bsGPU=" << bsGPU.Debug(1) << endl;
@@ -216,48 +209,32 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                     bsGPU);
     PAUSE_TIMER("Decode");
 
-    cerr << "3bsGPU=" << bsGPU.Debug(1) << endl;
-    cerr << "3probs_=" << probs.Debug(1) << endl;
+    cerr << "3bsGPU=" << bsGPU.Debug(0) << endl;
+    cerr << "3probs_=" << probs.Debug(0) << endl;
 
-    /*
-    cerr << "3state=" << state.Debug(1) << endl;
-    cerr << "3SCU=" << SCU.Debug(1) << endl;
-    cerr << "3nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "3probs_=" << probs.Debug(1) << endl;
-    cerr << "3attention_=" << attention.Debug(1) << endl;
-    */
     // beams
     histories.SetNewBeamSize(search_.MaxBeamSize());
+
+    cerr << "4bsGPU=" << bsGPU.Debug(0) << endl;
+    cerr << "4probs_=" << probs.Debug(0) << endl;
 
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, probs, attention, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
 
-    /*
-    cerr << "4state=" << state.Debug(1) << endl;
-    cerr << "4SCU=" << SCU.Debug(1) << endl;
-    cerr << "4nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "4probs_=" << probs.Debug(1) << endl;
-    cerr << "4attention_=" << attention.Debug(1) << endl;
-    */
+    cerr << "5bsGPU=" << bsGPU.Debug(0) << endl;
+    cerr << "5probs_=" << probs.Debug(0) << endl;
+
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
     const std::vector<uint> &completed = histOut.second;
 
-    /*
-    cerr << "5state=" << state.Debug(1) << endl;
-    cerr << "5SCU=" << SCU.Debug(1) << endl;
-    cerr << "5nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "5probs_=" << probs.Debug(1) << endl;
-    cerr << "5attention_=" << attention.Debug(1) << endl;
-    */
+    cerr << "6bsGPU=" << bsGPU.Debug(0) << endl;
+    cerr << "6probs_=" << probs.Debug(0) << endl;
+
     AssembleBeamState(nextStateMatrix, survivors, state);
-    /*
-    cerr << "6state=" << state.Debug(1) << endl;
-    cerr << "6SCU=" << SCU.Debug(1) << endl;
-    cerr << "6nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "6probs_=" << probs.Debug(1) << endl;
-    cerr << "6attention_=" << attention.Debug(1) << endl;
-    */
+
+    cerr << "7bsGPU=" << bsGPU.Debug(0) << endl;
+    cerr << "7probs_=" << probs.Debug(0) << endl;
 
     size_t numCompleted = completed.size();
     std::vector<EncOut::SentenceElement> newSentences;
