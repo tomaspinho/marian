@@ -286,7 +286,7 @@ NthElement::~NthElement()
   //cerr << "FOO2" << endl;
 }
 
-void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& Probs,
+void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& probs,
                   std::vector<float>& outCosts, std::vector<uint>& outKeys,
                   const bool isFirst) {
   /*
@@ -303,7 +303,7 @@ void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& Probs,
   cummulatedBeamSizes[0] = 0;
   batchFirstElementIdxs[0] = 0;
 
-  const uint vocabSize = Probs.dim(1);
+  const uint vocabSize = probs.dim(1);
   for (uint i = 0; i < beamSizes.size(); ++i) {
     cummulatedBeamSizes[i + 1] = cummulatedBeamSizes[i] + beamSizes.Get(i).size;
     batchFirstElementIdxs[i + 1] = ((isFirst) ? (i + 1) : cummulatedBeamSizes[i + 1]) * vocabSize;
@@ -322,7 +322,7 @@ void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& Probs,
   cerr << "1Probs=" << Probs.Debug() << endl;
   */
 
-  getNBestList(Probs, batchFirstElementIdxs, cummulatedBeamSizes);
+  getNBestList(probs, batchFirstElementIdxs, cummulatedBeamSizes);
 
     //cerr << "2Probs=" << Probs.Debug() << endl;
   //cerr << "cummulatedBeamSizes.back()=" << cummulatedBeamSizes.back() << endl;
