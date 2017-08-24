@@ -363,6 +363,7 @@ void NthElement::getNBestList(mblas::Matrix &probs,
   mblas::MatrixWrapper<NthOut> resWrap(d_res, false);
   mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
 
+  /*
   HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
   HANDLE_ERROR( cudaDeviceSynchronize());
   cerr << "4.5getNBestList=" << endl;
@@ -371,14 +372,17 @@ void NthElement::getNBestList(mblas::Matrix &probs,
   cerr << "probsWrap=" << probsWrap.Debug() << endl;
   cerr << "batchPositionWrap=" << batchPositionWrap.Debug() << endl;
   cerr << "numBatches=" << numBatches << endl;
+  */
 
   gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
     (outWrap, probsWrap, batchPositionWrap, numBatches);
 
+  /*
   HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
   HANDLE_ERROR( cudaDeviceSynchronize());
   cerr << "4.6getNBestList=" << endl;
   cerr << endl;
+  */
 
   gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
     (outWrap, probsWrap, batchPositionWrap, resWrap, cumBeamSizesWrap,
