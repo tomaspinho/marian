@@ -47,10 +47,17 @@ void BeamSize::SetNewBeamSize(uint val)
       total_ += val - ele.size;
 
       ele.size = val;
-      ele.first = false;
     }
   }
 }
+
+void BeamSize::SetFirst(bool val)
+{
+  for (SentenceElement& ele : sentences_) {
+    ele.first = val;
+  }
+}
+
 
 uint BeamSize::GetTotal() const
 {

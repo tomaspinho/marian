@@ -54,6 +54,7 @@ public:
   virtual void Init(uint maxBeamSize, EncOutPtr encOut);
 
   void SetNewBeamSize(uint val);
+  void SetFirst(bool val);
 
   size_t size() const
   { return sentences_.size(); }

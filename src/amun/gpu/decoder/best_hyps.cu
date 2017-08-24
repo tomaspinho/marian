@@ -39,6 +39,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   mblas::copy(vCosts.begin(), vCosts.end(), Costs.begin());
 
   const bool isFirst = (vCosts[0] == 0.0f) ? true : false;
+  cerr << "isFirst=" << isFirst << endl;
 
   BroadcastVecColumn(_1 + _2, probsGPU, Costs);
 

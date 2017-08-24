@@ -152,6 +152,10 @@ void Histories::SetNewBeamSize(uint val)
   beamSizes_->SetNewBeamSize(val);
 }
 
+void Histories::SetFirst(bool val)
+{
+  beamSizes_->SetFirst(val);
+}
 
 
 } // namespace

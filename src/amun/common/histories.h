@@ -35,6 +35,7 @@ public:
     Hypotheses GetFirstHyps() const;
 
     void SetNewBeamSize(uint val);
+    void SetFirst(bool val);
 
     const BeamSize &GetBeamSizes() const
     { return *beamSizes_; }
