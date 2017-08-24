@@ -29,6 +29,8 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
   extern __shared__ float sdata[];
   __shared__ uint indices[SHARED_SIZE];
 
+  uint vocabSize = probsWrap.dim(1);
+
   uint tid = threadIdx.x;
 
   for (uint batchIdx = 0; batchIdx < numBatches; ++batchIdx) {
@@ -36,11 +38,14 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
     uint end = batchPositionWrap[batchIdx + 1];
 
     uint i = begin + blockIdx.x * (blockDim.x * 2) + tid;
+    uint vocabInd = i % vocabSize;
+    uint hypoInd = i / vocabSize;
 
     sdata[tid] = -3.40282e+38f;
 
     if (i < end) {
-      sdata[tid] = probsWrap[i];
+      sdata[tid] = probsWrap(hypoInd, vocabInd, 0, 0);
+      //sdata[tid] = probsWrap[i];
       indices[tid] = i;
     }
 
