@@ -194,9 +194,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     mblas::Matrix attention;
     mblas::Matrix probs;
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "1DecodeAsyncInternal=" << endl;
    /*
     cerr << "2state=" << state.Debug(1) << endl;
     cerr << "2SCU=" << SCU.Debug(1) << endl;
@@ -206,10 +203,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     */
 
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
-
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "2DecodeAsyncInternal=" << endl;
 
     BEGIN_TIMER("Decode");
     decoder_->Decode(nextStateMatrix,
@@ -221,10 +214,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                     bsGPU);
     PAUSE_TIMER("Decode");
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "3DecodeAsyncInternal=" << endl;
-
     /*
     cerr << "3state=" << state.Debug(1) << endl;
     cerr << "3SCU=" << SCU.Debug(1) << endl;
@@ -235,16 +224,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     // beams
     histories.SetNewBeamSize(search_.MaxBeamSize());
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "4DecodeAsyncInternal=" << endl;
-
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, probs, attention, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
-
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "5DecodeAsyncInternal=" << endl;
 
     /*
     cerr << "4state=" << state.Debug(1) << endl;
@@ -256,10 +237,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
     const std::vector<uint> &completed = histOut.second;
-
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "6DecodeAsyncInternal=" << endl;
 
     /*
     cerr << "5state=" << state.Debug(1) << endl;
@@ -277,10 +254,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "6attention_=" << attention.Debug(1) << endl;
     */
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "7DecodeAsyncInternal=" << endl;
-
     size_t numCompleted = completed.size();
     std::vector<EncOut::SentenceElement> newSentences;
 
@@ -290,29 +263,17 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "8DecodeAsyncInternal=" << endl;
-
     ShrinkBatch(completed,
                 histories.GetBeamSizes(),
                 bsGPU2.GetSourceContext(),
                 bsGPU2.GetSentenceLengths(),
                 SCU);
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "9DecodeAsyncInternal=" << endl;
-
     AddToBatch(newSentences,
               histories.GetBeamSizes(),
               bsGPU2.GetSourceContext(),
               bsGPU2.GetSentenceLengths(),
               SCU);
-
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "10DecodeAsyncInternal=" << endl;
 
     prevHyps.swap(survivors);
     ++decoderStep;
@@ -441,10 +402,12 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
                 mblas::IMatrix &sentenceLengths,
                 mblas::Matrix &SCU)
 {
+  /*
   cerr << "newSentences=" << newSentences.size() << endl;
   cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
   cerr << "SCU=" << SCU.Debug(0) << endl;
+  */
 
   size_t currOutInd = beamSize.size();
 
@@ -459,16 +422,18 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     const EncOut::SentenceElement &ele = newSentences[i];
     const EncOutPtr encOut = ele.encOut;
     size_t sentenceInd = ele.sentenceInd;
-    cerr << "sentenceInd=" << sentenceInd << endl;
 
     const mblas::Matrix &origSourceContext = encOut->GetSourceContext<mblas::Matrix>();
-    cerr << "origSourceContext=" << origSourceContext.Debug(0) << endl;
-
     const mblas::IMatrix &origSentenceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
-    cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
-
     const mblas::Matrix &origSCU = encOut->GetSCU<mblas::Matrix>();
+
+    /*
+    cerr << "sentenceInd=" << sentenceInd << endl;
+    cerr << "currOutInd=" << currOutInd << endl;
+    cerr << "origSourceContext=" << origSourceContext.Debug(0) << endl;
+    cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
+    */
 
     assert(currOutInd < sourceContext.dim(3));
     mblas::CopyDimension<float>(3, currOutInd, sentenceInd, sourceContext, origSourceContext);
@@ -480,10 +445,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     mblas::CopyDimension<float>(3, currOutInd, sentenceInd, SCU, origSCU);
 
     ++currOutInd;
-    cerr << "currOutInd=" << currOutInd << endl;
   }
-
-  cerr << "DONE AddToBatch" << endl;
 }
 
 }

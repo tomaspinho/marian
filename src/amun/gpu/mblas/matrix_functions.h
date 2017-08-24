@@ -627,6 +627,15 @@ void CopyDimension(uint whichDim,
                    TMatrix<T> &out,
                    const TMatrix<T> &in)
 {
+  /*
+  std::cerr << "CopyDimension="
+            << whichDim << " "
+            << outInd << " "
+            << inInd << " "
+            << out.Debug(0) << " "
+            << in.Debug(0) << " "
+            << std::endl;
+  */
   assert(outInd < out.dim(whichDim));
   assert(inInd < in.dim(whichDim));
 
@@ -635,13 +644,6 @@ void CopyDimension(uint whichDim,
   assert(whichDim!=2? out.dim(2) == in.dim(2) : true);
   assert(whichDim!=3? out.dim(3) == in.dim(3) : true);
 
-  std::cerr << "CopyDimension="
-            << whichDim << " "
-            << outInd << " "
-            << inInd << " "
-            << out.Debug(0) << " "
-            << in.Debug(0) << " "
-            << std::endl;
   /*
   size_t dim[SHAPE_SIZE];
   dim[0] = out.dim(0);
