@@ -44,8 +44,8 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
     sdata[tid] = -3.40282e+38f;
 
     if (i < end) {
-      sdata[tid] = probsWrap(hypoInd, vocabInd, 0, 0);
-      //sdata[tid] = probsWrap[i];
+      //sdata[tid] = probsWrap(hypoInd, vocabInd, 0, 0);
+      sdata[tid] = probsWrap[i];
       indices[tid] = i;
     }
 
