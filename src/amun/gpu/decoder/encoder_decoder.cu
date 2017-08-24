@@ -274,7 +274,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
               bsGPU2.GetSourceContext(),
               bsGPU2.GetSentenceLengths(),
               SCU,
-              state.GetStates());
+              state.GetStates(),
+              state.GetEmbeddings());
 
     prevHyps.swap(survivors);
     ++decoderStep;
@@ -403,13 +404,15 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
                 mblas::Matrix &sourceContext,
                 mblas::IMatrix &sentenceLengths,
                 mblas::Matrix &SCU,
-                mblas::Matrix &states)
+                mblas::Matrix &states,
+                mblas::Matrix &embeddings)
 {
   cerr << "newSentences=" << newSentences.size() << endl;
   cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
   cerr << "SCU=" << SCU.Debug(0) << endl;
   cerr << "1states=" << states.Debug(0) << endl;
+  cerr << "1embeddings=" << embeddings.Debug(0) << endl;
 
   size_t currOutInd = beamSize.size();
 
@@ -420,7 +423,10 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   EnlargeMatrix(0, numNewSentences, sentenceLengths);
   EnlargeMatrix(3, numNewSentences, SCU);
   EnlargeMatrix(0, numNewSentences, states);
+  EnlargeMatrix(0, numNewSentences, embeddings);
+
   cerr << "2states=" << states.Debug(0) << endl;
+  cerr << "2embeddings=" << embeddings.Debug(0) << endl;
 
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
@@ -431,6 +437,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     const mblas::IMatrix &origSentenceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
     const mblas::Matrix &origSCU = encOut->GetSCU<mblas::Matrix>();
     const mblas::Matrix &origStates = encOut->GetStates<mblas::Matrix>();
+    const mblas::Matrix &origEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
 
     cerr << "sentenceInd=" << sentenceInd << endl;
     cerr << "currOutInd=" << currOutInd << endl;
@@ -438,6 +445,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
     cerr << "origStates=" << origStates.Debug(0) << endl;
+    cerr << "origEmbeddings=" << origEmbeddings.Debug(0) << endl;
 
     assert(currOutInd < sourceContext.dim(3));
     mblas::CopyDimension<float>(3, currOutInd, sentenceInd, sourceContext, origSourceContext);
@@ -450,6 +458,9 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
 
     assert(currOutInd < states.dim(0));
     mblas::CopyDimension<float>(0, currOutInd, sentenceInd, states, origStates);
+
+    assert(currOutInd < embeddings.dim(0));
+    mblas::CopyDimension<float>(0, currOutInd, sentenceInd, embeddings, origEmbeddings);
 
     ++currOutInd;
   }

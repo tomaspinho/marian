@@ -93,7 +93,8 @@ class EncoderDecoder : public Scorer {
                     mblas::Matrix &sourceContext,
                     mblas::IMatrix &sentenceLengths,
                     mblas::Matrix &SCU,
-                    mblas::Matrix &states);
+                    mblas::Matrix &states,
+                    mblas::Matrix &embeddings);
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
