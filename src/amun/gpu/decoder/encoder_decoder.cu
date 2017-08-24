@@ -273,7 +273,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
               histories.GetBeamSizes(),
               bsGPU2.GetSourceContext(),
               bsGPU2.GetSentenceLengths(),
-              SCU);
+              SCU,
+              state.GetStates());
 
     prevHyps.swap(survivors);
     ++decoderStep;
@@ -300,8 +301,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "3SCU=" << SCU.Debug(1) << endl;
     cerr << "completed=" << Debug(completed, 2) << endl;
     cerr << "newSentences=" << newSentences.size() << endl;
-    cerr << endl;
     */
+    cerr << endl;
   }
 }
 
@@ -334,7 +335,8 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
       cudaMemcpyHostToDevice);
 
   mblas::Assemble(out.GetStates(), nextStateMatrix, indices);
-  //cerr << "edOut.GetStates()=" << edOut.GetStates().Debug(1) << endl;
+  //cerr << "out.GetStates()=" << out.GetStates().Debug(0) << endl;
+  //cerr << "nextStateMatrix=" << nextStateMatrix.Debug(0) << endl;
 
   //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
   decoder_->Lookup(out.GetEmbeddings(), beamWords);
@@ -400,14 +402,14 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
                 BeamSize &beamSize,
                 mblas::Matrix &sourceContext,
                 mblas::IMatrix &sentenceLengths,
-                mblas::Matrix &SCU)
+                mblas::Matrix &SCU,
+                mblas::Matrix &states)
 {
-  /*
   cerr << "newSentences=" << newSentences.size() << endl;
   cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
   cerr << "SCU=" << SCU.Debug(0) << endl;
-  */
+  cerr << "states=" << states.Debug(0) << endl;
 
   size_t currOutInd = beamSize.size();
 
@@ -426,14 +428,14 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     const mblas::Matrix &origSourceContext = encOut->GetSourceContext<mblas::Matrix>();
     const mblas::IMatrix &origSentenceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
     const mblas::Matrix &origSCU = encOut->GetSCU<mblas::Matrix>();
+    const mblas::Matrix &origStates = encOut->GetStates<mblas::Matrix>();
 
-    /*
     cerr << "sentenceInd=" << sentenceInd << endl;
     cerr << "currOutInd=" << currOutInd << endl;
     cerr << "origSourceContext=" << origSourceContext.Debug(0) << endl;
     cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
-    */
+    cerr << "origStates=" << origStates.Debug(0) << endl;
 
     assert(currOutInd < sourceContext.dim(3));
     mblas::CopyDimension<float>(3, currOutInd, sentenceInd, sourceContext, origSourceContext);
