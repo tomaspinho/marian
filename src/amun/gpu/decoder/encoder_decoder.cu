@@ -198,11 +198,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "2state=" << state.Debug(1) << endl;
     cerr << "2SCU=" << SCU.Debug(1) << endl;
     cerr << "2nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "2probs_=" << probs.Debug(1) << endl;
     cerr << "2attention_=" << attention.Debug(1) << endl;
     */
 
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
+
+    cerr << "2bsGPU=" << bsGPU.Debug(1) << endl;
+    cerr << "2probs_=" << probs.Debug(1) << endl;
 
     BEGIN_TIMER("Decode");
     decoder_->Decode(nextStateMatrix,
@@ -213,6 +215,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                     SCU,
                     bsGPU);
     PAUSE_TIMER("Decode");
+
+    cerr << "3bsGPU=" << bsGPU.Debug(1) << endl;
+    cerr << "3probs_=" << probs.Debug(1) << endl;
 
     /*
     cerr << "3state=" << state.Debug(1) << endl;

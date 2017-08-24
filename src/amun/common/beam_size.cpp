@@ -93,20 +93,6 @@ void BeamSize::Decr(size_t ind)
   --total_;
 }
 
-void BeamSize::DeleteEmpty()
-{
-  size_t i = 0;
-  while (i < sentences_.size()) {
-    const SentenceElement &ele = sentences_[i];
-    if (ele.size) {
-      ++i;
-    }
-    else {
-      sentences_.erase(sentences_.begin() + i);
-    }
-  }
-}
-
 void BeamSize::DeleteEmpty(const std::vector<uint> &completed)
 {
   std::vector<uint> c2(completed);
@@ -136,13 +122,18 @@ std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
 
-  strm << "sentences_=" << sentences_.size();
+  strm << "total_=" << total_;
+  strm << " sentences_=" << sentences_.size();
 
   if (verbosity) {
+    uint sum = 0;
     for (size_t i = 0; i < sentences_.size(); ++i) {
       const SentenceElement &ele = sentences_[i];
       strm << " (" << ele.sentenceInd << "," << ele.size << ")";
+
+      sum += ele.size;
     }
+    assert(sum == total_);
   }
 
   return strm.str();
