@@ -136,57 +136,36 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   Hypotheses prevHyps;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   mblas::Matrix SCU;
-  size_t decoderStep;
+  size_t decoderStep = 0;
 
-  while (true) {
-    if (histories.size() == 0) {
-      // clean up previous
-      CleanUpAfterSentence();
+  // init batch
+  // read in next batch
+  EncOutPtr encOut = encDecBuffer_.Get();
+  assert(encOut);
 
-      LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
+  const Sentences &sentences = encOut->GetSentences();
+  if (sentences.size() == 0) {
+    return;
+  }
 
-      // read in next batch
-      EncOutPtr encOut = encDecBuffer_.Get();
-      assert(encOut);
+  timer.start();
 
-      const Sentences &sentences = encOut->GetSentences();
-      if (sentences.size() == 0) {
-        break;
-      }
+  // init states & histories/beams
+  const mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
+  const mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
+  const mblas::Matrix &bufSCU = encOut->GetSCU<mblas::Matrix>();
 
-      timer.start();
+  mblas::Matrix &states = state.GetStates();
+  mblas::Matrix &embeddings = state.GetEmbeddings();
+  states.Copy(bufStates);
+  embeddings.Copy(bufEmbeddings);
+  SCU.Copy(bufSCU);
 
-      //cerr << "sentences=" << sentences.size() << " " << sentences.GetMaxLength() << endl;
+  histories.Init(maxBeamSize, encOut);
+  prevHyps = histories.GetFirstHyps();
 
-      // init states & histories/beams
-      const mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
-      const mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
-      const mblas::Matrix &bufSCU = encOut->GetSCU<mblas::Matrix>();
-
-      mblas::Matrix &states = state.GetStates();
-      mblas::Matrix &embeddings = state.GetEmbeddings();
-      states.Copy(bufStates);
-      embeddings.Copy(bufEmbeddings);
-      SCU.Copy(bufSCU);
-
-      /*
-      cerr << "1state=" << state.Debug(1) << endl;
-      cerr << "1SCU=" << SCU.Debug(1) << endl;
-      */
-
-      histories.Init(maxBeamSize, encOut);
-      prevHyps = histories.GetFirstHyps();
-
-      /*
-      for (size_t i = 0; i < prevHyps.size(); ++i) {
-        Hypothesis *h = prevHyps[i].get();
-        cerr << h << " ";
-      }
-      cerr << endl;
-      */
-      decoderStep = 0;
-    }
-
+  // MAIN LOOP
+  while (histories.size()) {
     // decode
     boost::timer::cpu_timer timerStep;
 
@@ -195,9 +174,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     mblas::Matrix probs;
 
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
-
-    //cerr << "2bsGPU=" << bsGPU.Debug(1) << endl;
-    //cerr << "2probs_=" << probs.Debug(1) << endl;
 
     BEGIN_TIMER("Decode");
     decoder_->Decode(nextStateMatrix,
@@ -265,7 +241,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     prevHyps.swap(survivors);
     ++decoderStep;
-    remaining -= completed.size();
+    remaining += newSentences.size() - completed.size();
 
 
     LOG(progress)->info("Step {} took {}, survivors={}, completed={}, remaining={}",
