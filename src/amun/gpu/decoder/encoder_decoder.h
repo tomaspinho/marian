@@ -14,6 +14,9 @@
 
 
 namespace amunmt {
+
+class Histories;
+
 namespace GPU {
 
 class EncoderDecoderState;
@@ -92,7 +95,12 @@ class EncoderDecoder : public Scorer {
                     BeamSize &beamSize,
                     mblas::Matrix &sourceContext,
                     mblas::IMatrix &sentenceLengths,
-                    mblas::Matrix &SCU);
+                    mblas::Matrix &SCU,
+                    mblas::Matrix &states,
+                    mblas::Matrix &embeddings);
+
+    void AddHypos(const std::vector<EncOut::SentenceElement> &newSentences,
+                  Hypotheses &survivors, Histories &histories);
 
     EncoderDecoder(const EncoderDecoder&) = delete;
 };

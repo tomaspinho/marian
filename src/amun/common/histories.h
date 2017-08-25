@@ -25,6 +25,8 @@ public:
 
     void Init(uint maxBeamSize, EncOutPtr encOut);
 
+    HistoryPtr Add(const Sentence &sentence);
+
     size_t size() const {
       return coll_.size();
     }
@@ -35,6 +37,7 @@ public:
     Hypotheses GetFirstHyps() const;
 
     void SetNewBeamSize(uint val);
+    void SetFirst(bool val);
 
     const BeamSize &GetBeamSizes() const
     { return *beamSizes_; }

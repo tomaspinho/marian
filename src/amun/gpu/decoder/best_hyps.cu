@@ -30,10 +30,6 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
 
   using namespace mblas;
 
-  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-  HANDLE_ERROR( cudaDeviceSynchronize());
-  cerr << "1CalcBeam=" << endl;
-
   mblas::Matrix& probsGPU = static_cast<mblas::Matrix&>(probs);
 
   HostVector<float> vCosts;
@@ -42,39 +38,18 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   }
   mblas::copy(vCosts.begin(), vCosts.end(), Costs.begin());
 
-  const bool isFirst = (vCosts[0] == 0.0f) ? true : false;
-
-  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-  HANDLE_ERROR( cudaDeviceSynchronize());
-  cerr << "2CalcBeam=" << endl;
-
   BroadcastVecColumn(_1 + _2, probsGPU, Costs);
-
-  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-  HANDLE_ERROR( cudaDeviceSynchronize());
-  cerr << "3CalcBeam=" << endl;
 
   if (forbidUNK_) {
     DisAllowUNK(probsGPU);
   }
 
-  size_t beamSizeSum = beamSizes.GetTotal();
-  //cerr << "beamSizeSum=" << beamSizeSum << endl;
-
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
 
-  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-  HANDLE_ERROR( cudaDeviceSynchronize());
-  cerr << "4CalcBeam=" << endl;
-
-  nthElement_.getNBestList(beamSizes, probsGPU, bestCosts, bestKeys, isFirst);
+  nthElement_.getNBestList(beamSizes, probsGPU, bestCosts, bestKeys);
   //cerr << "bestCosts=" << amunmt::Debug(bestCosts, 2) << endl;
   //cerr << "bestKeys=" << amunmt::Debug(bestKeys, 2) << endl;
-
-  HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-  HANDLE_ERROR( cudaDeviceSynchronize());
-  cerr << "5CalcBeam=" << endl;
 
   std::vector<HostVector<float>> breakDowns;
   if (returnNBestList_) {
@@ -90,6 +65,9 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
     }
   }
 
+  size_t beamSizeSum = beamSizes.GetTotal();
+  //cerr << "beamSizeSum=" << beamSizeSum << endl;
+
   for (size_t i = 0; i < beamSizeSum; i++) {
     size_t wordIndex = bestKeys[i] % probsGPU.dim(1);
     if (isInputFiltered_) {
@@ -97,9 +75,9 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
     }
 
     size_t hypIndex  = bestKeys[i] / probsGPU.dim(1);
-    //std::cerr << "hypIndex=" << hypIndex << std::endl;
     float cost = bestCosts[i];
 
+    //std::cerr << "i=" << i << " hypIndex=" << hypIndex << " " << prevHyps.size() << std::endl;
     HypothesisPtr prevHyp = prevHyps.at(hypIndex);
     HypothesisPtr hyp;
     if (returnAttentionWeights_) {

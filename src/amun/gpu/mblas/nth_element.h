@@ -56,9 +56,8 @@ class NthElement {
     NthElement(uint maxBeamSize, uint maxBatchSize);
     virtual ~NthElement();
 
-    void getNBestList(const BeamSize& beamSizes, mblas::Matrix& Probs,
-                      std::vector<float>& outCosts, std::vector<uint>& outKeys,
-                      const bool isFirst=false);
+    void getNBestList(const BeamSize& beamSizes, mblas::Matrix& probs,
+                      std::vector<float>& outCosts, std::vector<uint>& outKeys);
 
     void GetPairs(uint number,
                   std::vector<uint>& outKeys,

@@ -26,10 +26,16 @@ void Histories::Init(uint maxBeamSize, EncOutPtr encOut)
   const Sentences &sentences = encOut->GetSentences();
   for (size_t i = 0; i < sentences.size(); ++i) {
     const Sentence &sentence = sentences.Get(i);
-    size_t lineNum = sentence.GetLineNum();
-    History *history = new History(sentence, normalizeScore_, 3 * sentence.size());
-    coll_[lineNum].reset(history);
+    Add(sentence);
   }
+}
+
+HistoryPtr Histories::Add(const Sentence &sentence)
+{
+  size_t lineNum = sentence.GetLineNum();
+  HistoryPtr history(new History(sentence, normalizeScore_, 3 * sentence.size()));
+  coll_[lineNum] = history;
+  return history;
 }
 
 std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god, const Beams& beams)
@@ -140,7 +146,7 @@ Hypotheses Histories::GetFirstHyps() const
     const HistoryPtr &history = iter->second;
     assert(history);
 
-    HypothesisPtr hypo = history->front().at(0);
+    HypothesisPtr hypo = history->GetFirstHyps();
     hypos.push_back(hypo);
   }
 
@@ -152,6 +158,10 @@ void Histories::SetNewBeamSize(uint val)
   beamSizes_->SetNewBeamSize(val);
 }
 
+void Histories::SetFirst(bool val)
+{
+  beamSizes_->SetFirst(val);
+}
 
 
 } // namespace

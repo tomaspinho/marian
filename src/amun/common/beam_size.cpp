@@ -47,10 +47,17 @@ void BeamSize::SetNewBeamSize(uint val)
       total_ += val - ele.size;
 
       ele.size = val;
-      ele.first = false;
     }
   }
 }
+
+void BeamSize::SetFirst(bool val)
+{
+  for (SentenceElement& ele : sentences_) {
+    ele.first = val;
+  }
+}
+
 
 uint BeamSize::GetTotal() const
 {
@@ -93,20 +100,6 @@ void BeamSize::Decr(size_t ind)
   --total_;
 }
 
-void BeamSize::DeleteEmpty()
-{
-  size_t i = 0;
-  while (i < sentences_.size()) {
-    const SentenceElement &ele = sentences_[i];
-    if (ele.size) {
-      ++i;
-    }
-    else {
-      sentences_.erase(sentences_.begin() + i);
-    }
-  }
-}
-
 void BeamSize::DeleteEmpty(const std::vector<uint> &completed)
 {
   std::vector<uint> c2(completed);
@@ -129,6 +122,8 @@ void BeamSize::AddNewSentences(const std::vector<EncOut::SentenceElement> &newSe
     SentenceElement outEle(inEle.encOut, inEle.sentenceInd, 1);
 
     sentences_.push_back(outEle);
+
+    total_ += outEle.size;
   }
 }
 
@@ -136,13 +131,18 @@ std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
 
-  strm << "sentences_=" << sentences_.size();
+  strm << "total_=" << total_;
+  strm << " sentences_=" << sentences_.size();
 
   if (verbosity) {
+    uint sum = 0;
     for (size_t i = 0; i < sentences_.size(); ++i) {
       const SentenceElement &ele = sentences_[i];
       strm << " (" << ele.sentenceInd << "," << ele.size << ")";
+
+      sum += ele.size;
     }
+    assert(sum == total_);
   }
 
   return strm.str();

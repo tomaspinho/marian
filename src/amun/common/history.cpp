@@ -34,6 +34,13 @@ void History::Add(const Beam& beam)
   history_.push_back(beam);
 }
 
+HypothesisPtr History::GetFirstHyps() const
+{
+  HypothesisPtr ret = history_.front().at(0);
+  assert(ret);
+  return ret;
+}
+
 NBestList History::NBest(size_t n) const {
   NBestList nbest;
   auto topHypsCopy = topHyps_;

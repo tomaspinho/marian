@@ -54,6 +54,7 @@ public:
   virtual void Init(uint maxBeamSize, EncOutPtr encOut);
 
   void SetNewBeamSize(uint val);
+  void SetFirst(bool val);
 
   size_t size() const
   { return sentences_.size(); }
@@ -74,7 +75,6 @@ public:
   void Decr(size_t ind);
   void DecrByLineNum(uint lineNum);
 
-  void DeleteEmpty();
   void DeleteEmpty(const std::vector<uint> &completed);
 
   void AddNewSentences(const std::vector<EncOut::SentenceElement> &newSentences);

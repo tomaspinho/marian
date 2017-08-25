@@ -636,7 +636,6 @@ void CopyDimension(uint whichDim,
             << in.Debug(0) << " "
             << std::endl;
   */
-
   assert(outInd < out.dim(whichDim));
   assert(inInd < in.dim(whichDim));
 

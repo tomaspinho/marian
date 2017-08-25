@@ -26,6 +26,11 @@ void EncOutBuffer::Get(size_t num, std::vector<EncOut::SentenceElement> &ret)
       unfinishedInd_ = 0;
     }
 
+    if (unfinishedEncOutPtr_->GetSentences().size() == 0) {
+      // no more sentences
+      return;
+    }
+
     assert(unfinishedEncOutPtr_);
     EncOut::SentenceElement ele(unfinishedEncOutPtr_, unfinishedInd_);
     ret.push_back(ele);

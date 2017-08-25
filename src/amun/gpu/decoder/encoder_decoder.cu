@@ -132,61 +132,39 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
   EDState state;
 
-  uint remaining;
   Hypotheses prevHyps;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   mblas::Matrix SCU;
-  size_t decoderStep;
+  size_t decoderStep = 0;
 
-  while (true) {
-    if (histories.size() == 0) {
-      // clean up previous
-      CleanUpAfterSentence();
+  // init batch
+  // read in next batch
+  EncOutPtr encOut = encDecBuffer_.Get();
+  assert(encOut);
 
-      LOG(progress)->info("Decoding took {}", timer.format(3, "%ws"));
+  const Sentences &sentences = encOut->GetSentences();
+  if (sentences.size() == 0) {
+    return;
+  }
 
-      // read in next batch
-      EncOutPtr encOut = encDecBuffer_.Get();
-      assert(encOut);
+  timer.start();
 
-      const Sentences &sentences = encOut->GetSentences();
-      if (sentences.size() == 0) {
-        break;
-      }
+  // init states & histories/beams
+  const mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
+  const mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
+  const mblas::Matrix &bufSCU = encOut->GetSCU<mblas::Matrix>();
 
-      timer.start();
+  mblas::Matrix &states = state.GetStates();
+  mblas::Matrix &embeddings = state.GetEmbeddings();
+  states.Copy(bufStates);
+  embeddings.Copy(bufEmbeddings);
+  SCU.Copy(bufSCU);
 
-      //cerr << "sentences=" << sentences.size() << " " << sentences.GetMaxLength() << endl;
+  histories.Init(maxBeamSize, encOut);
+  prevHyps = histories.GetFirstHyps();
 
-      // simulate completed vector
-      remaining = god.Get<uint>("mini-batch");
-      std::vector<uint> completed2(remaining);
-      for (uint i = 0; i < remaining; ++i) {
-        completed2[i] = i;
-      }
-
-      // init states & histories/beams
-      const mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
-      const mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
-      const mblas::Matrix &bufSCU = encOut->GetSCU<mblas::Matrix>();
-
-      mblas::Matrix &states = state.GetStates();
-      mblas::Matrix &embeddings = state.GetEmbeddings();
-      states.Copy(bufStates);
-      embeddings.Copy(bufEmbeddings);
-      SCU.Copy(bufSCU);
-
-      /*
-      cerr << "1state=" << state.Debug(1) << endl;
-      cerr << "1SCU=" << SCU.Debug(1) << endl;
-      */
-
-      histories.Init(maxBeamSize, encOut);
-      prevHyps = histories.GetFirstHyps();
-
-      decoderStep = 0;
-    }
-
+  // MAIN LOOP
+  while (histories.size()) {
     // decode
     boost::timer::cpu_timer timerStep;
 
@@ -194,22 +172,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     mblas::Matrix attention;
     mblas::Matrix probs;
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "1DecodeAsyncInternal=" << endl;
-   /*
-    cerr << "2state=" << state.Debug(1) << endl;
-    cerr << "2SCU=" << SCU.Debug(1) << endl;
-    cerr << "2nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "2probs_=" << probs.Debug(1) << endl;
-    cerr << "2attention_=" << attention.Debug(1) << endl;
-    */
-
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
-
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "2DecodeAsyncInternal=" << endl;
 
     BEGIN_TIMER("Decode");
     decoder_->Decode(nextStateMatrix,
@@ -221,65 +184,19 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                     bsGPU);
     PAUSE_TIMER("Decode");
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "3DecodeAsyncInternal=" << endl;
-
-    /*
-    cerr << "3state=" << state.Debug(1) << endl;
-    cerr << "3SCU=" << SCU.Debug(1) << endl;
-    cerr << "3nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "3probs_=" << probs.Debug(1) << endl;
-    cerr << "3attention_=" << attention.Debug(1) << endl;
-    */
     // beams
     histories.SetNewBeamSize(search_.MaxBeamSize());
-
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "4DecodeAsyncInternal=" << endl;
 
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, probs, attention, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "5DecodeAsyncInternal=" << endl;
-
-    /*
-    cerr << "4state=" << state.Debug(1) << endl;
-    cerr << "4SCU=" << SCU.Debug(1) << endl;
-    cerr << "4nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "4probs_=" << probs.Debug(1) << endl;
-    cerr << "4attention_=" << attention.Debug(1) << endl;
-    */
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
     const std::vector<uint> &completed = histOut.second;
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "6DecodeAsyncInternal=" << endl;
-
-    /*
-    cerr << "5state=" << state.Debug(1) << endl;
-    cerr << "5SCU=" << SCU.Debug(1) << endl;
-    cerr << "5nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "5probs_=" << probs.Debug(1) << endl;
-    cerr << "5attention_=" << attention.Debug(1) << endl;
-    */
     AssembleBeamState(nextStateMatrix, survivors, state);
-    /*
-    cerr << "6state=" << state.Debug(1) << endl;
-    cerr << "6SCU=" << SCU.Debug(1) << endl;
-    cerr << "6nextStateMatrix=" << nextStateMatrix.Debug(1) << endl;
-    cerr << "6probs_=" << probs.Debug(1) << endl;
-    cerr << "6attention_=" << attention.Debug(1) << endl;
-    */
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "7DecodeAsyncInternal=" << endl;
+    histories.SetFirst(false);
 
     size_t numCompleted = completed.size();
     std::vector<EncOut::SentenceElement> newSentences;
@@ -290,40 +207,34 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "8DecodeAsyncInternal=" << endl;
-
     ShrinkBatch(completed,
                 histories.GetBeamSizes(),
                 bsGPU2.GetSourceContext(),
                 bsGPU2.GetSentenceLengths(),
                 SCU);
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "9DecodeAsyncInternal=" << endl;
-
     AddToBatch(newSentences,
               histories.GetBeamSizes(),
               bsGPU2.GetSourceContext(),
               bsGPU2.GetSentenceLengths(),
-              SCU);
+              SCU,
+              state.GetStates(),
+              state.GetEmbeddings());
 
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    HANDLE_ERROR( cudaDeviceSynchronize());
-    cerr << "10DecodeAsyncInternal=" << endl;
+    AddHypos(newSentences, survivors, histories);
 
     prevHyps.swap(survivors);
     ++decoderStep;
-    remaining -= completed.size();
 
 
-    LOG(progress)->info("Step took {}, survivors={}, completed={}, remaining={}",
+    LOG(progress)->info("Step {} took {}, batch size={}, survivors={}, completed={}, newSentences={}",
+                        decoderStep,
                         timerStep.format(3, "%ws"),
+                        histories.size(),
                         survivors.size(),
                         completed.size(),
-                        remaining);
+                        newSentences.size()
+);
 
     /*
     cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
@@ -359,13 +270,9 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
      beamWords.push_back(h->GetWord());
      beamStateIds.push_back(h->GetPrevStateIndex());
   }
-  //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
-  //cerr << "beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
   DeviceVector<uint> indices(beamStateIds.size());
   //HostVector<uint> tmp = beamStateIds;
-
-  //cerr << "3 beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
   mblas::copy(beamStateIds.data(),
       beamStateIds.size(),
@@ -373,11 +280,8 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
       cudaMemcpyHostToDevice);
 
   mblas::Assemble(out.GetStates(), nextStateMatrix, indices);
-  //cerr << "edOut.GetStates()=" << edOut.GetStates().Debug(1) << endl;
 
-  //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
   decoder_->Lookup(out.GetEmbeddings(), beamWords);
-  //cerr << "edOut.GetEmbeddings()=" << edOut.GetEmbeddings().Debug(1) << endl;
 }
 
 BaseMatrix& EncoderDecoder::GetProbs() {
@@ -408,7 +312,6 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   size_t origBeamSize = beamSize.size();
   beamSize.DeleteEmpty(completed);
   size_t newBeamSize = beamSize.size();
-  //cerr << "origBeamSize=" << origBeamSize << " newBeamSize=" << newBeamSize << endl;
 
   // old ind -> new ind
   std::vector<uint> newIndices(newBeamSize, 99999);
@@ -423,7 +326,6 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
       ++newInd;
     }
   }
-  //cerr << "newIndices=" << Debug(newIndices, 2) << endl;
 
   // shrink matrices
 
@@ -439,14 +341,12 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
                 BeamSize &beamSize,
                 mblas::Matrix &sourceContext,
                 mblas::IMatrix &sentenceLengths,
-                mblas::Matrix &SCU)
+                mblas::Matrix &SCU,
+                mblas::Matrix &states,
+                mblas::Matrix &embeddings)
 {
-  cerr << "newSentences=" << newSentences.size() << endl;
-  cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
-  cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
-  cerr << "SCU=" << SCU.Debug(0) << endl;
-
-  size_t currOutInd = beamSize.size();
+  size_t currBatchInd = beamSize.size();
+  size_t currHypoInd = states.dim(0);
 
   beamSize.AddNewSentences(newSentences);
 
@@ -454,36 +354,74 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   EnlargeMatrix(3, numNewSentences, sourceContext);
   EnlargeMatrix(0, numNewSentences, sentenceLengths);
   EnlargeMatrix(3, numNewSentences, SCU);
+  EnlargeMatrix(0, numNewSentences, states);
+  EnlargeMatrix(0, numNewSentences, embeddings);
+
+  /*
+  cerr << "newSentences=" << newSentences.size() << endl;
+  cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
+  cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
+  cerr << "SCU=" << SCU.Debug(0) << endl;
+  cerr << "1states=" << states.Debug(0) << endl;
+  cerr << "1embeddings=" << embeddings.Debug(0) << endl;
+  */
 
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
     const EncOutPtr encOut = ele.encOut;
     size_t sentenceInd = ele.sentenceInd;
-    cerr << "sentenceInd=" << sentenceInd << endl;
 
     const mblas::Matrix &origSourceContext = encOut->GetSourceContext<mblas::Matrix>();
-    cerr << "origSourceContext=" << origSourceContext.Debug(0) << endl;
-
     const mblas::IMatrix &origSentenceLengths = encOut->GetSentenceLengths<mblas::IMatrix>();
-    cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
-
     const mblas::Matrix &origSCU = encOut->GetSCU<mblas::Matrix>();
+    const mblas::Matrix &origStates = encOut->GetStates<mblas::Matrix>();
+    const mblas::Matrix &origEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
+
+    /*
+    cerr << "sentenceInd=" << sentenceInd << endl;
+    cerr << "currBatchInd=" << currBatchInd << endl;
+    cerr << "currHypoInd=" << currHypoInd << endl;
+    cerr << "origSourceContext=" << origSourceContext.Debug(0) << endl;
+    cerr << "origSentenceLengths=" << origSentenceLengths.Debug(0) << endl;
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
+    cerr << "origStates=" << origStates.Debug(0) << endl;
+    cerr << "origEmbeddings=" << origEmbeddings.Debug(0) << endl;
+    */
 
-    assert(currOutInd < sourceContext.dim(3));
-    mblas::CopyDimension<float>(3, currOutInd, sentenceInd, sourceContext, origSourceContext);
+    assert(currBatchInd < sourceContext.dim(3));
+    mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, sourceContext, origSourceContext);
 
-    assert(currOutInd < sentenceLengths.dim(0));
-    mblas::CopyDimension<uint>(0, currOutInd, sentenceInd, sentenceLengths, origSentenceLengths);
+    assert(currBatchInd < sentenceLengths.dim(0));
+    mblas::CopyDimension<uint>(0, currBatchInd, sentenceInd, sentenceLengths, origSentenceLengths);
 
-    assert(currOutInd < SCU.dim(3));
-    mblas::CopyDimension<float>(3, currOutInd, sentenceInd, SCU, origSCU);
+    assert(currBatchInd < SCU.dim(3));
+    mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, SCU, origSCU);
 
-    ++currOutInd;
-    cerr << "currOutInd=" << currOutInd << endl;
+    assert(currBatchInd < states.dim(0));
+    mblas::CopyDimension<float>(0, currHypoInd, sentenceInd, states, origStates);
+
+    assert(currBatchInd < embeddings.dim(0));
+    mblas::CopyDimension<float>(0, currHypoInd, sentenceInd, embeddings, origEmbeddings);
+
+    ++currBatchInd;
+    ++currHypoInd;
+  }
+}
+
+void EncoderDecoder::AddHypos(const std::vector<EncOut::SentenceElement> &newSentences,
+              Hypotheses &survivors, Histories &histories)
+{
+  for (size_t i = 0; i < newSentences.size(); ++i) {
+    const EncOut::SentenceElement &ele = newSentences[i];
+    const Sentence &sentence = ele.GetSentence();
+
+    HistoryPtr history = histories.Add(sentence);
+    HypothesisPtr hypo = history->GetFirstHyps();
+
+    survivors.push_back(HypothesisPtr(hypo));
+
   }
 
-  cerr << "DONE AddToBatch" << endl;
 }
 
 }

@@ -289,7 +289,14 @@ Matrix& Assemble(Matrix& Out,
                  const Matrix& In,
                  const DeviceVector<uint>& indices) {
   Out.NewSize(indices.size(), In.dim(1));
-  //cerr << "Assemble=" << Out.Debug() << " " << In.Debug() << indices.size() << endl;
+
+  /*
+  cerr << "Assemble="
+      << Out.Debug(0) << " "
+      << In.Debug(0) << " "
+      << indices.size()
+      << endl;
+  */
 
   CopyRows(Out, In, indices);
   return Out;
