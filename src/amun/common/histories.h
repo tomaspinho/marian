@@ -25,6 +25,8 @@ public:
 
     void Init(uint maxBeamSize, EncOutPtr encOut);
 
+    void Add(const Sentence &sentence);
+
     size_t size() const {
       return coll_.size();
     }
