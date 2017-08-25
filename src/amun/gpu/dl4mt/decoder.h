@@ -348,7 +348,7 @@ class Decoder {
                 const mblas::Matrix& SCU,
                 const BeamSizeGPU& beamSizes) const
     {
-      BEGIN_TIMER("Decode");
+      BEGIN_TIMER("Decoder.Decode");
 
       mblas::Matrix HiddenState;
       mblas::Matrix AlignedSourceContext;
@@ -382,7 +382,7 @@ class Decoder {
       //std::cerr << "Probs_=" << Probs_.Debug(1) << std::endl;
       PAUSE_TIMER("GetProbs");
 
-      PAUSE_TIMER("Decode");
+      PAUSE_TIMER("Decoder.Decode");
     }
 
     void EmptyState(mblas::Matrix& State,
