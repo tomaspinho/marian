@@ -96,6 +96,9 @@ class EncoderDecoder : public Scorer {
                     mblas::Matrix &states,
                     mblas::Matrix &embeddings);
 
+    void AddHypos(const std::vector<EncOut::SentenceElement> &newSentences,
+                  Hypotheses &survivors);
+
     EncoderDecoder(const EncoderDecoder&) = delete;
 };
 
