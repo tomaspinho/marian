@@ -242,7 +242,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      //encDecBuffer_.Get(numCompleted, newSentences);
+      encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
@@ -261,12 +261,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
               state.GetStates(),
               state.GetEmbeddings());
 
+    cerr << "survivors=" << survivors.size() << endl;
+
     prevHyps.swap(survivors);
     ++decoderStep;
     remaining -= completed.size();
 
 
-    LOG(progress)->info("Step took {}, survivors={}, completed={}, remaining={}",
+    LOG(progress)->info("Step {} took {}, survivors={}, completed={}, remaining={}",
+                        decoderStep,
                         timerStep.format(3, "%ws"),
                         survivors.size(),
                         completed.size(),
