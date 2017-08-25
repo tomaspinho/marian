@@ -34,14 +34,16 @@ EncoderDecoder::EncoderDecoder(
   encDecBuffer_(3)
 
 {
+  BEGIN_TIMER("EncoderDecoder");
+
   std::thread *thread = new std::thread( [&]{ DecodeAsync(god); });
   decThread_.reset(thread);
-
 }
 
 EncoderDecoder::~EncoderDecoder()
 {
   decThread_->join();
+  PAUSE_TIMER("EncoderDecoder");
 }
 
 State* EncoderDecoder::NewState() const {
@@ -74,10 +76,10 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 
   }
 
+  PAUSE_TIMER("Encode");
+
   encDecBuffer_.Add(encOut);
   //cerr << "Encode encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
-
-  PAUSE_TIMER("Encode");
 }
 
 void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
