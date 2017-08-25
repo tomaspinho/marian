@@ -30,11 +30,12 @@ void Histories::Init(uint maxBeamSize, EncOutPtr encOut)
   }
 }
 
-void Histories::Add(const Sentence &sentence)
+HistoryPtr Histories::Add(const Sentence &sentence)
 {
   size_t lineNum = sentence.GetLineNum();
-  History *history = new History(sentence, normalizeScore_, 3 * sentence.size());
-  coll_[lineNum].reset(history);
+  HistoryPtr history(new History(sentence, normalizeScore_, 3 * sentence.size()));
+  coll_[lineNum] = history;
+  return history;
 }
 
 std::pair<Hypotheses, std::vector<uint> > Histories::AddAndOutput(const God &god, const Beams& beams)

@@ -158,13 +158,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
       //cerr << "sentences=" << sentences.size() << " " << sentences.GetMaxLength() << endl;
 
-      // simulate completed vector
-      remaining = god.Get<uint>("mini-batch");
-      std::vector<uint> completed2(remaining);
-      for (uint i = 0; i < remaining; ++i) {
-        completed2[i] = i;
-      }
-
       // init states & histories/beams
       const mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
       const mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
@@ -184,6 +177,13 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
       histories.Init(maxBeamSize, encOut);
       prevHyps = histories.GetFirstHyps();
 
+      /*
+      for (size_t i = 0; i < prevHyps.size(); ++i) {
+        Hypothesis *h = prevHyps[i].get();
+        cerr << h << " ";
+      }
+      cerr << endl;
+      */
       decoderStep = 0;
     }
 
@@ -242,7 +242,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      encDecBuffer_.Get(numCompleted, newSentences);
+      //encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
