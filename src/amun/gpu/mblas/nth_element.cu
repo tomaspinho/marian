@@ -303,16 +303,20 @@ void NthElement::getNBestList(const BeamSize& beamSizes, mblas::Matrix& probs,
   cerr << "isFirst=" << isFirst << endl;
   cerr << endl;
   */
+  const uint vocabSize = probs.dim(1);
+
   HostVector<uint> cummulatedBeamSizes(beamSizes.size() + 1);
   HostVector<uint> batchFirstElementIdxs(beamSizes.size() + 1);
   cummulatedBeamSizes[0] = 0;
   batchFirstElementIdxs[0] = 0;
 
-  const uint vocabSize = probs.dim(1);
   for (uint i = 0; i < beamSizes.size(); ++i) {
     const BeamSize::SentenceElement &ele = beamSizes.Get(i);
     cummulatedBeamSizes[i + 1] = cummulatedBeamSizes[i] + ele.size;
-    batchFirstElementIdxs[i + 1] = (ele.first ? (i + 1) : cummulatedBeamSizes[i + 1]) * vocabSize;
+
+    uint batchIncr = (ele.first ? 1 : ele.size) * vocabSize;
+    batchFirstElementIdxs[i + 1] = batchFirstElementIdxs[i] + batchIncr;
+    //batchFirstElementIdxs[i + 1] = (ele.first ? (i + 1) : cummulatedBeamSizes[i + 1]) * vocabSize;
   }
 
   cerr << "cummulatedBeamSizes=" << mblas::Debug(cummulatedBeamSizes, 2) << endl;
