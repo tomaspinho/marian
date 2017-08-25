@@ -132,7 +132,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
   EDState state;
 
-  uint remaining;
   Hypotheses prevHyps;
   Histories histories(new BeamSizeGPU(), search_.NormalizeScore());
   mblas::Matrix SCU;
@@ -185,34 +184,19 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                     bsGPU);
     PAUSE_TIMER("Decode");
 
-    //cerr << "3bsGPU=" << bsGPU.Debug(0) << endl;
-    //cerr << "3probs_=" << probs.Debug(0) << endl;
-
     // beams
     histories.SetNewBeamSize(search_.MaxBeamSize());
 
-    //cerr << "4bsGPU=" << bsGPU.Debug(1) << endl;
-    //cerr << "4probs_=" << probs.Debug(1) << endl;
-
     Beams beams;
     search_.BestHyps()->CalcBeam(prevHyps, probs, attention, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
-
-    //cerr << "5bsGPU=" << bsGPU.Debug(0) << endl;
-    //cerr << "5probs_=" << probs.Debug(0) << endl;
 
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
     Hypotheses &survivors = histOut.first;
     const std::vector<uint> &completed = histOut.second;
 
-    //cerr << "6bsGPU=" << bsGPU.Debug(0) << endl;
-    //cerr << "6probs_=" << probs.Debug(0) << endl;
-
     AssembleBeamState(nextStateMatrix, survivors, state);
 
     histories.SetFirst(false);
-
-    //cerr << "7bsGPU=" << bsGPU.Debug(0) << endl;
-    //cerr << "7probs_=" << probs.Debug(0) << endl;
 
     size_t numCompleted = completed.size();
     std::vector<EncOut::SentenceElement> newSentences;
@@ -241,15 +225,16 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     prevHyps.swap(survivors);
     ++decoderStep;
-    remaining += newSentences.size() - completed.size();
 
 
-    LOG(progress)->info("Step {} took {}, survivors={}, completed={}, remaining={}",
+    LOG(progress)->info("Step {} took {}, batch size={}, survivors={}, completed={}, newSentences={}",
                         decoderStep,
                         timerStep.format(3, "%ws"),
+                        histories.size(),
                         survivors.size(),
                         completed.size(),
-                        remaining);
+                        newSentences.size()
+);
 
     /*
     cerr << "3 nextState=" << nextStateMatrix.Debug(1) << endl;
@@ -265,8 +250,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     cerr << "3SCU=" << SCU.Debug(1) << endl;
     cerr << "completed=" << Debug(completed, 2) << endl;
     cerr << "newSentences=" << newSentences.size() << endl;
-    */
     cerr << endl;
+    */
   }
 }
 
@@ -285,13 +270,9 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
      beamWords.push_back(h->GetWord());
      beamStateIds.push_back(h->GetPrevStateIndex());
   }
-  //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
-  //cerr << "beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
   DeviceVector<uint> indices(beamStateIds.size());
   //HostVector<uint> tmp = beamStateIds;
-
-  //cerr << "3 beamStateIds=" << Debug(beamStateIds, 2) << endl;
 
   mblas::copy(beamStateIds.data(),
       beamStateIds.size(),
@@ -299,12 +280,8 @@ void EncoderDecoder::AssembleBeamState(const mblas::Matrix &nextStateMatrix,
       cudaMemcpyHostToDevice);
 
   mblas::Assemble(out.GetStates(), nextStateMatrix, indices);
-  //cerr << "out.GetStates()=" << out.GetStates().Debug(0) << endl;
-  //cerr << "nextStateMatrix=" << nextStateMatrix.Debug(0) << endl;
 
-  //cerr << "beamWords=" << Debug(beamWords, 2) << endl;
   decoder_->Lookup(out.GetEmbeddings(), beamWords);
-  //cerr << "edOut.GetEmbeddings()=" << edOut.GetEmbeddings().Debug(1) << endl;
 }
 
 BaseMatrix& EncoderDecoder::GetProbs() {
@@ -335,7 +312,6 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   size_t origBeamSize = beamSize.size();
   beamSize.DeleteEmpty(completed);
   size_t newBeamSize = beamSize.size();
-  //cerr << "origBeamSize=" << origBeamSize << " newBeamSize=" << newBeamSize << endl;
 
   // old ind -> new ind
   std::vector<uint> newIndices(newBeamSize, 99999);
@@ -350,7 +326,6 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
       ++newInd;
     }
   }
-  //cerr << "newIndices=" << Debug(newIndices, 2) << endl;
 
   // shrink matrices
 
@@ -382,12 +357,14 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   EnlargeMatrix(0, numNewSentences, states);
   EnlargeMatrix(0, numNewSentences, embeddings);
 
+  /*
   cerr << "newSentences=" << newSentences.size() << endl;
   cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
   cerr << "SCU=" << SCU.Debug(0) << endl;
   cerr << "1states=" << states.Debug(0) << endl;
   cerr << "1embeddings=" << embeddings.Debug(0) << endl;
+  */
 
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
@@ -400,6 +377,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     const mblas::Matrix &origStates = encOut->GetStates<mblas::Matrix>();
     const mblas::Matrix &origEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
 
+    /*
     cerr << "sentenceInd=" << sentenceInd << endl;
     cerr << "currBatchInd=" << currBatchInd << endl;
     cerr << "currHypoInd=" << currHypoInd << endl;
@@ -408,6 +386,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
     cerr << "origStates=" << origStates.Debug(0) << endl;
     cerr << "origEmbeddings=" << origEmbeddings.Debug(0) << endl;
+    */
 
     assert(currBatchInd < sourceContext.dim(3));
     mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, sourceContext, origSourceContext);
