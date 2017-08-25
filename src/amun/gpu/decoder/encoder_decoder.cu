@@ -262,7 +262,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
               state.GetEmbeddings());
 
     cerr << "1survivors=" << survivors.size() << endl;
-    AddHypos(newSentences, survivors);
+    AddHypos(newSentences, survivors, histories);
     cerr << "2survivors=" << survivors.size() << endl;
 
     prevHyps.swap(survivors);
@@ -462,7 +462,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
 }
 
 void EncoderDecoder::AddHypos(const std::vector<EncOut::SentenceElement> &newSentences,
-              Hypotheses &survivors)
+              Hypotheses &survivors, Histories &histories)
 {
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
