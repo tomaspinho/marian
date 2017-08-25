@@ -34,9 +34,7 @@ class History {
       return history_.size();
     }
 
-    Beam& front() {
-      return history_.front();
-    }
+    HypothesisPtr GetFirstHyps() const;
 
     NBestList NBest(size_t n) const;
 

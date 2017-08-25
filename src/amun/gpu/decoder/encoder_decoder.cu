@@ -242,7 +242,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      //encDecBuffer_.Get(numCompleted, newSentences);
+      encDecBuffer_.Get(numCompleted, newSentences);
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
@@ -468,7 +468,9 @@ void EncoderDecoder::AddHypos(const std::vector<EncOut::SentenceElement> &newSen
     const EncOut::SentenceElement &ele = newSentences[i];
     const Sentence &sentence = ele.GetSentence();
 
-    Hypothesis *hypo = new Hypothesis(sentence);
+    HistoryPtr history = histories.Add(sentence);
+    HypothesisPtr hypo = history->GetFirstHyps();
+
     survivors.push_back(HypothesisPtr(hypo));
 
   }

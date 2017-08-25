@@ -146,7 +146,7 @@ Hypotheses Histories::GetFirstHyps() const
     const HistoryPtr &history = iter->second;
     assert(history);
 
-    HypothesisPtr hypo = history->front().at(0);
+    HypothesisPtr hypo = history->GetFirstHyps();
     hypos.push_back(hypo);
   }
 
