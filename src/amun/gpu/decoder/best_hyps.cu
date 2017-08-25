@@ -32,8 +32,6 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
 
   mblas::Matrix& probsGPU = static_cast<mblas::Matrix&>(probs);
 
-  cerr << "1CalcBeam=" << endl;
-
   HostVector<float> vCosts;
   for (auto& h : prevHyps) {
     vCosts.push_back(h->GetCost());
@@ -46,8 +44,6 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
     DisAllowUNK(probsGPU);
   }
 
-  cerr << "2CalcBeam=" << endl;
-
   std::vector<float> bestCosts;
   std::vector<unsigned> bestKeys;
 
@@ -55,14 +51,10 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   //cerr << "bestCosts=" << amunmt::Debug(bestCosts, 2) << endl;
   //cerr << "bestKeys=" << amunmt::Debug(bestKeys, 2) << endl;
 
-  cerr << "3CalcBeam=" << endl;
-
   std::vector<HostVector<float>> breakDowns;
   if (returnNBestList_) {
       breakDowns.push_back(bestCosts);
   }
-
-  cerr << "4CalcBeam=" << endl;
 
   std::map<size_t, size_t> hypoToBatch;
   size_t tmp = 0;
@@ -73,10 +65,8 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
     }
   }
 
-  cerr << "5CalcBeam=" << endl;
-
   size_t beamSizeSum = beamSizes.GetTotal();
-  cerr << "beamSizeSum=" << beamSizeSum << endl;
+  //cerr << "beamSizeSum=" << beamSizeSum << endl;
 
   for (size_t i = 0; i < beamSizeSum; i++) {
     size_t wordIndex = bestKeys[i] % probsGPU.dim(1);
@@ -87,7 +77,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
     size_t hypIndex  = bestKeys[i] / probsGPU.dim(1);
     float cost = bestCosts[i];
 
-    std::cerr << "i=" << i << " hypIndex=" << hypIndex << " " << prevHyps.size() << std::endl;
+    //std::cerr << "i=" << i << " hypIndex=" << hypIndex << " " << prevHyps.size() << std::endl;
     HypothesisPtr prevHyp = prevHyps.at(hypIndex);
     HypothesisPtr hyp;
     if (returnAttentionWeights_) {
