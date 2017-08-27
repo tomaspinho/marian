@@ -245,45 +245,31 @@ class Decoder {
           mblas::Matrix T2;
           mblas::Matrix T3;
 
-          BEGIN_TIMER("GetProbs.Prod");
           Prod(/*h_[0],*/ T1, State, *w_.W1_);
-          PAUSE_TIMER("GetProbs.Prod");
 
-          BEGIN_TIMER("GetProbs.Normalization/BroadcastVec");
           if (w_.Gamma_1_->size()) {
             Normalization(T1, T1, *w_.Gamma_1_, *w_.B1_, 1e-9);
           } else {
             BroadcastVec(_1 + _2, T1, *w_.B1_ /*,s_[0]*/);
           }
-          PAUSE_TIMER("GetProbs.Normalization/BroadcastVec");
 
-          BEGIN_TIMER("GetProbs.Prod2");
           Prod(/*h_[1],*/ T2, Embedding, *w_.W2_);
-          PAUSE_TIMER("GetProbs.Prod2");
 
-          BEGIN_TIMER("GetProbs.Normalization/BroadcastVec2");
           if (w_.Gamma_0_->size()) {
             Normalization(T2, T2, *w_.Gamma_0_, *w_.B2_, 1e-9);
           } else {
             BroadcastVec(_1 + _2, T2, *w_.B2_ /*,s_[1]*/);
           }
-          PAUSE_TIMER("GetProbs.Normalization/BroadcastVec2");
 
-          BEGIN_TIMER("GetProbs.Prod3");
           Prod(/*h_[2],*/ T3, AlignedSourceContext, *w_.W3_);
-          PAUSE_TIMER("GetProbs.Prod3");
 
-          BEGIN_TIMER("GetProbs.Normalization/BroadcastVec3");
           if (w_.Gamma_2_->size()) {
             Normalization(T3, T3, *w_.Gamma_2_, *w_.B3_, 1e-9);
           } else {
             BroadcastVec(_1 + _2, T3, *w_.B3_ /*,s_[2]*/);
           }
-          PAUSE_TIMER("GetProbs.Normalization/BroadcastVec3");
 
-          BEGIN_TIMER("GetProbs.Element");
           Element(Tanh(_1 + _2 + _3), T1, T2, T3);
-          PAUSE_TIMER("GetProbs.Element");
 
           std::shared_ptr<mblas::Matrix> w4, b4;
           if(!filtered_) {
@@ -294,17 +280,11 @@ class Decoder {
             b4.reset(&FilteredB4_);
           }
 
-          BEGIN_TIMER("GetProbs.Prod4");
           Prod(Probs, T1, *w4);
-          PAUSE_TIMER("GetProbs.Prod4");
 
-          BEGIN_TIMER("GetProbs.BroadcastVec");
           BroadcastVec(_1 + _2, Probs, *b4);
-          PAUSE_TIMER("GetProbs.BroadcastVec");
 
-          BEGIN_TIMER("GetProbs.LogSoftMax");
           mblas::LogSoftmax(Probs);
-          PAUSE_TIMER("GetProbs.LogSoftMax");
         }
 
         void Filter(const std::vector<size_t>& ids) {
@@ -348,20 +328,15 @@ class Decoder {
                 const mblas::Matrix& SCU,
                 const BeamSizeGPU& beamSizes) const
     {
-      BEGIN_TIMER("Decode");
-
       mblas::Matrix HiddenState;
       mblas::Matrix AlignedSourceContext;
 
-      BEGIN_TIMER("GetHiddenState");
       //std::cerr << "State=" << State.Debug(1) << std::endl;
       //std::cerr << "Embeddings=" << Embeddings.Debug(1) << std::endl;
       GetHiddenState(HiddenState, State, Embeddings);
       //HiddenState.ReduceDimensions();
       //std::cerr << "HiddenState=" << HiddenState.Debug(1) << std::endl;
-      PAUSE_TIMER("GetHiddenState");
 
-      BEGIN_TIMER("GetAlignedSourceContext");
       GetAlignedSourceContext(AlignedSourceContext,
                               attention,
                               HiddenState,
@@ -370,19 +345,12 @@ class Decoder {
                               SCU,
                               beamSizes);
       //std::cerr << "AlignedSourceContext=" << AlignedSourceContext.Debug(1) << std::endl;
-      PAUSE_TIMER("GetAlignedSourceContext");
 
-      BEGIN_TIMER("GetNextState");
       GetNextState(NextState, HiddenState, AlignedSourceContext);
       //std::cerr << "NextState=" << NextState.Debug(1) << std::endl;
-      PAUSE_TIMER("GetNextState");
 
-      BEGIN_TIMER("GetProbs");
       GetProbs(probs, NextState, Embeddings, AlignedSourceContext);
       //std::cerr << "Probs_=" << Probs_.Debug(1) << std::endl;
-      PAUSE_TIMER("GetProbs");
-
-      PAUSE_TIMER("Decode");
     }
 
     void EmptyState(mblas::Matrix& State,

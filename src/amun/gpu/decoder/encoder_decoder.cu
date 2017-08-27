@@ -49,8 +49,6 @@ State* EncoderDecoder::NewState() const {
 }
 
 void EncoderDecoder::Encode(const SentencesPtr source) {
-  BEGIN_TIMER("Encode");
-
   EncOutPtr encOut(new EncOutGPU(source));
 
   if (source->size()) {
@@ -76,8 +74,6 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 
   encDecBuffer_.Add(encOut);
   //cerr << "Encode encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
-
-  PAUSE_TIMER("Encode");
 }
 
 void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
@@ -174,7 +170,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
 
-    BEGIN_TIMER("Decode");
     decoder_->Decode(nextStateMatrix,
                     probs,
                     attention,
@@ -182,7 +177,6 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
                     state.GetEmbeddings(),
                     SCU,
                     bsGPU);
-    PAUSE_TIMER("Decode");
 
     // beams
     histories.SetNewBeamSize(search_.MaxBeamSize());
