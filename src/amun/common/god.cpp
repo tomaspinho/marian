@@ -47,7 +47,13 @@ God::~God()
 
       int percent = (float) wallTime / (float) encDecWall * 100.0f;
 
-      cerr << iter->first << "\t" << timer.format(2, "%w") << " (" << percent << ")" << endl;
+      cerr << iter->first << " ";
+
+      for (int i = 0; i < ((int)35 - (int)iter->first.size()); ++i) {
+        cerr << " ";
+      }
+
+      cerr << timer.format(2, "%w") << " (" << percent << ")" << endl;
     }
   }
 }
