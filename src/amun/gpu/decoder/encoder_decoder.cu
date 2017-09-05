@@ -56,7 +56,9 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   EncOutPtr encOut(new EncOutGPU(source));
 
   if (source->size()) {
+    BEGIN_TIMER("Encode.Encode");
     encoder_->Encode(god_, *source, tab_, encOut);
+    PAUSE_TIMER("Encode.Encode");
 
     mblas::Matrix &bufStates = encOut->GetStates<mblas::Matrix>();
     mblas::Matrix &bufEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
@@ -67,13 +69,14 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 
     mblas::Matrix &SCU = encOut->GetSCU<mblas::Matrix>();
 
+    BEGIN_TIMER("Encode.BeginSentenceState");
     BeginSentenceState(bufStates,
                       bufEmbeddings,
                       SCU,
                       sourceContext,
                       sourceLengths,
                       batchSize);
-
+    PAUSE_TIMER("Encode.BeginSentenceState");
   }
 
   PAUSE_TIMER("Encode");
