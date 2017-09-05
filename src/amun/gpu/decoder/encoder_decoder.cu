@@ -56,6 +56,8 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
   EncOutPtr encOut(new EncOutGPU(source));
 
   if (source->size()) {
+    std::unique_lock<std::mutex> locker(mu);
+
     BEGIN_TIMER("Encode.Encode");
     encoder_->Encode(god_, *source, tab_, encOut);
     PAUSE_TIMER("Encode.Encode");
@@ -184,6 +186,8 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     mblas::Matrix probs;
 
     const BeamSizeGPU &bsGPU = static_cast<const BeamSizeGPU&>(histories.GetBeamSizes());
+
+    std::unique_lock<std::mutex> locker(mu);
 
     BEGIN_TIMER("DecodeAsyncInternal.Decode");
     decoder_->Decode(nextStateMatrix,

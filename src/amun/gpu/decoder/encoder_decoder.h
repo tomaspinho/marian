@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <yaml-cpp/yaml.h>
+#include <mutex>
 
 #include "common/scorer.h"
 #include "common/base_best_hyps.h"
@@ -71,6 +72,8 @@ class EncoderDecoder : public Scorer {
 
     EncOutBuffer encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;
+    std::mutex mu;
+
 
     void DecodeAsync(const God &god);
     void DecodeAsyncInternal(const God &god);
