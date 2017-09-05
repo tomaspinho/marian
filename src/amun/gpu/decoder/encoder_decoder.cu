@@ -78,8 +78,9 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 
   PAUSE_TIMER("Encode");
 
+  BEGIN_TIMER("encDecBuffer_.Add");
   encDecBuffer_.Add(encOut);
-  //cerr << "Encode encOut->sourceContext_=" << encOut->sourceContext_.Debug(0) << endl;
+  PAUSE_TIMER("encDecBuffer_.Add");
 }
 
 void EncoderDecoder::BeginSentenceState(mblas::Matrix &states,
@@ -131,7 +132,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   boost::timer::cpu_timer timer;
 
   BEGIN_TIMER("DecodeAsyncInternal.Total");
-  BEGIN_TIMER("DecodeAsyncInternal.Init");
+  //BEGIN_TIMER("DecodeAsyncInternal.Init");
 
   uint maxBeamSize = god.Get<uint>("beam-size");
 
@@ -168,7 +169,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   histories.Init(maxBeamSize, encOut);
   prevHyps = histories.GetFirstHyps();
 
-  PAUSE_TIMER("DecodeAsyncInternal.Init");
+  //PAUSE_TIMER("DecodeAsyncInternal.Init");
 
   // MAIN LOOP
   while (histories.size()) {
@@ -199,15 +200,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     search_.BestHyps()->CalcBeam(prevHyps, probs, attention, *this, search_.FilterIndices(), beams, histories.GetBeamSizes());
     PAUSE_TIMER("DecodeAsyncInternal.CalcBeam");
 
-    BEGIN_TIMER("DecodeAsyncInternal.AddAndOutput");
+    //BEGIN_TIMER("DecodeAsyncInternal.AddAndOutput");
     std::pair<Hypotheses, std::vector<uint> > histOut = histories.AddAndOutput(god, beams);
-    PAUSE_TIMER("DecodeAsyncInternal.AddAndOutput");
+    //PAUSE_TIMER("DecodeAsyncInternal.AddAndOutput");
     Hypotheses &survivors = histOut.first;
     const std::vector<uint> &completed = histOut.second;
 
-    BEGIN_TIMER("DecodeAsyncInternal.AssembleBeamState");
+    //BEGIN_TIMER("DecodeAsyncInternal.AssembleBeamState");
     AssembleBeamState(nextStateMatrix, survivors, state);
-    PAUSE_TIMER("DecodeAsyncInternal.AssembleBeamState");
+    //PAUSE_TIMER("DecodeAsyncInternal.AssembleBeamState");
 
     histories.SetFirst(false);
 
@@ -215,9 +216,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
-      BEGIN_TIMER("DecodeAsyncInternal.encDecBuffer_.Get");
+      //BEGIN_TIMER("DecodeAsyncInternal.encDecBuffer_.Get");
       encDecBuffer_.Get(numCompleted, newSentences);
-      PAUSE_TIMER("DecodeAsyncInternal.encDecBuffer_.Get");
+      //PAUSE_TIMER("DecodeAsyncInternal.encDecBuffer_.Get");
     }
 
     BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
@@ -240,9 +241,9 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
               state.GetEmbeddings());
     PAUSE_TIMER("DecodeAsyncInternal.AddToBatch");
 
-    BEGIN_TIMER("DecodeAsyncInternal.AddHypos");
+    //BEGIN_TIMER("DecodeAsyncInternal.AddHypos");
     AddHypos(newSentences, survivors, histories);
-    PAUSE_TIMER("DecodeAsyncInternal.AddHypos");
+    //PAUSE_TIMER("DecodeAsyncInternal.AddHypos");
 
     prevHyps.swap(survivors);
     ++decoderStep;
