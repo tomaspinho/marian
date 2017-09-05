@@ -72,7 +72,7 @@ class EncoderDecoder : public Scorer {
 
     EncOutBuffer encDecBuffer_;
     std::unique_ptr<std::thread> decThread_;
-    std::mutex mu;
+    //std::mutex mu;
 
 
     void DecodeAsync(const God &god);

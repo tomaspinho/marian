@@ -28,7 +28,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
 {
   using namespace mblas;
 
-  BEGIN_TIMER("CalcBeam");
+  //BEGIN_TIMER("CalcBeam");
 
   mblas::Matrix& probsGPU = static_cast<mblas::Matrix&>(probs);
 
@@ -102,7 +102,7 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
 
   }
 
-  PAUSE_TIMER("CalcBeam");
+  //PAUSE_TIMER("CalcBeam");
 }
 
 std::vector<SoftAlignmentPtr> BestHyps::GetAlignments(const BaseMatrix &attention, const Scorer& scorer, size_t hypIndex)

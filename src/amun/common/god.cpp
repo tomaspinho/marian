@@ -37,7 +37,7 @@ God::~God()
   Cleanup();
 
   if (timers.size()) {
-    boost::timer::nanosecond_type encDecWall = timers["EncoderDecoder"].elapsed().wall;
+    boost::timer::nanosecond_type encDecWall = timers["DecodeAsyncInternal.Total"].elapsed().wall;
 
     cerr << "timers:" << endl;
     for (auto iter = timers.begin(); iter != timers.end(); ++iter) {
