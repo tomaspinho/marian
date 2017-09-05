@@ -37,10 +37,17 @@ God::~God()
   Cleanup();
 
   if (timers.size()) {
+    boost::timer::nanosecond_type encDecWall = timers["EncoderDecoder"].elapsed().wall;
+
     cerr << "timers:" << endl;
     for (auto iter = timers.begin(); iter != timers.end(); ++iter) {
       const boost::timer::cpu_timer &timer = iter->second;
-      cerr << iter->first << "\t" << timer.format(2, "%w") << endl;
+      boost::timer::cpu_times t = timer.elapsed();
+      boost::timer::nanosecond_type wallTime = t.wall;
+
+      int percent = (float) wallTime / (float) encDecWall * 100.0f;
+
+      cerr << iter->first << "\t" << timer.format(2, "%w") << " (" << percent << ")" << endl;
     }
   }
 }
