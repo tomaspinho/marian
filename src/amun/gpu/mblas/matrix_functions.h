@@ -475,9 +475,9 @@ __global__ void gShrinkMatrix3(const MatrixWrapper<uint> newInd,
 }
 
 template<typename T>
-uint NewDim(uint dim, const TMatrix<T> &matrix, uint shrinkDim, uint sizeShrink, uint maxLenDim, uint maxLen)
+uint NewDim(uint dim, const TMatrix<T> &matrix, uint whichDim, uint sizeShrink, uint maxLenDim, uint maxLen)
 {
-  if (dim == shrinkDim) {
+  if (dim == whichDim) {
     return matrix.dim(dim) - sizeShrink;
   }
   //else if (dim == maxLenDim) {
@@ -577,8 +577,10 @@ void CopyMatrix(TMatrix<T> &out, const TMatrix<T> &in)
 }
 
 template<typename T>
-void EnlargeMatrix(uint whichDim, uint val,
-                 TMatrix<T> &matrix)
+void EnlargeMatrix(TMatrix<T> &matrix,
+                    uint whichDim, uint val,
+                    uint maxLenDim = 999,
+                    uint maxLen = 999)
 {
   TMatrix<T> out;
 

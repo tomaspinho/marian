@@ -398,11 +398,13 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   cerr << "BEFORE embeddings=" << embeddings.Debug(0) << endl;
 
   uint numNewSentences = newSentences.size();
-  EnlargeMatrix(3, numNewSentences, sourceContext);
-  EnlargeMatrix(0, numNewSentences, sentenceLengths);
-  EnlargeMatrix(3, numNewSentences, SCU);
-  EnlargeMatrix(0, numNewSentences, states);
-  EnlargeMatrix(0, numNewSentences, embeddings);
+  uint maxLength = beamSize.GetMaxLength();
+
+  EnlargeMatrix(sourceContext, 3, numNewSentences, 0, maxLength);
+  EnlargeMatrix(sentenceLengths, 0, numNewSentences, 0, maxLength);
+  EnlargeMatrix(SCU, 3, numNewSentences);
+  EnlargeMatrix(states, 0, numNewSentences);
+  EnlargeMatrix(embeddings, 0, numNewSentences);
 
   cerr << "AFTER sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "AFTER SCU=" << SCU.Debug(0) << endl;
