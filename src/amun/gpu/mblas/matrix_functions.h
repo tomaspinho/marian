@@ -475,11 +475,29 @@ __global__ void gShrinkMatrix3(const MatrixWrapper<uint> newInd,
 }
 
 template<typename T>
-void ShrinkMatrix(size_t sizeShrink,
+uint NewDim(uint dim, const TMatrix<T> &matrix, uint shrinkDim, uint sizeShrink, uint maxLenDim, uint maxLen)
+{
+  if (dim == shrinkDim) {
+    return matrix.dim(dim) - sizeShrink;
+  }
+  else if (dim == maxLenDim) {
+    return maxLen;
+  }
+  else {
+    return matrix.dim(dim);
+  }
+}
+
+template<typename T>
+void ShrinkMatrix(TMatrix<T> &matrix,
+                  size_t sizeShrink,
                   const DeviceVector<uint> &newInd,
                   uint whichDim,
-                  TMatrix<T> &matrix)
+                  uint maxLenDim = 999,
+                  uint maxLen = 999)
 {
+  assert(whichDim != maxLenDim);
+
   //thread_local TMatrix<T> out;
   TMatrix<T> out;
 
@@ -488,6 +506,12 @@ void ShrinkMatrix(size_t sizeShrink,
               matrix.dim(2) - (whichDim==2?sizeShrink:0),
               matrix.dim(3) - (whichDim==3?sizeShrink:0));
 
+  /*
+  out.NewSize(NewDim(0, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
+              NewDim(1, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
+              NewDim(2, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
+              NewDim(3, matrix, whichDim, sizeShrink, maxLenDim, maxLen));
+  */
   /*
   cerr << "sizeShrink=" << sizeShrink
       << " matrix=" << matrix.Debug(0)

@@ -359,13 +359,23 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   }
 
   // shrink matrices
+  cerr << "BEFORE sourceContext=" << sourceContext.Debug(0) << endl;
+  cerr << "BEFORE SCU=" << SCU.Debug(0) << endl;
+  cerr << "BEFORE sentenceLengths=" << sentenceLengths.Debug(0) << endl;
 
   size_t sizeShrink = completed.size();
   DeviceVector<uint> d_newIndices(newIndices);
-  ShrinkMatrix(sizeShrink, d_newIndices, 3, sourceContext);
-  ShrinkMatrix(sizeShrink, d_newIndices, 3, SCU);
 
-  ShrinkMatrix(sizeShrink, d_newIndices, 0, sentenceLengths);
+  uint maxLength = beamSize.GetMaxLength();
+
+  ShrinkMatrix(sourceContext, sizeShrink, d_newIndices, 3, 0, maxLength);
+  ShrinkMatrix(SCU, sizeShrink, d_newIndices, 3, 0, maxLength);
+
+  ShrinkMatrix(sentenceLengths, sizeShrink, d_newIndices, 0);
+
+  cerr << "AFTER sourceContext=" << sourceContext.Debug(0) << endl;
+  cerr << "AFTER SCU=" << SCU.Debug(0) << endl;
+  cerr << "AFTER sentenceLengths=" << sentenceLengths.Debug(0) << endl;
 }
 
 void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newSentences,
