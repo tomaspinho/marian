@@ -480,9 +480,9 @@ uint NewDim(uint dim, const TMatrix<T> &matrix, uint shrinkDim, uint sizeShrink,
   if (dim == shrinkDim) {
     return matrix.dim(dim) - sizeShrink;
   }
-  else if (dim == maxLenDim) {
-    return maxLen;
-  }
+  //else if (dim == maxLenDim) {
+  //  return maxLen;
+  //}
   else {
     return matrix.dim(dim);
   }
@@ -501,17 +501,11 @@ void ShrinkMatrix(TMatrix<T> &matrix,
   //thread_local TMatrix<T> out;
   TMatrix<T> out;
 
-  out.NewSize(matrix.dim(0) - (whichDim==0?sizeShrink:0),
-              matrix.dim(1) - (whichDim==1?sizeShrink:0),
-              matrix.dim(2) - (whichDim==2?sizeShrink:0),
-              matrix.dim(3) - (whichDim==3?sizeShrink:0));
-
-  /*
   out.NewSize(NewDim(0, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
               NewDim(1, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
               NewDim(2, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
               NewDim(3, matrix, whichDim, sizeShrink, maxLenDim, maxLen));
-  */
+
   /*
   cerr << "sizeShrink=" << sizeShrink
       << " matrix=" << matrix.Debug(0)
