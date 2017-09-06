@@ -105,12 +105,33 @@ void BeamSize::DeleteEmpty(const std::vector<uint> &completed)
   std::sort(c2.rbegin(), c2.rend());
   //cerr << "c2=" << amunmt::Debug(c2, 2) << endl;
 
+  bool recalcMaxLen = false;
   for (size_t i = 0; i < c2.size(); ++i) {
     size_t ind = c2[i];
     const SentenceElement &ele = sentences_[ind];
     assert(ele.size == 0);
 
+    const Sentence &sentence = ele.GetSentence();
+    size_t size = sentence.size();
+    assert(size <= maxLength_);
+    if (size == maxLength_) {
+      recalcMaxLen = true;
+    }
+
     sentences_.erase(sentences_.begin() + ind);
+  }
+
+  if (recalcMaxLen) {
+    maxLength_ = 0;
+    for (size_t i = 0; i < sentences_.size(); ++i) {
+      const SentenceElement &ele = sentences_[i];
+      const Sentence &sentence = ele.GetSentence();
+      size_t size = sentence.size();
+
+      if (size > maxLength_) {
+        maxLength_ = size;
+      }
+    }
   }
 }
 
@@ -136,8 +157,9 @@ std::string BeamSize::Debug(size_t verbosity) const
 {
   stringstream strm;
 
-  strm << "total_=" << total_;
   strm << " sentences_=" << sentences_.size();
+  strm << "total_=" << total_;
+  strm << " maxLength_=" << maxLength_;
 
   if (verbosity) {
     uint sum = 0;
