@@ -359,9 +359,9 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
   }
 
   // shrink matrices
-  cerr << "BEFORE sourceContext=" << sourceContext.Debug(0) << endl;
-  cerr << "BEFORE SCU=" << SCU.Debug(0) << endl;
-  cerr << "BEFORE sentenceLengths=" << sentenceLengths.Debug(0) << endl;
+  //cerr << "BEFORE sourceContext=" << sourceContext.Debug(0) << endl;
+  //cerr << "BEFORE SCU=" << SCU.Debug(0) << endl;
+  //cerr << "BEFORE sentenceLengths=" << sentenceLengths.Debug(0) << endl;
 
   size_t sizeShrink = completed.size();
   DeviceVector<uint> d_newIndices(newIndices);
@@ -373,9 +373,9 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
 
   ShrinkMatrix(sentenceLengths, 0, sizeShrink, d_newIndices);
 
-  cerr << "AFTER sourceContext=" << sourceContext.Debug(0) << endl;
-  cerr << "AFTER SCU=" << SCU.Debug(0) << endl;
-  cerr << "AFTER sentenceLengths=" << sentenceLengths.Debug(0) << endl;
+  //cerr << "AFTER sourceContext=" << sourceContext.Debug(0) << endl;
+  //cerr << "AFTER SCU=" << SCU.Debug(0) << endl;
+  //cerr << "AFTER sentenceLengths=" << sentenceLengths.Debug(0) << endl;
 }
 
 void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newSentences,
@@ -391,6 +391,12 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
 
   beamSize.AddNewSentences(newSentences);
 
+  cerr << "BEFORE sourceContext=" << sourceContext.Debug(0) << endl;
+  cerr << "BEFORE SCU=" << SCU.Debug(0) << endl;
+  cerr << "BEFORE sentenceLengths=" << sentenceLengths.Debug(0) << endl;
+  cerr << "BEFORE states=" << states.Debug(0) << endl;
+  cerr << "BEFORE embeddings=" << embeddings.Debug(0) << endl;
+
   uint numNewSentences = newSentences.size();
   EnlargeMatrix(3, numNewSentences, sourceContext);
   EnlargeMatrix(0, numNewSentences, sentenceLengths);
@@ -398,14 +404,11 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   EnlargeMatrix(0, numNewSentences, states);
   EnlargeMatrix(0, numNewSentences, embeddings);
 
-  /*
-  cerr << "newSentences=" << newSentences.size() << endl;
-  cerr << "sourceContext=" << sourceContext.Debug(0) << endl;
-  cerr << "sentenceLengths=" << sentenceLengths.Debug(0) << endl;
-  cerr << "SCU=" << SCU.Debug(0) << endl;
-  cerr << "1states=" << states.Debug(0) << endl;
-  cerr << "1embeddings=" << embeddings.Debug(0) << endl;
-  */
+  cerr << "AFTER sourceContext=" << sourceContext.Debug(0) << endl;
+  cerr << "AFTER SCU=" << SCU.Debug(0) << endl;
+  cerr << "AFTER sentenceLengths=" << sentenceLengths.Debug(0) << endl;
+  cerr << "AFTER states=" << states.Debug(0) << endl;
+  cerr << "AFTER embeddings=" << embeddings.Debug(0) << endl;
 
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
