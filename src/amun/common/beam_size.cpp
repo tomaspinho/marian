@@ -30,7 +30,6 @@ void BeamSize::Init(uint maxBeamSize, EncOutPtr encOut)
     //cerr << "BeamSize lineNum=" << lineNum << " " << sentence.GetLineNum() << endl;
 
     SentenceElement &ele = (sentences_[i] = SentenceElement(encOut, i, 1));
-    sentencesMap_[lineNum] = &ele;
 
     if (sentence.size() > maxLength_) {
       maxLength_ = sentence.size();
@@ -124,6 +123,12 @@ void BeamSize::AddNewSentences(const std::vector<EncOut::SentenceElement> &newSe
     sentences_.push_back(outEle);
 
     total_ += outEle.size;
+
+    const Sentence &sentence = inEle.GetSentence();
+    size_t size = sentence.size();
+    if (size > maxLength_) {
+      maxLength_ = size;
+    }
   }
 }
 
@@ -148,32 +153,6 @@ std::string BeamSize::Debug(size_t verbosity) const
   return strm.str();
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////
-const BeamSize::SentenceElement &BeamSize::GetByLineNum(uint lineNum) const
-{
-  Map::const_iterator iter = sentencesMap_.find(lineNum);
-  assert(iter != sentencesMap_.end());
-  const SentenceElement *ele = iter->second;
-  return *ele;
-}
-
-BeamSize::SentenceElement &BeamSize::GetByLineNum(uint lineNum)
-{
-  Map::iterator iter = sentencesMap_.find(lineNum);
-  assert(iter != sentencesMap_.end());
-  SentenceElement *ele = iter->second;
-  return *ele;
-}
-
-void BeamSize::DecrByLineNum(uint lineNum)
-{
-  SentenceElement &ele = GetByLineNum(lineNum);
-  ele.Decr();
-
-  --total_;
-
-}
 
 ///////////////////////////////////////////////////////////////////////////////////
 
