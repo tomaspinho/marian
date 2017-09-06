@@ -490,9 +490,9 @@ uint NewDim(uint dim, const TMatrix<T> &matrix, uint shrinkDim, uint sizeShrink,
 
 template<typename T>
 void ShrinkMatrix(TMatrix<T> &matrix,
+                  uint whichDim,
                   size_t sizeShrink,
                   const DeviceVector<uint> &newInd,
-                  uint whichDim,
                   uint maxLenDim = 999,
                   uint maxLen = 999)
 {

@@ -368,10 +368,10 @@ void EncoderDecoder::ShrinkBatch(const std::vector<uint> &completed,
 
   uint maxLength = beamSize.GetMaxLength();
 
-  ShrinkMatrix(sourceContext, sizeShrink, d_newIndices, 3, 0, maxLength);
-  ShrinkMatrix(SCU, sizeShrink, d_newIndices, 3, 0, maxLength);
+  ShrinkMatrix(sourceContext, 3, sizeShrink, d_newIndices, 0, maxLength);
+  ShrinkMatrix(SCU, 3, sizeShrink, d_newIndices, 0, maxLength);
 
-  ShrinkMatrix(sentenceLengths, sizeShrink, d_newIndices, 0);
+  ShrinkMatrix(sentenceLengths, 0, sizeShrink, d_newIndices);
 
   cerr << "AFTER sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "AFTER SCU=" << SCU.Debug(0) << endl;
