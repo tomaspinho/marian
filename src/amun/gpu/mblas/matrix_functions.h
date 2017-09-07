@@ -608,12 +608,6 @@ void EnlargeMatrix(TMatrix<T> &matrix,
   out.swap(matrix);
 }
 
-void CopyDimension(uint whichDim,
-                   uint outInd,
-                   uint inInd,
-                   TMatrix<float> &out,
-                   const TMatrix<float> &in);
-
 /////////////////////////////////////////////////////////////////////////
 
 template<typename T>
