@@ -424,7 +424,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     const mblas::Matrix &origStates = encOut->GetStates<mblas::Matrix>();
     const mblas::Matrix &origEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
 
-    /*
+
     cerr << "sentenceInd=" << sentenceInd << endl;
     cerr << "currBatchInd=" << currBatchInd << endl;
     cerr << "currHypoInd=" << currHypoInd << endl;
@@ -433,7 +433,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
     cerr << "origStates=" << origStates.Debug(0) << endl;
     cerr << "origEmbeddings=" << origEmbeddings.Debug(0) << endl;
-    */
+
 
     assert(currBatchInd < sourceContext.dim(3));
     mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, sourceContext, origSourceContext);
