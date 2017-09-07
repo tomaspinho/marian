@@ -399,15 +399,17 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
 
   beamSize.AddNewSentences(newSentences);
 
+  /*
   cerr << "BEFORE sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "BEFORE SCU=" << SCU.Debug(0) << endl;
   cerr << "BEFORE sentenceLengths=" << sentenceLengths.Debug(0) << endl;
   cerr << "BEFORE states=" << states.Debug(0) << endl;
   cerr << "BEFORE embeddings=" << embeddings.Debug(0) << endl;
+  */
 
   uint numNewSentences = newSentences.size();
   uint maxLength = beamSize.GetMaxLength();
-  cerr << "maxLength=" << maxLength << endl;
+  //cerr << "maxLength=" << maxLength << endl;
 
   EnlargeMatrix(sourceContext, 3, numNewSentences, 0, maxLength);
   EnlargeMatrix(SCU, 3, numNewSentences, 0, maxLength);
@@ -416,11 +418,13 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   EnlargeMatrix(states, 0, numNewSentences);
   EnlargeMatrix(embeddings, 0, numNewSentences);
 
+  /*
   cerr << "AFTER sourceContext=" << sourceContext.Debug(0) << endl;
   cerr << "AFTER SCU=" << SCU.Debug(0) << endl;
   cerr << "AFTER sentenceLengths=" << sentenceLengths.Debug(0) << endl;
   cerr << "AFTER states=" << states.Debug(0) << endl;
   cerr << "AFTER embeddings=" << embeddings.Debug(0) << endl;
+  */
 
   for (size_t i = 0; i < newSentences.size(); ++i) {
     const EncOut::SentenceElement &ele = newSentences[i];
@@ -433,7 +437,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     const mblas::Matrix &origStates = encOut->GetStates<mblas::Matrix>();
     const mblas::Matrix &origEmbeddings = encOut->GetEmbeddings<mblas::Matrix>();
 
-
+    /*
     cerr << "sentenceInd=" << sentenceInd << endl;
     cerr << "currBatchInd=" << currBatchInd << endl;
     cerr << "currHypoInd=" << currHypoInd << endl;
@@ -442,40 +446,22 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     cerr << "origSCU=" << origSCU.Debug(0) << endl;
     cerr << "origStates=" << origStates.Debug(0) << endl;
     cerr << "origEmbeddings=" << origEmbeddings.Debug(0) << endl;
+    */
 
-    cerr << "AddToBatch0" << endl;
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-    cerr << "AddToBatch1" << endl;
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
     assert(currBatchInd < sourceContext.dim(3));
     mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, sourceContext, origSourceContext);
-
-    cerr << "AddToBatch2" << endl;
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
 
     assert(currBatchInd < sentenceLengths.dim(0));
     mblas::CopyDimension<uint>(0, currBatchInd, sentenceInd, sentenceLengths, origSentenceLengths);
 
-    cerr << "AddToBatch3" << endl;
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-
     assert(currBatchInd < SCU.dim(3));
     mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, SCU, origSCU);
-
-    cerr << "AddToBatch4" << endl;
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
 
     assert(currBatchInd < states.dim(0));
     mblas::CopyDimension<float>(0, currHypoInd, sentenceInd, states, origStates);
 
-    cerr << "AddToBatch5" << endl;
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
-
     assert(currBatchInd < embeddings.dim(0));
     mblas::CopyDimension<float>(0, currHypoInd, sentenceInd, embeddings, origEmbeddings);
-
-    cerr << "AddToBatch6" << endl;
-    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
 
     ++currBatchInd;
     ++currHypoInd;

@@ -480,9 +480,9 @@ uint NewDim(uint dim, const TMatrix<T> &matrix, uint whichDim, uint sizeShrink, 
   if (dim == whichDim) {
     return matrix.dim(dim) - sizeShrink;
   }
-  //else if (dim == maxLenDim) {
-  //  return maxLen;
-  //}
+  else if (dim == maxLenDim) {
+    return maxLen;
+  }
   else {
     return matrix.dim(dim);
   }
@@ -500,7 +500,6 @@ void ShrinkMatrix(TMatrix<T> &matrix,
 
   //thread_local TMatrix<T> out;
   TMatrix<T> out;
-
   out.NewSize(NewDim(0, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
               NewDim(1, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
               NewDim(2, matrix, whichDim, sizeShrink, maxLenDim, maxLen),
@@ -582,9 +581,9 @@ uint NewDim2(uint dim, const TMatrix<T> &matrix, uint whichDim, uint sizeEnlarge
   if (dim == whichDim) {
     return matrix.dim(dim) + sizeEnlarge;
   }
-  //else if (dim == maxLenDim) {
-  //  return maxLen;
-  //}
+  else if (dim == maxLenDim) {
+    return maxLen;
+  }
   else {
     return matrix.dim(dim);
   }
@@ -597,7 +596,6 @@ void EnlargeMatrix(TMatrix<T> &matrix,
                     uint maxLen = 999)
 {
   TMatrix<T> out;
-
   out.NewSize(NewDim2(0, matrix, whichDim, val, maxLenDim, maxLen),
               NewDim2(1, matrix, whichDim, val, maxLenDim, maxLen),
               NewDim2(2, matrix, whichDim, val, maxLenDim, maxLen),
@@ -655,6 +653,7 @@ void CopyDimension(uint whichDim,
                    TMatrix<T> &out,
                    const TMatrix<T> &in)
 {
+  /*
   std::cerr << "CopyDimension="
             << whichDim << " "
             << outInd << " "
@@ -662,7 +661,7 @@ void CopyDimension(uint whichDim,
             << out.Debug(0) << " "
             << in.Debug(0) << " "
             << std::endl;
-
+  */
   assert(outInd < out.dim(whichDim));
   assert(inInd < in.dim(whichDim));
 
