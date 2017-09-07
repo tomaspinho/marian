@@ -577,6 +577,20 @@ void CopyMatrix(TMatrix<T> &out, const TMatrix<T> &in)
 }
 
 template<typename T>
+uint NewDim2(uint dim, const TMatrix<T> &matrix, uint whichDim, uint sizeEnlarge, uint maxLenDim, uint maxLen)
+{
+  if (dim == whichDim) {
+    return matrix.dim(dim) + sizeEnlarge;
+  }
+  //else if (dim == maxLenDim) {
+  //  return maxLen;
+  //}
+  else {
+    return matrix.dim(dim);
+  }
+}
+
+template<typename T>
 void EnlargeMatrix(TMatrix<T> &matrix,
                     uint whichDim, uint val,
                     uint maxLenDim = 999,
@@ -584,10 +598,10 @@ void EnlargeMatrix(TMatrix<T> &matrix,
 {
   TMatrix<T> out;
 
-  out.NewSize(matrix.dim(0) + (whichDim==0?val:0),
-              matrix.dim(1) + (whichDim==1?val:0),
-              matrix.dim(2) + (whichDim==2?val:0),
-              matrix.dim(3) + (whichDim==3?val:0));
+  out.NewSize(NewDim2(0, matrix, whichDim, val, maxLenDim, maxLen),
+              NewDim2(1, matrix, whichDim, val, maxLenDim, maxLen),
+              NewDim2(2, matrix, whichDim, val, maxLenDim, maxLen),
+              NewDim2(3, matrix, whichDim, val, maxLenDim, maxLen));
 
   CopyMatrix(out, matrix);
 
