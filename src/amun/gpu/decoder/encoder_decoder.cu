@@ -401,8 +401,9 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
   uint maxLength = beamSize.GetMaxLength();
 
   EnlargeMatrix(sourceContext, 3, numNewSentences, 0, maxLength);
-  EnlargeMatrix(sentenceLengths, 0, numNewSentences, 0, maxLength);
-  EnlargeMatrix(SCU, 3, numNewSentences);
+  EnlargeMatrix(SCU, 3, numNewSentences, 0, maxLength);
+
+  EnlargeMatrix(sentenceLengths, 0, numNewSentences);
   EnlargeMatrix(states, 0, numNewSentences);
   EnlargeMatrix(embeddings, 0, numNewSentences);
 
