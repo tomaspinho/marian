@@ -71,6 +71,10 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
 
     mblas::Matrix &SCU = encOut->GetSCU<mblas::Matrix>();
 
+    //cerr << "1Encode:sourceContext=" << sourceContext.Debug(0) << endl;
+    //cerr << "1Encode:SCU=" << SCU.Debug(0) << endl;
+    //cerr << "1Encode:sourceLengths=" << sourceLengths.Debug(0) << endl;
+
     BEGIN_TIMER("Encode.BeginSentenceState");
     BeginSentenceState(bufStates,
                       bufEmbeddings,
@@ -79,6 +83,10 @@ void EncoderDecoder::Encode(const SentencesPtr source) {
                       sourceLengths,
                       batchSize);
     PAUSE_TIMER("Encode.BeginSentenceState");
+
+    //cerr << "2Encode:sourceContext=" << sourceContext.Debug(0) << endl;
+    //cerr << "2Encode:SCU=" << SCU.Debug(0) << endl;
+    //cerr << "2Encode:sourceLengths=" << sourceLengths.Debug(0) << endl;
   }
 
   PAUSE_TIMER("Encode");
@@ -399,6 +407,7 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
 
   uint numNewSentences = newSentences.size();
   uint maxLength = beamSize.GetMaxLength();
+  cerr << "maxLength=" << maxLength << endl;
 
   EnlargeMatrix(sourceContext, 3, numNewSentences, 0, maxLength);
   EnlargeMatrix(SCU, 3, numNewSentences, 0, maxLength);
@@ -434,21 +443,39 @@ void EncoderDecoder::AddToBatch(const std::vector<EncOut::SentenceElement> &newS
     cerr << "origStates=" << origStates.Debug(0) << endl;
     cerr << "origEmbeddings=" << origEmbeddings.Debug(0) << endl;
 
-
+    cerr << "AddToBatch0" << endl;
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+    cerr << "AddToBatch1" << endl;
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
     assert(currBatchInd < sourceContext.dim(3));
     mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, sourceContext, origSourceContext);
+
+    cerr << "AddToBatch2" << endl;
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
 
     assert(currBatchInd < sentenceLengths.dim(0));
     mblas::CopyDimension<uint>(0, currBatchInd, sentenceInd, sentenceLengths, origSentenceLengths);
 
+    cerr << "AddToBatch3" << endl;
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+
     assert(currBatchInd < SCU.dim(3));
     mblas::CopyDimension<float>(3, currBatchInd, sentenceInd, SCU, origSCU);
+
+    cerr << "AddToBatch4" << endl;
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
 
     assert(currBatchInd < states.dim(0));
     mblas::CopyDimension<float>(0, currHypoInd, sentenceInd, states, origStates);
 
+    cerr << "AddToBatch5" << endl;
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
+
     assert(currBatchInd < embeddings.dim(0));
     mblas::CopyDimension<float>(0, currHypoInd, sentenceInd, embeddings, origEmbeddings);
+
+    cerr << "AddToBatch6" << endl;
+    HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()));
 
     ++currBatchInd;
     ++currHypoInd;

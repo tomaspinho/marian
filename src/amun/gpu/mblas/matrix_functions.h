@@ -647,7 +647,6 @@ void CopyDimension(uint whichDim,
                    TMatrix<T> &out,
                    const TMatrix<T> &in)
 {
-  /*
   std::cerr << "CopyDimension="
             << whichDim << " "
             << outInd << " "
@@ -655,7 +654,7 @@ void CopyDimension(uint whichDim,
             << out.Debug(0) << " "
             << in.Debug(0) << " "
             << std::endl;
-  */
+
   assert(outInd < out.dim(whichDim));
   assert(inInd < in.dim(whichDim));
 
