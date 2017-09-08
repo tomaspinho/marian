@@ -675,8 +675,6 @@ void CopyDimension(uint whichDim,
                  std::min(in.dim(3), out.dim(3)));
 
     gCopyDimension0<<<nBlocks, nThreads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
-    HANDLE_ERROR( cudaStreamSynchronize(stream));
-    HANDLE_ERROR( cudaDeviceSynchronize());
   }
   else if (whichDim == 3) {
     int nThreads = std::min(MAX_THREADS, std::min((int)in.dim(1), (int)out.dim(1)));
@@ -684,12 +682,13 @@ void CopyDimension(uint whichDim,
                  std::min(in.dim(2), out.dim(2)));
 
     gCopyDimension3<<<nBlocks, nThreads, 0, stream>>>(whichDim, outInd, inInd, outWrap, inWrap);
-    HANDLE_ERROR( cudaStreamSynchronize(stream));
-    HANDLE_ERROR( cudaDeviceSynchronize());
   }
   else {
     assert(false);
   }
+
+  //HANDLE_ERROR( cudaStreamSynchronize(stream));
+  //HANDLE_ERROR( cudaDeviceSynchronize());
 }
 
 /////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,7 @@ EncoderDecoder::EncoderDecoder(
   encDecBuffer_(3)
 
 {
-  BEGIN_TIMER("EncoderDecoder");
+  //BEGIN_TIMER("EncoderDecoder");
 
   std::thread *thread = new std::thread( [&]{ DecodeAsync(god); });
   decThread_.reset(thread);
@@ -43,7 +43,7 @@ EncoderDecoder::EncoderDecoder(
 EncoderDecoder::~EncoderDecoder()
 {
   decThread_->join();
-  PAUSE_TIMER("EncoderDecoder");
+  //PAUSE_TIMER("EncoderDecoder");
 }
 
 State* EncoderDecoder::NewState() const {
