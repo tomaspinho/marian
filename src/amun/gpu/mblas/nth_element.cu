@@ -275,7 +275,6 @@ __global__ void gGetValueByKey(mblas::MatrixWrapper<float> out,
 NthElement::NthElement(uint maxBeamSize, uint maxBatchSize)
 : d_breakdown(maxBeamSize, 1, 1, 1)
 , maxBeamSize_(maxBeamSize)
-, maxBatchSize_(maxBatchSize)
 {
   //cerr << "maxBatchSize=" << maxBatchSize << " maxBeamSize=" << maxBeamSize << endl;
 
@@ -353,7 +352,7 @@ void NthElement::getNBestList(mblas::Matrix &probs,
   const uint numBlocks = uint(maxBeamSize_ * vocabSize / (2 * BLOCK_SIZE)) + uint(maxBeamSize_ * vocabSize % (2 * BLOCK_SIZE) != 0);
   const uint numBatches = batchFirstElementIdxs.size() - 1;
 
-  d_out.NewSize(maxBatchSize_ * numBlocks, 1, 1, 1);
+  d_out.NewSize(numBatches * numBlocks, 1, 1, 1);
 
   //cerr << "cummulatedBeamSizes=" << cummulatedBeamSizes.size() << endl;
   d_batchPosition.NewSize(batchFirstElementIdxs.size(), 1, 1, 1);
