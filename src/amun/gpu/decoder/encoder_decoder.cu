@@ -148,6 +148,7 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
   //BEGIN_TIMER("DecodeAsyncInternal.Init");
 
   uint maxBeamSize = god.Get<uint>("beam-size");
+  uint miniBatch = god.Get<uint>("mini-batch");
 
   EDState state;
 
@@ -227,13 +228,15 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     histories.SetFirst(false);
 
-    size_t numCompleted = completed.size();
+    size_t numNew = completed.size();
+    //size_t numNew = (maxBeamSize * miniBatch - survivors.size()) / maxBeamSize;
 
-    if (numCompleted) {
+
+    if (numNew) {
       std::vector<EncOut::SentenceElement> newSentences;
 
       //BEGIN_TIMER("DecodeAsyncInternal.encDecBuffer_.Get");
-      encDecBuffer_.Get(numCompleted, newSentences);
+      encDecBuffer_.Get(numNew, newSentences);
       //PAUSE_TIMER("DecodeAsyncInternal.encDecBuffer_.Get");
 
       BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
