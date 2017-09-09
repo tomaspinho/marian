@@ -228,49 +228,49 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
     histories.SetFirst(false);
 
     size_t numCompleted = completed.size();
-    std::vector<EncOut::SentenceElement> newSentences;
 
     if (numCompleted) {
+      std::vector<EncOut::SentenceElement> newSentences;
+
       //BEGIN_TIMER("DecodeAsyncInternal.encDecBuffer_.Get");
       encDecBuffer_.Get(numCompleted, newSentences);
       //PAUSE_TIMER("DecodeAsyncInternal.encDecBuffer_.Get");
-    }
 
-    BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
+      BeamSizeGPU &bsGPU2 = static_cast<BeamSizeGPU&>(histories.GetBeamSizes());
 
-    BEGIN_TIMER("DecodeAsyncInternal.ShrinkBatch");
-    ShrinkBatch(completed,
+      BEGIN_TIMER("DecodeAsyncInternal.ShrinkBatch");
+      ShrinkBatch(completed,
+                  histories.GetBeamSizes(),
+                  bsGPU2.GetSourceContext(),
+                  bsGPU2.GetSentenceLengths(),
+                  SCU);
+      PAUSE_TIMER("DecodeAsyncInternal.ShrinkBatch");
+
+      BEGIN_TIMER("DecodeAsyncInternal.AddToBatch");
+      AddToBatch(newSentences,
                 histories.GetBeamSizes(),
                 bsGPU2.GetSourceContext(),
                 bsGPU2.GetSentenceLengths(),
-                SCU);
-    PAUSE_TIMER("DecodeAsyncInternal.ShrinkBatch");
+                SCU,
+                state.GetStates(),
+                state.GetEmbeddings());
+      PAUSE_TIMER("DecodeAsyncInternal.AddToBatch");
 
-    BEGIN_TIMER("DecodeAsyncInternal.AddToBatch");
-    AddToBatch(newSentences,
-              histories.GetBeamSizes(),
-              bsGPU2.GetSourceContext(),
-              bsGPU2.GetSentenceLengths(),
-              SCU,
-              state.GetStates(),
-              state.GetEmbeddings());
-    PAUSE_TIMER("DecodeAsyncInternal.AddToBatch");
-
-    //BEGIN_TIMER("DecodeAsyncInternal.AddHypos");
-    AddHypos(newSentences, survivors, histories);
-    //PAUSE_TIMER("DecodeAsyncInternal.AddHypos");
+      //BEGIN_TIMER("DecodeAsyncInternal.AddHypos");
+      AddHypos(newSentences, survivors, histories);
+      //PAUSE_TIMER("DecodeAsyncInternal.AddHypos");
+    }
 
     prevHyps.swap(survivors);
     ++decoderStep;
 
 
-    LOG(progress)->info("Step {} took {}, batch size={}, survivors={}, completed={}, newSentences={}",
+    LOG(progress)->info("Step {} took {}, batch size={}, survivors={}, completed={}",
                         decoderStep,
                         timerStep.format(3, "%ws"),
                         histories.size(),
                         survivors.size(),
-                        completed.size(),
-                        newSentences.size()
+                        completed.size()
                       );
 
     /*
