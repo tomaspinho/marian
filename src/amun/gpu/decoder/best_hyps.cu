@@ -14,7 +14,6 @@ BestHyps::BestHyps(const God &god)
           god.Get<bool>("return-alignment") || god.Get<bool>("return-soft-alignment"),
           god.GetScorerWeights()),
         nthElement_(god.Get<size_t>("beam-size"), god.Get<size_t>("mini-batch")),
-        keys(god.Get<size_t>("beam-size") * god.Get<size_t>("mini-batch")),
         Costs(god.Get<size_t>("beam-size") * god.Get<size_t>("mini-batch"))
 {}
 

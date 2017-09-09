@@ -40,7 +40,6 @@ class BestHyps : public BestHypsBase
 
   private:
     NthElement nthElement_;
-    DeviceVector<unsigned> keys;
     DeviceVector<float> Costs;
 };
 
