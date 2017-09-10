@@ -249,8 +249,6 @@ void Config::AddOptions(size_t argc, char** argv) {
      "Log level for progress logging to stderr (trace - debug - info - warn - err(or) - critical - off).")
     ("log-info",po::value<std::string>()->default_value("info")->implicit_value("info"),
      "Log level for informative messages to stderr (trace - debug - info - warn - err(or) - critical - off).")
-    ("constant-sentence-length", po::value<size_t>()->default_value(0),
-      "Parameter for use when creating attention matrices.")
     ("encoder-buffer-size", po::value<size_t>()->default_value(2),
         "Maximum size of encoder buffer in asynchronous mode.")
   ;
@@ -325,7 +323,6 @@ void Config::AddOptions(size_t argc, char** argv) {
   SET_OPTION("maxi-batch", size_t);
   SET_OPTION("mini-batch-words", int);
   SET_OPTION("max-length", size_t);
-  SET_OPTION("constant-sentence-length", size_t);
   SET_OPTION("encoder-buffer-size", size_t);
 
 #ifdef CUDA

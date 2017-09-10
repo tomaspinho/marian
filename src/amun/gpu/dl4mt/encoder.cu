@@ -29,7 +29,6 @@ std::vector<std::vector<size_t>> GetBatchInput(const Sentences& source, size_t t
 void Encoder::Encode(const God &god, const Sentences& source, size_t tab,
                      EncOutPtr &encOut)
 {
-  //size_t maxSentenceLength = god.Get<size_t>("constant-sentence-length");
   size_t maxSentenceLength = 0;
   if (maxSentenceLength == 0) {
     maxSentenceLength = source.GetMaxLength();
