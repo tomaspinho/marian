@@ -19,6 +19,8 @@ using namespace std;
 namespace amunmt {
 namespace GPU {
 
+std::unordered_map<std::string, boost::timer::cpu_timer> timers;
+
 ///////////////////////////////////////////////////////////////////////////////
 EncoderDecoder::EncoderDecoder(
         const God &god,
