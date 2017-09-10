@@ -31,7 +31,7 @@ EncoderDecoder::EncoderDecoder(
   model_(model),
   encoder_(new Encoder(model_)),
   decoder_(new Decoder(god, model_)),
-  encDecBuffer_(3)
+  encDecBuffer_(god.Get<size_t>("encoder-buffer-size"))
 
 {
   //BEGIN_TIMER("EncoderDecoder");
@@ -228,9 +228,11 @@ void EncoderDecoder::DecodeAsyncInternal(const God &god)
 
     histories.SetFirst(false);
 
-    size_t numNew = completed.size();
-    //size_t numNew = (maxBeamSize * miniBatch - survivors.size()) / maxBeamSize;
-
+    size_t numNew;
+    //numNew = completed.size();
+    numNew = miniBatch - histories.size();
+    //numNew = (maxBeamSize * miniBatch - survivors.size()) / maxBeamSize;
+    //cerr << "numNew=" << numNew << " " << bsGPU.size() << " " << histories.size() << endl;
 
     if (numNew) {
       std::vector<EncOut::SentenceElement> newSentences;
