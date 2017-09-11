@@ -28,22 +28,12 @@ void gpu_blas_mmul(const float *A, const float *B, float *C, const int m, const 
      cublasHandle_t handle;
      cublasCreate(&handle);
 
-     std::chrono::time_point<std::chrono::system_clock> start, end;
-
      // Do the actual multiplication
-     start = std::chrono::system_clock::now();
      for (size_t i = 0; i < 1; ++i) {
         cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, m, n, k, alpha,
             A, lda, B, ldb, beta, C, ldc);
         cudaStreamSynchronize(0);
      }
-            std::cerr << "COS\n";
-     end = std::chrono::system_clock::now();
-
-     std::chrono::duration<double> elapsed_seconds = end-start;
-     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-     std::cout << "finished computation at " << std::ctime(&end_time)
-               << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
      // Destroy the handle
      cublasDestroy(handle);
@@ -51,6 +41,9 @@ void gpu_blas_mmul(const float *A, const float *B, float *C, const int m, const 
 
 int main() {
      // Allocate 3 arrays on CPU
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+
      int nr_rows_A, nr_cols_A, nr_rows_B, nr_cols_B, nr_rows_C, nr_cols_C;
 
      // for simplicity we are going to use square arrays
@@ -67,12 +60,14 @@ int main() {
      cudaMalloc(&d_B,nr_rows_B * nr_cols_B * sizeof(float));
      cudaMalloc(&d_C,nr_rows_C * nr_cols_C * sizeof(float));
 
-     // Fill the arrays A and B on GPU with random numbers
-     GPU_fill_rand(d_A, nr_rows_A, nr_cols_A);
-     GPU_fill_rand(d_B, nr_rows_B, nr_cols_B);
+     for (size_t i = 0; i < 1000; ++i) {
+		 // Fill the arrays A and B on GPU with random numbers
+		 GPU_fill_rand(d_A, nr_rows_A, nr_cols_A);
+		 GPU_fill_rand(d_B, nr_rows_B, nr_cols_B);
 
-     // Multiply A and B on GPU
-     gpu_blas_mmul(d_A, d_B, d_C, nr_rows_A, nr_cols_A, nr_cols_B);
+		 // Multiply A and B on GPU
+		 gpu_blas_mmul(d_A, d_B, d_C, nr_rows_A, nr_cols_A, nr_cols_B);
+     }
 
      // Copy (and print) the result on host memory
 
@@ -80,6 +75,14 @@ int main() {
      cudaFree(d_A);
      cudaFree(d_B);
      cudaFree(d_C);  
+
+     std::cerr << "COS\n";
+     end = std::chrono::system_clock::now();
+
+     std::chrono::duration<double> elapsed_seconds = end-start;
+     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+     std::cout << "finished computation at " << std::ctime(&end_time)
+               << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
      return 0;
  }
