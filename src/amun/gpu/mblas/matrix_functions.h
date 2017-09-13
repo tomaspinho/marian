@@ -3,6 +3,7 @@
 #define MAX_THREADS 512
 #define MAX_BLOCKS 65535
 
+#include <cuda_fp16.h>
 #include <cmath>
 #include <cublas_v2.h>
 #include <thrust/execution_policy.h>
@@ -100,6 +101,7 @@ void copy_n(IteratorT1 inBegin, size_t size, IteratorT2 outBegin) {
 }
 
 void Fill(Matrix& In, float value=0.0f);
+void Fill(HalfMatrix& In, half value);
 
 Matrix& Swap(Matrix& Out, Matrix& In);
 
@@ -424,7 +426,6 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, const Mat
 
 void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps);
 
-void RandomizeMemory();
 
 } // namespace mblas
 } // namespace GPU

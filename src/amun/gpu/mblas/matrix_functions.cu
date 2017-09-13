@@ -651,8 +651,14 @@ __global__ void gFill(MatrixWrapper<float> in, float val) {
   }
 }
 
-void Fill(Matrix& In, float value) {
+void Fill(Matrix& In, float value)
+{
   size_t size = In.size();
+
+  cerr << "half=" << sizeof(half) << " " << sizeof(float) << endl;
+  half a, b, c;
+  float d;
+  a = b + c;
 
   if (value) {
     int nThreads = std::min(MAX_THREADS, (int)size);
@@ -667,6 +673,33 @@ void Fill(Matrix& In, float value) {
     HANDLE_ERROR(cudaMemsetAsync(In.data(), 0, size * sizeof(float), CudaStreamHandler::GetStream()));
   }
 
+}
+
+__global__ void gFill(MatrixWrapper<half> in, half val) {
+  int index = threadIdx.x + blockDim.x * blockIdx.x;
+  if (index < in.size()) {
+    in[index] = val;
+  }
+}
+
+void Fill(HalfMatrix& In, half value)
+{
+  size_t size = In.size();
+
+  /*
+  if (value ==0.0f) {
+    int nThreads = std::min(MAX_THREADS, (int)size);
+    int nBlocks = (size / nThreads) + ((size % nThreads == 0) ? 0 : 1);
+
+    MatrixWrapper<half> inWrap(In);
+
+    gFill<<<nBlocks, nThreads, 0, CudaStreamHandler::GetStream()>>>
+      (inWrap, value);
+  }
+  else {
+  */
+    HANDLE_ERROR(cudaMemsetAsync(In.data(), 0, size * sizeof(half), CudaStreamHandler::GetStream()));
+  //}
 }
 
 __global__
