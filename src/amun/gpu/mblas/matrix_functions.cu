@@ -650,16 +650,18 @@ __global__ void gFill(MatrixWrapper<float> in, float val) {
     in[index] = val;
   }
 
-  half b = 5.4f, c = 6.4f;
+  /*
+  half b = __float2half(5.4f);
+  half c = __float2half(6.4f);
   half a = __hadd(b, c);
-
+  */
 }
 
 void Fill(Matrix& In, float value)
 {
   size_t size = In.size();
 
-  cerr << "half=" << sizeof(half) << " " << sizeof(float) << endl;
+  //cerr << "half=" << sizeof(half) << " " << sizeof(float) << endl;
 
   if (value) {
     int nThreads = std::min(MAX_THREADS, (int)size);
