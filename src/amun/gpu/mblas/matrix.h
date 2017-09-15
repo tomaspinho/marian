@@ -103,6 +103,7 @@ class TMatrix : public BaseMatrix {
 
     ~TMatrix()
     {
+      //std::cerr << "free data5:" << data_ << std::endl;
       HANDLE_ERROR(cudaFree(data_));
     }
 
@@ -134,6 +135,7 @@ class TMatrix : public BaseMatrix {
           arrSize_ = newSize;
         }
         else if (rows == 0 || cols == 0) {
+            //std::cerr << "free data2:" << data_ << std::endl;
             HANDLE_ERROR(cudaFree(data_));
             data_ = nullptr;
             dim_[0] = 0;
@@ -161,11 +163,15 @@ class TMatrix : public BaseMatrix {
         if (newSize > arrSize_) {
           T *newData;
           HANDLE_ERROR( cudaMalloc(&newData, newSize * sizeof(T)) );
+          //std::cerr << "malloc newData:" << newData << std::endl;
+
+          //std::cerr << "free data3:" << data_ << std::endl;
           HANDLE_ERROR( cudaFree(data_));
           data_ = newData;
           arrSize_ = newSize;
         }
         else if (rows == 0 || cols == 0) {
+            //std::cerr << "free data4:" << data_ << std::endl;
             HANDLE_ERROR( cudaFree(data_));
             data_ = nullptr;
             dim_[0] = 0;
@@ -177,7 +183,7 @@ class TMatrix : public BaseMatrix {
       }
       else {
         HANDLE_ERROR( cudaMalloc(&data_, newSize * sizeof(T)) );
-        //std::cerr << "malloc data4:" << data_ << std::endl;
+        //std::cerr << "malloc data5:" << data_ << std::endl;
         arrSize_ = newSize;
       }
 
@@ -191,6 +197,7 @@ class TMatrix : public BaseMatrix {
     {
       assert(data_ == nullptr);
       HANDLE_ERROR( cudaMalloc(&data_, size * sizeof(T)) );
+      //std::cerr << "malloc data6:" << data_ << std::endl;
       arrSize_ = size;
     }
 

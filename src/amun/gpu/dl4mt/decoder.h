@@ -26,6 +26,7 @@ class Decoder {
               id = 1;
           indices_.resize(tids.size());
 
+          std::cerr << "copy4" << std::endl;
           mblas::copy(thrust::raw_pointer_cast(tids.data()),
               tids.size(),
               thrust::raw_pointer_cast(indices_.data()),
@@ -168,6 +169,8 @@ class Decoder {
           }
 
           dBatchMapping_.resize(batchMapping.size());
+
+          std::cerr << "copy5" << std::endl;
           mblas::copy(thrust::raw_pointer_cast(batchMapping.data()),
               batchMapping.size(),
               thrust::raw_pointer_cast(dBatchMapping_.data()),
@@ -212,6 +215,7 @@ class Decoder {
         }
 
         void GetAttention(mblas::Matrix& Attention) {
+          std::cerr << "copy6" << std::endl;
           mblas::Copy(Attention, A_);
         }
 

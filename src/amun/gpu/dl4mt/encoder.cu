@@ -48,6 +48,8 @@ void Encoder::Encode(const Sentences& source, size_t tab, mblas::Matrix& context
   }
 
   sentencesMask.NewSize(maxSentenceLength, source.size(), 1, 1);
+
+  std::cerr << "copy7" << std::endl;
   mblas::copy(thrust::raw_pointer_cast(hMapping.data()),
               hMapping.size(),
               sentencesMask.data(),

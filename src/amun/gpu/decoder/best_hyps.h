@@ -53,6 +53,7 @@ class BestHyps : public BestHypsBase
           size_t attLength = attention.dim(1);
 
           SoftAlignment *softAlignment = new SoftAlignment(attLength);
+          std::cerr << "copy1" << std::endl;
           mblas::copy(
               attention.data() + hypIndex * attLength,
               attLength,
@@ -85,6 +86,8 @@ class BestHyps : public BestHypsBase
       for (auto& h : prevHyps) {
         vCosts.push_back(h->GetCost());
       }
+
+      std::cerr << "copy2" << std::endl;
       mblas::copy(vCosts.begin(), vCosts.end(), Costs.begin());
 
       const bool isFirst = (vCosts[0] == 0.0f) ? true : false;

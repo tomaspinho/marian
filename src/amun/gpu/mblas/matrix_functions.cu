@@ -158,6 +158,7 @@ Matrix& Concat(Matrix& Out, const Matrix& In) {
   size_t oldSize = Out.size();
   Out.Resize(Out.dim(0) + In.dim(0), Out.dim(1));
 
+  std::cerr << "copy8" << std::endl;
   mblas::copy(In.data(), In.size(), Out.data() + oldSize, cudaMemcpyDeviceToDevice);
 
   return Out;
@@ -166,6 +167,7 @@ Matrix& Concat(Matrix& Out, const Matrix& In) {
 Matrix& Copy(Matrix& Out, const Matrix& In) {
   Out.NewSize(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
 
+  std::cerr << "copy9" << std::endl;
   mblas::copy(In.data(), In.size(), Out.data(), cudaMemcpyDeviceToDevice);
 
   return Out;
@@ -223,6 +225,7 @@ Matrix& CopyRow(Matrix& Out,
   //size_t end   = start + length;
 
   //mblas::copy(In.begin() + start, In.begin() + end, Out.begin());
+  std::cerr << "copy10" << std::endl;
   mblas::copy(In.data() + start, length , Out.data(), cudaMemcpyDeviceToDevice);
 
   return Out;
