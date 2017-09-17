@@ -27,15 +27,7 @@ int main(int argc, char* argv[])
 
 
   size_t maxiSize = (god.Get<size_t>("cpu-threads") == 0) ? god.Get<size_t>("maxi-batch") : 1;
-
   size_t miniSize = (god.Get<size_t>("cpu-threads") == 0) ? god.Get<size_t>("mini-batch") : 1;
-  size_t encodingBatch = god.Get<size_t>("encoding-mini-batch");
-  cerr << "miniSize=" << miniSize << " " << encodingBatch << endl;
-  if (encodingBatch) {
-    miniSize = encodingBatch;
-  }
-  cerr << "miniSize=" << miniSize << " " << encodingBatch << endl;
-
   int miniWords = god.Get<int>("mini-batch-words");
 
   LOG(info)->info("Reading input");

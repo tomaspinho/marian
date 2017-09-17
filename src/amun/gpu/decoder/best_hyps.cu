@@ -28,14 +28,20 @@ void BestHyps::CalcBeam(const Hypotheses& prevHyps,
   using namespace mblas;
 
   //BEGIN_TIMER("CalcBeam");
-
   mblas::Matrix& probsGPU = static_cast<mblas::Matrix&>(probs);
 
   HostVector<float> vCosts;
   for (auto& h : prevHyps) {
     vCosts.push_back(h->GetCost());
   }
-  mblas::copy(vCosts.begin(), vCosts.end(), Costs.begin());
+
+  Costs.resize(vCosts.size());
+
+  mblas::copy(thrust::raw_pointer_cast(vCosts.data()),
+              vCosts.size(),
+              thrust::raw_pointer_cast(Costs.data()),
+              cudaMemcpyHostToDevice);
+  //mblas::copy(vCosts.begin(), vCosts.end(), Costs.begin());
 
   BroadcastVecColumn(_1 + _2, probsGPU, Costs);
 

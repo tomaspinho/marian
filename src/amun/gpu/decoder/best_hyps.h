@@ -37,7 +37,6 @@ class BestHyps : public BestHypsBase
         Beams &beams,
         const BeamSize &beamSizes);
 
-
   private:
     NthElement nthElement_;
     DeviceVector<float> Costs;
