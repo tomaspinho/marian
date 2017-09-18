@@ -474,6 +474,43 @@ Matrix& Element(Functor functor,
 
 template <class Functor>
 __global__ void gElement(Functor functor,
+                         MatrixWrapper<half> outWrap,
+                         const MatrixWrapper<half> in1Wrap,
+                         const MatrixWrapper<half> in2Wrap)
+{
+  size_t ind = blockIdx.x * blockDim.x + threadIdx.x;
+  if (ind < outWrap.size()) {
+    outWrap[ind] = functor(outWrap[ind], in1Wrap[ind], in2Wrap[ind]);
+  }
+}
+
+template <class Functor>
+HalfMatrix& Element(Functor functor,
+                HalfMatrix& Out,
+                const HalfMatrix& In1,
+                const HalfMatrix& In2)
+{
+  assert(Out.size() == In1.size());
+  assert(Out.size() == In2.size());
+
+  int threads = MAX_THREADS;
+  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
+  const cudaStream_t& stream = CudaStreamHandler::GetStream();
+
+  MatrixWrapper<half> outWrap(Out);
+  const MatrixWrapper<half> in1Wrap(In1);
+  const MatrixWrapper<half> in2Wrap(In2);
+
+  gElement<<<blocks, threads, 0, stream>>>
+    (functor, outWrap, in1Wrap, in2Wrap);
+
+  return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+template <class Functor>
+__global__ void gElement(Functor functor,
                          MatrixWrapper<float> outWrap,
                          const MatrixWrapper<float> in1Wrap,
                          const MatrixWrapper<float> in2Wrap)
@@ -490,10 +527,6 @@ Matrix& Element(Functor functor,
                 const Matrix& In1,
                 const Matrix& In2)
 {
-  //std::cerr << "Out=" << Out.Debug() << std::endl;
-  //std::cerr << "In1=" << In1.Debug() << std::endl;
-  //std::cerr << "In2=" << In2.Debug() << std::endl;
-
   assert(Out.size() == In1.size());
   assert(Out.size() == In2.size());
 
@@ -501,21 +534,27 @@ Matrix& Element(Functor functor,
   int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
   const cudaStream_t& stream = CudaStreamHandler::GetStream();
 
-  //std::cerr << "Element3=" << Out.Debug(0) << std::endl;
-  //std::cerr << "Element3=" << In1.Debug(0) << std::endl;
-  //std::cerr << "Element3=" << In2.Debug(0) << std::endl;
-  //std::cerr << std::endl;
   MatrixWrapper<float> outWrap(Out);
   const MatrixWrapper<float> in1Wrap(In1);
   const MatrixWrapper<float> in2Wrap(In2);
-  //std::cerr << "outWrap=" << outWrap.Debug() << std::endl;
 
   gElement<<<blocks, threads, 0, stream>>>
     (functor, outWrap, in1Wrap, in2Wrap);
 
-  //HANDLE_ERROR( cudaPeekAtLastError() );
-  //HANDLE_ERROR( cudaDeviceSynchronize() );
-  //HANDLE_ERROR( cudaPeekAtLastError() );
+  /*
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  HalfMatrix halfIn1(In1.dim(0), In1.dim(1), In1.dim(2), In1.dim(3));
+  CopyMatrix(halfIn1, In1);
+
+  HalfMatrix halfIn2(In2.dim(0), In2.dim(1), In2.dim(2), In2.dim(3));
+  CopyMatrix(halfIn2, In2);
+
+  Element(functor, halfOut, halfIn1, halfIn2);
+
+  CopyMatrix(Out, halfOut);
+  */
 
   return Out;
 }
