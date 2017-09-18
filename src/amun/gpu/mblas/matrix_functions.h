@@ -19,7 +19,6 @@ namespace amunmt {
 namespace GPU {
 namespace mblas {
 
-
 template <class M>
 void Debug(const M& m, size_t pos = 0, size_t l = 8) {
   std::cerr << m.dim(0) << " " << m.dim(1) << std::endl;
@@ -85,6 +84,21 @@ std::string Debug(const HostVector<T> &vec, size_t verbosity = 1)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+__device__
+inline half& operator+=(half &a, const half &b)
+{
+  a = __hadd(a, b);
+  return a;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const half &val)
+{
+  os << "half";
+  return os;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 template<typename Tout, typename Tin>
 __global__ void gCopyMatrix(MatrixWrapper<Tout> out,
                                 const MatrixWrapper<Tin> in)
@@ -370,6 +384,26 @@ __global__ void gElement(Functor functor,
 }
 
 template <class Functor>
+HalfMatrix& Element(Functor functor,
+                HalfMatrix& Out)
+{
+  int threads = MAX_THREADS;
+  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
+  const cudaStream_t& stream = CudaStreamHandler::GetStream();
+
+  MatrixWrapper<half> outWrap(Out);
+
+  std::cerr << "half Element1" << std::endl;
+
+  gElement<<<blocks, threads, 0, stream>>>
+    (functor, outWrap);
+
+  return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+template <class Functor>
 __global__ void gElement(Functor functor,
                          MatrixWrapper<float> outWrap)
 {
@@ -380,25 +414,10 @@ __global__ void gElement(Functor functor,
 }
 
 template <class Functor>
-HalfMatrix& Element(Functor functor,
-                HalfMatrix& Out)
-{
-  int threads = MAX_THREADS;
-  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
-  const cudaStream_t& stream = CudaStreamHandler::GetStream();
-
-  MatrixWrapper<half> outWrap(Out);
-
-  gElement<<<blocks, threads, 0, stream>>>
-    (functor, outWrap);
-
-  return Out;
-}
-
-template <class Functor>
 Matrix& Element(Functor functor,
                 Matrix& Out)
 {
+  /*
   int threads = MAX_THREADS;
   int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
   const cudaStream_t& stream = CudaStreamHandler::GetStream();
@@ -407,7 +426,15 @@ Matrix& Element(Functor functor,
 
   gElement<<<blocks, threads, 0, stream>>>
     (functor, outWrap);
+  */
 
+  // half implementation
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  Element(functor, halfOut);
+
+  CopyMatrix(Out, halfOut);
   return Out;
 }
 
