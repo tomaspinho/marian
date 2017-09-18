@@ -10,6 +10,34 @@ namespace mblas {
 thread_local CudaStreamHandler CudaStreamHandler::instance_;
 thread_local CublasHandler CublasHandler::instance_;
 
+/////////////////////////////////////////////////////////////////////////////
+
+std::ostream& operator<<(std::ostream& os, const half &val)
+{
+  os << "half";
+  return os;
+}
+
+__device__ void temp()
+{
+  half b = __float2half(5.4f);
+  half c = __float2half(6.4f);
+  half a = b + c;
+  a += b;
+
+  half i;
+  half j;
+  half k = i / j;
+  j /= i;
+
+  half2 x;
+  half2 y;
+  half2 z = __h2div(x, y);
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 Matrix& Swap(Matrix& Out, Matrix& In) {
   Out.swap(In);
   return Out;
@@ -650,11 +678,7 @@ __global__ void gFill(MatrixWrapper<float> in, float val) {
     in[index] = val;
   }
 
-  /*
-  half b = __float2half(5.4f);
-  half c = __float2half(6.4f);
-  half a = __hadd(b, c);
-  */
+  temp();
 }
 
 void Fill(Matrix& In, float value)

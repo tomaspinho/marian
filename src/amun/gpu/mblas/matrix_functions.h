@@ -84,18 +84,8 @@ std::string Debug(const HostVector<T> &vec, size_t verbosity = 1)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-__device__
-inline half& operator+=(half &a, const half &b)
-{
-  a = __hadd(a, b);
-  return a;
-}
 
-inline std::ostream& operator<<(std::ostream& os, const half &val)
-{
-  os << "half";
-  return os;
-}
+std::ostream& operator<<(std::ostream& os, const half &val);
 
 /////////////////////////////////////////////////////////////////////////////
 
