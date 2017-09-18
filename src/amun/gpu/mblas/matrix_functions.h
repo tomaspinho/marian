@@ -84,6 +84,49 @@ std::string Debug(const HostVector<T> &vec, size_t verbosity = 1)
   return strm.str();
 }
 
+/////////////////////////////////////////////////////////////////////////////
+template<typename Tout, typename Tin>
+__global__ void gCopyMatrix(MatrixWrapper<Tout> out,
+                                const MatrixWrapper<Tin> in)
+{
+  int id = threadIdx.x + blockIdx.x * blockDim.x;
+  if (id < in.size()) {
+    uint indices[SHAPE_SIZE];
+    in.id2Indices(id, indices);
+
+    out(indices[0], indices[1], indices[2], indices[3])
+      = in(indices[0], indices[1], indices[2], indices[3]);
+  }
+
+}
+
+template<typename Tout, typename Tin>
+void CopyMatrix(TMatrix<Tout> &out, const TMatrix<Tin> &in)
+{
+  if (in.size() == 0) {
+    return;
+  }
+  //cerr << "out=" << out.Debug(0) << endl;
+  //cerr << "in=" << in.Debug(0) << endl;
+
+  assert(out.dim(0) == in.dim(0));
+  assert(out.dim(1) == in.dim(1));
+  assert(out.dim(2) == in.dim(2));
+  assert(out.dim(3) == in.dim(3));
+
+  uint size = in.size();
+  uint threads = std::min(size, (uint) MAX_THREADS);
+  uint blocks  = (size / threads) + 1;
+
+  const cudaStream_t &stream = CudaStreamHandler::GetStream();
+  MatrixWrapper<Tout> outWrap(out);
+  const MatrixWrapper<Tin> inWrap(in);
+
+  gCopyMatrix<<<blocks, threads, 0, stream>>>(outWrap, inWrap);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 
 template<typename T>
 void copy(const T *in, size_t count, T *out,  cudaMemcpyKind kind) {
@@ -141,6 +184,8 @@ Matrix& Prod(Matrix& C, const Matrix& A, const Matrix& B,
 Matrix& Softmax(Matrix& Out, const DeviceVector<uint>& batchIds, const mblas::IMatrix &sentencesMask, size_t batchSize);
 
 Matrix& LogSoftmax(Matrix& Out);
+
+/////////////////////////////////////////////////////////////////////////////
 
 template <class Functor>
 __global__ void gBroadcast(Functor functor,
@@ -221,6 +266,8 @@ Matrix& Broadcast(Functor functor, Matrix& OutOrig, const Matrix& In, const Devi
   return OutOrig;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
 template <class Functor>
 __global__ void gBroadcastVecColumn(Functor functor,
                                     MatrixWrapper<float> outWrap,
@@ -263,6 +310,8 @@ Matrix& BroadcastVecColumn(Functor functor, Matrix& Out, const DeviceVector<floa
 
   return Out;
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 template <class Functor>
 __global__ void gBroadcastVec(Functor functor,
@@ -307,6 +356,8 @@ Matrix& BroadcastVec(Functor functor, Matrix& Out, const Matrix& In)
 
   return Out;
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 template <class Functor>
 __global__ void gElement(Functor functor,
@@ -360,6 +411,8 @@ Matrix& Element(Functor functor,
   return Out;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
 template <class Functor>
 __global__ void gElement(Functor functor,
                          MatrixWrapper<float> outWrap,
@@ -390,6 +443,8 @@ Matrix& Element(Functor functor,
   return Out;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
 template <class Functor>
 __global__ void gElement(Functor functor,
                          MatrixWrapper<float> outWrap,
@@ -404,7 +459,9 @@ __global__ void gElement(Functor functor,
 
 template <class Functor>
 Matrix& Element(Functor functor,
-                Matrix& Out, const Matrix& In1, const Matrix& In2)
+                Matrix& Out,
+                const Matrix& In1,
+                const Matrix& In2)
 {
   //std::cerr << "Out=" << Out.Debug() << std::endl;
   //std::cerr << "In1=" << In1.Debug() << std::endl;
@@ -435,6 +492,8 @@ Matrix& Element(Functor functor,
 
   return Out;
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 void SetColumn(Matrix& In, int noColumn, float value);
 
