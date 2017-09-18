@@ -310,12 +310,38 @@ Matrix& BroadcastVec(Functor functor, Matrix& Out, const Matrix& In)
 
 template <class Functor>
 __global__ void gElement(Functor functor,
+                         MatrixWrapper<half> outWrap)
+{
+  size_t ind = blockIdx.x * blockDim.x + threadIdx.x;
+  if (ind < outWrap.size()) {
+    outWrap[ind] = functor(outWrap[ind]);
+  }
+}
+
+template <class Functor>
+__global__ void gElement(Functor functor,
                          MatrixWrapper<float> outWrap)
 {
   size_t ind = blockIdx.x * blockDim.x + threadIdx.x;
   if (ind < outWrap.size()) {
     outWrap[ind] = functor(outWrap[ind]);
   }
+}
+
+template <class Functor>
+HalfMatrix& Element(Functor functor,
+                HalfMatrix& Out)
+{
+  int threads = MAX_THREADS;
+  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
+  const cudaStream_t& stream = CudaStreamHandler::GetStream();
+
+  MatrixWrapper<half> outWrap(Out);
+
+  gElement<<<blocks, threads, 0, stream>>>
+    (functor, outWrap);
+
+  return Out;
 }
 
 template <class Functor>
