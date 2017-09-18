@@ -346,17 +346,10 @@ void NthElement::getNBestList(mblas::Matrix &probs,
   d_cumBeamSizes.NewSize(cummulatedBeamSizes.size(), 1, 1, 1);
   assert(d_batchPosition.size() == d_cumBeamSizes.size());
 
-  std::cerr << "copy11:"
-            << batchFirstElementIdxs.size() << " "
-            << d_batchPosition.size() << " "
-            << sizeof(size_t) << " "
-            << sizeof(uint) << " "
-            << std::endl;
   mblas::copy(thrust::raw_pointer_cast(batchFirstElementIdxs.data()),
               batchFirstElementIdxs.size(),
               d_batchPosition.data(),
               cudaMemcpyHostToDevice);
-  std::cerr << "copy12" << std::endl;
   mblas::copy(thrust::raw_pointer_cast(cummulatedBeamSizes.data()),
               cummulatedBeamSizes.size(),
               d_cumBeamSizes.data(),
@@ -401,7 +394,6 @@ void NthElement::GetPairs(uint number,
                     std::vector<uint>& outKeys,
                     std::vector<float>& outValues)
 {
-  std::cerr << "copy13" << std::endl;
   mblas::copy(d_res.data(), d_res.size(), thrust::raw_pointer_cast(h_res.data()), cudaMemcpyDeviceToHost);
   HANDLE_ERROR( cudaStreamSynchronize(mblas::CudaStreamHandler::GetStream()) );
 

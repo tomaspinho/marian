@@ -113,7 +113,6 @@ void EncoderDecoder::AssembleBeamState(const State& in,
   indices_.resize(beamStateIds.size());
   HostVector<uint> tmp = beamStateIds;
 
-  std::cerr << "copy3" << std::endl;
   mblas::copy(thrust::raw_pointer_cast(tmp.data()),
       beamStateIds.size(),
       thrust::raw_pointer_cast(indices_.data()),

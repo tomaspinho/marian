@@ -87,12 +87,6 @@ std::string Debug(const HostVector<T> &vec, size_t verbosity = 1)
 
 template<typename T>
 void copy(const T *in, size_t count, T *out,  cudaMemcpyKind kind) {
-  std::cerr << "copy="
-            << in << " "
-            << out << " "
-            << count << " "
-            << sizeof(T) << " "
-            << std::endl;
   HANDLE_ERROR( cudaMemcpyAsync(out, in, count * sizeof(T), kind, CudaStreamHandler::GetStream()) );
   HANDLE_ERROR( cudaStreamSynchronize(CudaStreamHandler::GetStream()));
 }
