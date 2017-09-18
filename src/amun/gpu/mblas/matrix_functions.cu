@@ -122,6 +122,7 @@ __global__ void gMean(MatrixWrapper<float> out,
 
 void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentencesMask)
 {
+  /*
   assert(Out.dim(2) == 1);
   assert(Out.dim(3) == 1);
   assert(Out.dim(0) == In.dim(3));
@@ -143,7 +144,17 @@ void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentencesMask)
 
   gMean<<<blocks, threads, 0, CudaStreamHandler::GetStream()>>>
     (outWrap, inWrap, mappingWrap);
+  */
 
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  Mean(halfOut, halfIn, sentencesMask);
+
+  CopyMatrix(Out, halfOut);
 }
 
 __global__ void gWeightedMean(MatrixWrapper<float> out,
