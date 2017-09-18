@@ -20,8 +20,11 @@ std::ostream& operator<<(std::ostream& os, const half &val)
 
 __device__ void temp()
 {
-  half b = __float2half(5.4f);
-  half c = __float2half(6.4f);
+  //half b = __float2half(5.4f);
+  //half c = __float2half(6.4f);
+  half b = (half)5.4f;
+  half c = (half)6.4f;
+
   half a = b + c;
   a += b;
 
@@ -42,6 +45,72 @@ Matrix& Swap(Matrix& Out, Matrix& In) {
   Out.swap(In);
   return Out;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+__global__ void gMean(MatrixWrapper<half> out,
+                      const MatrixWrapper<half> in,
+                      const MatrixWrapper<uint>  mapping)
+{
+  // out = batches * states
+  // in = max sentence length * states * 1 * batches
+  // mapping = max length * batches
+
+  int id = threadIdx.x + blockIdx.x * blockDim.x;
+  //printf("id = %d in = %lu %lu %lu %lu = %lu %lu \n", id, in.dim(0), in.dim(1), in.dim(2), in.dim(3), in.size(), sizeof(in));
+
+  if (id < out.size()) {
+    uint indices[SHAPE_SIZE];
+    out.id2Indices(id, indices);
+    //printf("%d -> %lu %lu %lu %lu \n", id, indices[0], indices[1], indices[2], indices[3]);
+
+    size_t batch = indices[0];
+    size_t state = indices[1];
+
+    half sum = 0.0f;
+    int counter = 0;
+    for (size_t row = 0; row < in.dim(0); ++row) {
+      int isWord = mapping(row, batch, 0, 0);
+      //printf("batch=%lu startMapInd=%lu  mapOffset=%lu -> %d \n", batch, startMapInd, mapOffset, isWord);
+      if (isWord) {
+        sum += in(row, state, 0, batch);
+        ++counter;
+      }
+    }
+
+    sum /= (half) counter;
+    out[id] = sum;
+  }
+}
+
+void Mean(HalfMatrix& Out, const HalfMatrix& In, const IMatrix &sentencesMask)
+{
+  assert(Out.dim(2) == 1);
+  assert(Out.dim(3) == 1);
+  assert(Out.dim(0) == In.dim(3));
+  assert(Out.dim(1) == In.dim(1));
+  assert(In.dim(0) * In.dim(3) == sentencesMask.size());
+
+  // mean of each ROW
+  size_t batchNum = Out.dim(0) * Out.dim(2) * Out.dim(3);
+  size_t stateLength = Out.dim(1);
+  size_t sentenceLength = (In.dim(0) * In.dim(2) * In.dim(3)) / batchNum;
+
+  MatrixWrapper<half> outWrap(Out);
+  MatrixWrapper<half> inWrap(In);
+
+  MatrixWrapper<uint> mappingWrap(sentencesMask, false);
+
+  size_t threads = MAX_THREADS;
+  size_t blocks =  (outWrap.size() / threads) + ((outWrap.size() % threads == 0) ?  0 : 1);
+
+  gMean<<<blocks, threads, 0, CudaStreamHandler::GetStream()>>>
+    (outWrap, inWrap, mappingWrap);
+
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
 
 __global__ void gMean(MatrixWrapper<float> out,
                       const MatrixWrapper<float> in,
