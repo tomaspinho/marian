@@ -431,6 +431,65 @@ Matrix& CopyRow(Matrix& Out,
   return Out;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+__global__ void gCopyRows(MatrixWrapper<half> out,
+                          const MatrixWrapper<half> in,
+                          const MatrixWrapper<uint> indicesWrap)
+{
+  int id = threadIdx.x + blockIdx.x * blockDim.x;
+
+  if (id < out.size()) {
+    uint dim[SHAPE_SIZE];
+    out.id2Indices(id, dim);
+
+    size_t indicesInd = dim[0];
+    size_t inRow =indicesWrap[indicesInd];
+
+    out(indicesInd, dim[1], 0, 0) = in(inRow, dim[1], 0, 0);
+
+  }
+}
+
+HalfMatrix& CopyRows(HalfMatrix& Out,
+                 const HalfMatrix& In,
+                 const DeviceVector<uint>& indices)
+{
+  assert(In.dim(1) == Out.dim(1));
+  assert(Out.dim(0) == indices.size());
+
+  assert(In.dim(2) == 1);
+  assert(In.dim(3) == 1);
+  assert(Out.dim(2) == 1);
+  assert(Out.dim(3) == 1);
+
+  /*
+  cerr << "Out=" << Out.Debug(0) << endl;
+  cerr << "In=" << In.Debug(0) << endl;
+  cerr << "indices=" << Debug(indices, 2) << endl;
+  cerr << endl;
+  */
+
+  size_t size = Out.size();
+
+  size_t numPairs = indices.size();
+
+  MatrixWrapper<half> outWrap(Out);
+  const MatrixWrapper<half> inWrap(In);
+  const MatrixWrapper<uint> indicesWrap(indices);
+  //cerr << "size=" << size << endl;
+
+  uint threads = std::min((uint) MAX_THREADS, (uint)size);
+  int blocks = size / threads + ((size % threads == 0) ?  0 : 1);
+
+  gCopyRows<<<blocks, threads, 0, CudaStreamHandler::GetStream()>>>
+    (outWrap, inWrap, indicesWrap);
+
+  return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 __global__ void gCopyRows(MatrixWrapper<float> out,
                           const MatrixWrapper<float> in,
                           const MatrixWrapper<uint> indicesWrap)
@@ -453,6 +512,7 @@ Matrix& CopyRows(Matrix& Out,
                  const Matrix& In,
                  const DeviceVector<uint>& indices)
 {
+  /*
   assert(In.dim(1) == Out.dim(1));
   assert(Out.dim(0) == indices.size());
 
@@ -461,13 +521,6 @@ Matrix& CopyRows(Matrix& Out,
   assert(Out.dim(2) == 1);
   assert(Out.dim(3) == 1);
 
-  /*
-  cerr << "Out=" << Out.Debug(0) << endl;
-  cerr << "In=" << In.Debug(0) << endl;
-  cerr << "indices=" << Debug(indices, 2) << endl;
-  cerr << endl;
-  */
-
   size_t size = Out.size();
 
   size_t numPairs = indices.size();
@@ -475,16 +528,29 @@ Matrix& CopyRows(Matrix& Out,
   MatrixWrapper<float> outWrap(Out);
   const MatrixWrapper<float> inWrap(In);
   const MatrixWrapper<uint> indicesWrap(indices);
-  //cerr << "size=" << size << endl;
 
   uint threads = std::min((uint) MAX_THREADS, (uint)size);
   int blocks = size / threads + ((size % threads == 0) ?  0 : 1);
 
   gCopyRows<<<blocks, threads, 0, CudaStreamHandler::GetStream()>>>
     (outWrap, inWrap, indicesWrap);
+  */
+
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  CopyRows(halfOut, halfIn, indices);
+
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
+  CopyMatrix(Out, halfOut);
 
   return Out;
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 
 Matrix& Assemble(Matrix& Out,
