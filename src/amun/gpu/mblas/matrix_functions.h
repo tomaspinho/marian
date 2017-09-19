@@ -644,9 +644,9 @@ Matrix& Element(Functor functor,
 
 template <class Functor>
 __global__ void gElement(Functor functor,
-                         MatrixWrapper<float> outWrap,
-                         const MatrixWrapper<float> in1Wrap,
-                         const MatrixWrapper<float> in2Wrap)
+                         MatrixWrapper<half> outWrap,
+                         const MatrixWrapper<half> in1Wrap,
+                         const MatrixWrapper<half> in2Wrap)
 {
   size_t ind = blockIdx.x * blockDim.x + threadIdx.x;
   if (ind < outWrap.size()) {
@@ -655,11 +655,37 @@ __global__ void gElement(Functor functor,
 }
 
 template <class Functor>
+HalfMatrix& Element(Functor functor,
+                HalfMatrix& Out,
+                const HalfMatrix& In1,
+                const HalfMatrix& In2)
+{
+  assert(Out.size() == In1.size());
+  assert(Out.size() == In2.size());
+
+  int threads = MAX_THREADS;
+  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
+  const cudaStream_t& stream = CudaStreamHandler::GetStream();
+
+  MatrixWrapper<half> outWrap(Out);
+  const MatrixWrapper<half> in1Wrap(In1);
+  const MatrixWrapper<half> in2Wrap(In2);
+
+  gElement<<<blocks, threads, 0, stream>>>
+    (functor, outWrap, in1Wrap, in2Wrap);
+
+  return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+template <class Functor>
 Matrix& Element(Functor functor,
                 Matrix& Out,
                 const Matrix& In1,
                 const Matrix& In2)
 {
+  /*
   assert(Out.size() == In1.size());
   assert(Out.size() == In2.size());
 
@@ -673,6 +699,20 @@ Matrix& Element(Functor functor,
 
   gElement<<<blocks, threads, 0, stream>>>
     (functor, outWrap, in1Wrap, in2Wrap);
+  */
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  HalfMatrix halfIn1(In1.dim(0), In1.dim(1), In1.dim(2), In1.dim(3));
+  CopyMatrix(halfIn1, In1);
+
+  HalfMatrix halfIn2(In2.dim(0), In2.dim(1), In2.dim(2), In2.dim(3));
+  CopyMatrix(halfIn2, In2);
+
+  Element(functor, halfOut, halfIn1, halfIn2);
+
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
+  CopyMatrix(Out, halfOut);
 
   return Out;
 }
