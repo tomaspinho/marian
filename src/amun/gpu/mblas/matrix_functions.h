@@ -444,8 +444,8 @@ Matrix& BroadcastVecColumn(Functor functor,
 
 template <class Functor>
 __global__ void gBroadcastVec(Functor functor,
-                              MatrixWrapper<float> outWrap,
-                              const MatrixWrapper<float> inWrap)
+                              MatrixWrapper<half> outWrap,
+                              const MatrixWrapper<half> inWrap)
 {
   size_t cols = outWrap.dim(1);
 
@@ -456,7 +456,7 @@ __global__ void gBroadcastVec(Functor functor,
     for (int dim0 = 0; dim0 < outWrap.dim(0); ++dim0) {
       for (int dim2 = 0; dim2 < outWrap.dim(2); ++dim2) {
         for (int dim3 = 0; dim3 < outWrap.dim(3); ++dim3) {
-          float &val = outWrap(dim0, noColumn, dim2, dim3);
+          half &val = outWrap(dim0, noColumn, dim2, dim3);
           val = functor(val, vecValue);
         }
       }
@@ -466,11 +466,32 @@ __global__ void gBroadcastVec(Functor functor,
 }
 
 template <class Functor>
-Matrix& BroadcastVec(Functor functor, Matrix& Out, const Matrix& In)
+HalfMatrix& BroadcastVec(Functor functor, HalfMatrix& Out, const HalfMatrix& In)
 {
   //std::cerr << "Out=" << Out.Debug() << std::endl;
   //std::cerr << "In=" << In.Debug() << std::endl;
 
+  size_t cols = Out.dim(1);
+
+  MatrixWrapper<half> outWrap(Out);
+  const MatrixWrapper<half> inWrap(In);
+
+  int threads = std::min(MAX_THREADS, (int)cols);
+  int blocks  = cols / threads  + ((cols % threads == 0) ?  0 : 1);
+  const cudaStream_t& stream = CudaStreamHandler::GetStream();
+
+  gBroadcastVec<<<blocks, threads, 0, stream>>>
+    (functor, outWrap, inWrap);
+
+  return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+template <class Functor>
+Matrix& BroadcastVec(Functor functor, Matrix& Out, const Matrix& In)
+{
+  /*
   size_t cols = Out.dim(1);
 
   MatrixWrapper<float> outWrap(Out);
@@ -482,6 +503,18 @@ Matrix& BroadcastVec(Functor functor, Matrix& Out, const Matrix& In)
 
   gBroadcastVec<<<blocks, threads, 0, stream>>>
     (functor, outWrap, inWrap);
+  */
+
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  BroadcastVec(functor, halfOut, halfIn);
+
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
+  CopyMatrix(Out, halfOut);
 
   return Out;
 }
