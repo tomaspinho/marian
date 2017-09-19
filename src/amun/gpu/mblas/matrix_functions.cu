@@ -1307,6 +1307,54 @@ void Fill(Matrix& In, float value)
 /////////////////////////////////////////////////////////////////////////////
 
 __global__
+void gMapMatrix(MatrixWrapper<half> in,
+                const MatrixWrapper<uint> sentencesMappingWrap,
+                int mappingCols, int i)
+{
+  int tid = threadIdx.x + blockIdx.x * blockDim.x;
+  if (tid < in.size()) {
+    int numCols = in.dim(1);
+    int batchIdx = tid / numCols;
+    int col = tid % numCols;
+
+    //in[tid] *= mappingWrap(i, batchIdx, 0, 0);
+    in(batchIdx, col, 0, 0) *= sentencesMappingWrap(i, batchIdx, 0, 0); // [mappingCols * batchIdx + i];
+  }
+}
+
+void MapMatrix(HalfMatrix& state, const mblas::IMatrix &sentencesMask, size_t i)
+{
+  // blank out rows in the state matrix where the word position i does not exist
+  // mapping is a concatenated array of 1 & 0 of each sentence in the batch to say whether word exists or not.
+
+  int batchSize = state.dim(0);
+  int stateLength = state.dim(1);
+  int sentenceLength = sentencesMask.size() / batchSize;
+
+  int numThreads = std::min((int)state.size(), MAX_THREADS);
+  int numBlocks = (state.size() / numThreads) + ((state.size() % numThreads == 0) ? 0 : 1);
+
+  MatrixWrapper<half> stateWrap(state);
+  MatrixWrapper<uint> sentencesMappingWrap(sentencesMask, false);
+
+  gMapMatrix<<<numBlocks, numThreads, 0, CudaStreamHandler::GetStream()>>>
+    (stateWrap, sentencesMappingWrap, sentenceLength, i);
+
+  /*
+  cerr << "nBlocks=" << numBlocks << endl;
+  cerr << "nThreads=" << numThreads << endl;
+  cerr << "stateWrap=" << stateWrap.Debug() << endl;
+  cerr << "mapping=" << Debug(mapping, 2) << endl;
+  cerr << "i=" << i << endl;
+  cerr << std::endl;
+
+  HANDLE_ERROR(cudaDeviceSynchronize());
+  */
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+__global__
 void gMapMatrix(MatrixWrapper<float> in,
                 const MatrixWrapper<uint> sentencesMappingWrap,
                 int mappingCols, int i)
@@ -1324,9 +1372,7 @@ void gMapMatrix(MatrixWrapper<float> in,
 
 void MapMatrix(Matrix& state, const mblas::IMatrix &sentencesMask, size_t i)
 {
-  // blank out rows in the state matrix where the word position i does not exist
-  // mapping is a concatenated array of 1 & 0 of each sentence in the batch to say whether word exists or not.
-
+  /*
   int batchSize = state.dim(0);
   int stateLength = state.dim(1);
   int sentenceLength = sentencesMask.size() / batchSize;
@@ -1339,18 +1385,19 @@ void MapMatrix(Matrix& state, const mblas::IMatrix &sentencesMask, size_t i)
 
   gMapMatrix<<<numBlocks, numThreads, 0, CudaStreamHandler::GetStream()>>>
     (stateWrap, sentencesMappingWrap, sentenceLength, i);
-
-  /*
-  cerr << "nBlocks=" << numBlocks << endl;
-  cerr << "nThreads=" << numThreads << endl;
-  cerr << "stateWrap=" << stateWrap.Debug() << endl;
-  cerr << "mapping=" << Debug(mapping, 2) << endl;
-  cerr << "i=" << i << endl;
-  cerr << std::endl;
-
-  HANDLE_ERROR(cudaDeviceSynchronize());
   */
+
+  HalfMatrix halfState(state.dim(0), state.dim(1), state.dim(2), state.dim(3));
+  CopyMatrix(halfState, state);
+
+  MapMatrix(halfState, sentencesMask, i);
+
+  state.NewSize(halfState.dim(0), halfState.dim(1), halfState.dim(2), halfState.dim(3));
+  CopyMatrix(state, halfState);
+
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 __device__ uint getIndex(const dim3 &dim, const dim3 &val)
 {
