@@ -753,6 +753,116 @@ Matrix& Prod(Matrix& C, const Matrix& A, const Matrix& B,
   return ret;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+__global__ void gSoftMax(MatrixWrapper<half> out,
+                         const MatrixWrapper<uint> batchIdsWrap,
+                         const MatrixWrapper<uint> sentencesMappingWrap,
+                         uint shareSize)
+{
+  extern __shared__ half _shareHalf[];
+
+  size_t numHypos = out.dim(0);
+  size_t srcLen = out.dim(1);
+
+  int hypoInd =  blockIdx.x;
+  int origSrcPos = threadIdx.x;
+
+  while (hypoInd < numHypos) {
+    MatrixWrapper<half> _max(_shareHalf, shareSize);
+    _max[origSrcPos] = out(hypoInd, origSrcPos, 0, 0);
+    for (int tid = 0; tid < srcLen; tid += blockDim.x) {
+      int srcPos = tid + origSrcPos;
+      if (srcPos < srcLen) {
+        half value = out(hypoInd, srcPos, 0, 0);
+
+        int batch = batchIdsWrap[hypoInd];
+        value *= sentencesMappingWrap(srcPos, batch, 0, 0);
+        if (value > _max[origSrcPos]) {
+          _max[origSrcPos] = value;
+        }
+      }
+    }
+
+    int len = blockDim.x;
+    while (len != 1) {
+      __syncthreads();
+
+      int skip = (len + 1) >> 1;
+      if (origSrcPos < (len >> 1)) {
+        if(_max[origSrcPos + skip] > _max[origSrcPos])
+          _max[origSrcPos] = _max[origSrcPos + skip];
+      }
+      len = (len + 1) >> 1;
+    }
+    __syncthreads();
+    half max = _max[0];
+    __syncthreads();
+
+    //float* _sum = _share;// + blockDim.x;
+    MatrixWrapper<half> _sum(_shareHalf, shareSize);
+
+    _sum[origSrcPos] = 0.0f;
+    for (int tid = 0; tid < srcLen; tid += blockDim.x) {
+      int srcPos = tid + origSrcPos;
+      if (srcPos < srcLen) {
+        out(hypoInd, srcPos, 0, 0) = hexp(out(hypoInd, srcPos, 0, 0) - max);
+
+        int batch = batchIdsWrap[hypoInd];
+        out(hypoInd, srcPos, 0, 0) *= sentencesMappingWrap(srcPos, batch, 0, 0);
+        _sum[origSrcPos] += out(hypoInd, srcPos, 0, 0);
+      }
+    }
+
+    __syncthreads();
+
+    len = blockDim.x;
+    while (len != 1) {
+      __syncthreads();
+
+      int skip = (len + 1) >> 1;
+      if (origSrcPos < (len >> 1)) {
+        _sum[origSrcPos] += _sum[origSrcPos + skip];
+      }
+      len = (len + 1) >> 1;
+    }
+
+    __syncthreads();
+
+    for (int tid = 0; tid < srcLen; tid += blockDim.x) {
+      int srcPos = tid + origSrcPos;
+      if (srcPos < srcLen) {
+        out(hypoInd, srcPos, 0, 0) /= _sum[0];
+      }
+    }
+    __syncthreads();
+    hypoInd += gridDim.x;
+  }
+}
+
+HalfMatrix& Softmax(HalfMatrix& Out,
+                const DeviceVector<uint>& batchIds,
+                const mblas::IMatrix &sentencesMask,
+                size_t batchSize)
+{
+  size_t srcSize = Out.dim(1);
+
+  MatrixWrapper<half> outWrap(Out);
+  const MatrixWrapper<uint> batchIdsWrap(batchIds);
+  const MatrixWrapper<uint> sentencesMappingWrap(sentencesMask, false);
+
+  int blocks = batchSize;
+  int threads = std::min(MAX_THREADS, (int)srcSize);
+  int shared = sizeof(half) * threads;
+
+  gSoftMax<<<blocks, threads, shared, CudaStreamHandler::GetStream()>>>
+    (outWrap, batchIdsWrap, sentencesMappingWrap, threads);
+
+  return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 __global__ void gSoftMax(MatrixWrapper<float> out,
                          const MatrixWrapper<uint> batchIdsWrap,
                          const MatrixWrapper<uint> sentencesMappingWrap,
@@ -838,8 +948,12 @@ __global__ void gSoftMax(MatrixWrapper<float> out,
   }
 }
 
-Matrix& Softmax(Matrix& Out, const DeviceVector<uint>& batchIds, const mblas::IMatrix &sentencesMask, size_t batchSize)
+Matrix& Softmax(Matrix& Out,
+                const DeviceVector<uint>& batchIds,
+                const mblas::IMatrix &sentencesMask,
+                size_t batchSize)
 {
+  /*
   size_t srcSize = Out.dim(1);
 
   MatrixWrapper<float> outWrap(Out);
@@ -852,9 +966,20 @@ Matrix& Softmax(Matrix& Out, const DeviceVector<uint>& batchIds, const mblas::IM
 
   gSoftMax<<<blocks, threads, shared, CudaStreamHandler::GetStream()>>>
     (outWrap, batchIdsWrap, sentencesMappingWrap, threads);
+  */
+
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  Softmax(halfOut, batchIds, sentencesMask, batchSize);
+
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
+  CopyMatrix(Out, halfOut);
 
   return Out;
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 __global__ void gLogSoftMax(MatrixWrapper<float> out, uint shareSize)
 {
