@@ -1261,7 +1261,7 @@ void Fill(HalfMatrix& In, float value)
       (inWrap, value);
   }
   else {
-    HANDLE_ERROR(cudaMemsetAsync(In.data(), 0, size * sizeof(float), CudaStreamHandler::GetStream()));
+    HANDLE_ERROR(cudaMemsetAsync(In.data(), 0, size * sizeof(half), CudaStreamHandler::GetStream()));
   }
 
 }
