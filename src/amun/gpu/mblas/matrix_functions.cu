@@ -85,41 +85,6 @@ void Mean(HalfMatrix& Out, const HalfMatrix& In, const IMatrix &sentencesMask)
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gMean(MatrixWrapper<float> out,
-                      const MatrixWrapper<float> in,
-                      const MatrixWrapper<uint>  mapping)
-{
-  // out = batches * states
-  // in = max sentence length * states * 1 * batches
-  // mapping = max length * batches
-
-  int id = threadIdx.x + blockIdx.x * blockDim.x;
-  //printf("id = %d in = %lu %lu %lu %lu = %lu %lu \n", id, in.dim(0), in.dim(1), in.dim(2), in.dim(3), in.size(), sizeof(in));
-
-  if (id < out.size()) {
-    uint indices[SHAPE_SIZE];
-    out.id2Indices(id, indices);
-    //printf("%d -> %lu %lu %lu %lu \n", id, indices[0], indices[1], indices[2], indices[3]);
-
-    size_t batch = indices[0];
-    size_t state = indices[1];
-
-    float sum = 0.0f;
-    int counter = 0;
-    for (size_t row = 0; row < in.dim(0); ++row) {
-      int isWord = mapping(row, batch, 0, 0);
-      //printf("batch=%lu startMapInd=%lu  mapOffset=%lu -> %d \n", batch, startMapInd, mapOffset, isWord);
-      if (isWord) {
-        sum += in(row, state, 0, batch);
-        ++counter;
-      }
-    }
-
-    sum /= (float) counter;
-    out[id] = sum;
-  }
-}
-
 void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentencesMask)
 {
   /*
@@ -217,32 +182,6 @@ void WeightedMean(HalfMatrix& Out,const HalfMatrix& Weights, const HalfMatrix& I
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
-__global__ void gWeightedMean(MatrixWrapper<float> out,
-                              const MatrixWrapper<float> weights,
-                              const MatrixWrapper<float> in,
-                              const MatrixWrapper<uint> mapping
-                              )
-{
-  int numHypos = weights.dim(0);
-  int states = in.dim(1);
-  int srcLen = weights.dim(1);
-
-  int id = threadIdx.x + blockIdx.x * blockDim.x;
-  if (id < numHypos * states) {
-    int hypoInd = id / states;
-    int batchInd = mapping[hypoInd];
-    int stateInd = id % states;
-    //printf("hypoInd=%d batchInd=%d stateInd=%d \n", hypoInd, batchInd, stateInd);
-
-    float sum = 0.0f;
-    for (uint i = 0; i < srcLen; ++i) {
-      sum += weights(hypoInd, i, 0, 0) * in(i, stateInd, 0, batchInd);
-    }
-
-    out[id] = sum;
-  }
-}
 
 void WeightedMean(Matrix& Out,
                   const Matrix& Weights,
@@ -360,25 +299,6 @@ void PasteRows(HalfMatrix& Out, const HalfMatrix& In, const size_t rowNo, size_t
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gPasteRows(  MatrixWrapper<float> out,
-                          const MatrixWrapper<float> in,
-                          int rowNo, int colNo)
-{
-  int inRows = in.dim(0);
-  int inCols = in.dim(1);
-
-  int id = threadIdx.x + blockIdx.x * blockDim.x;
-  if (id < inRows * inCols) {
-    int outCols = out.dim(1);
-
-    int inRow = id / inCols;
-    int inCol = id % inCols;
-
-    //out[outID] = in[id];
-    out(rowNo, inCol + colNo, 0, inRow) = in(inRow, inCol, 0, 0);
-  }
-}
-
 void PasteRows(Matrix& Out, const Matrix& In, const size_t rowNo, size_t colNo)
 {
   /*
@@ -490,24 +410,6 @@ HalfMatrix& CopyRows(HalfMatrix& Out,
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gCopyRows(MatrixWrapper<float> out,
-                          const MatrixWrapper<float> in,
-                          const MatrixWrapper<uint> indicesWrap)
-{
-  int id = threadIdx.x + blockIdx.x * blockDim.x;
-
-  if (id < out.size()) {
-	  uint dim[SHAPE_SIZE];
-	  out.id2Indices(id, dim);
-
-	  size_t indicesInd = dim[0];
-	  size_t inRow =indicesWrap[indicesInd];
-
-      out(indicesInd, dim[1], 0, 0) = in(inRow, dim[1], 0, 0);
-
-  }
-}
-
 Matrix& CopyRows(Matrix& Out,
                  const Matrix& In,
                  const DeviceVector<uint>& indices)
@@ -612,24 +514,6 @@ HalfMatrix& Slice(HalfMatrix& Out,
 
 
 /////////////////////////////////////////////////////////////////////////////
-
-__global__ void gSlice(MatrixWrapper<float> out,
-                      const MatrixWrapper<float> in,
-                       size_t n, size_t dim)
-{
-  size_t row = blockIdx.x;
-
-  size_t inCol = threadIdx.x + dim * n;
-  size_t outCol = threadIdx.x;
-
-  while (outCol < out.dim(1)) {
-    out(row, outCol, 0, 0) = in(row, inCol, 0, 0);
-
-    inCol += blockDim.x;
-    outCol += blockDim.x;
-  }
-
-}
 
 Matrix& Slice(Matrix& Out,
               const Matrix& In,
@@ -863,91 +747,6 @@ HalfMatrix& Softmax(HalfMatrix& Out,
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gSoftMax(MatrixWrapper<float> out,
-                         const MatrixWrapper<uint> batchIdsWrap,
-                         const MatrixWrapper<uint> sentencesMappingWrap,
-                         uint shareSize)
-{
-  extern __shared__ float _share[];
-
-  size_t numHypos = out.dim(0);
-  size_t srcLen = out.dim(1);
-
-  int hypoInd =  blockIdx.x;
-  int origSrcPos = threadIdx.x;
-
-  while (hypoInd < numHypos) {
-    MatrixWrapper<float> _max(_share, shareSize);
-    _max[origSrcPos] = out(hypoInd, origSrcPos, 0, 0);
-    for (int tid = 0; tid < srcLen; tid += blockDim.x) {
-      int srcPos = tid + origSrcPos;
-      if (srcPos < srcLen) {
-        float value = out(hypoInd, srcPos, 0, 0);
-
-        int batch = batchIdsWrap[hypoInd];
-        value *= sentencesMappingWrap(srcPos, batch, 0, 0);
-        if (value > _max[origSrcPos]) {
-          _max[origSrcPos] = value;
-        }
-      }
-    }
-
-    int len = blockDim.x;
-    while (len != 1) {
-      __syncthreads();
-
-      int skip = (len + 1) >> 1;
-      if (origSrcPos < (len >> 1)) {
-        if(_max[origSrcPos + skip] > _max[origSrcPos])
-          _max[origSrcPos] = _max[origSrcPos + skip];
-      }
-      len = (len + 1) >> 1;
-    }
-    __syncthreads();
-    float max = _max[0];
-    __syncthreads();
-
-    //float* _sum = _share;// + blockDim.x;
-    MatrixWrapper<float> _sum(_share, shareSize);
-
-    _sum[origSrcPos] = 0.0f;
-    for (int tid = 0; tid < srcLen; tid += blockDim.x) {
-      int srcPos = tid + origSrcPos;
-      if (srcPos < srcLen) {
-        out(hypoInd, srcPos, 0, 0) = __expf(out(hypoInd, srcPos, 0, 0) - max);
-
-        int batch = batchIdsWrap[hypoInd];
-        out(hypoInd, srcPos, 0, 0) *= sentencesMappingWrap(srcPos, batch, 0, 0);
-        _sum[origSrcPos] += out(hypoInd, srcPos, 0, 0);
-      }
-    }
-
-    __syncthreads();
-
-    len = blockDim.x;
-    while (len != 1) {
-      __syncthreads();
-
-      int skip = (len + 1) >> 1;
-      if (origSrcPos < (len >> 1)) {
-        _sum[origSrcPos] += _sum[origSrcPos + skip];
-      }
-      len = (len + 1) >> 1;
-    }
-
-    __syncthreads();
-
-    for (int tid = 0; tid < srcLen; tid += blockDim.x) {
-      int srcPos = tid + origSrcPos;
-      if (srcPos < srcLen) {
-        out(hypoInd, srcPos, 0, 0) /= _sum[0];
-      }
-    }
-    __syncthreads();
-    hypoInd += gridDim.x;
-  }
-}
-
 Matrix& Softmax(Matrix& Out,
                 const DeviceVector<uint>& batchIds,
                 const mblas::IMatrix &sentencesMask,
@@ -1077,86 +876,6 @@ HalfMatrix& LogSoftmax(HalfMatrix& Out)
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gLogSoftMax(MatrixWrapper<float> out, uint shareSize)
-{
-  extern __shared__ float _share[];
-
-  size_t rows = out.dim(0);
-  size_t cols = out.dim(1);
-
-  int rowIdx =  blockIdx.x;
-
-  while (rowIdx < rows) {
-    //float* _max = _share;
-    MatrixWrapper<float> _max(_share, shareSize);
-
-    _max[threadIdx.x] = out(rowIdx, threadIdx.x, 0, 0);
-    for (int tid = 0; tid < cols; tid += blockDim.x) {
-      int id = tid + threadIdx.x;
-      if (id < cols) {
-        const float &val = out(rowIdx, id, 0, 0);
-        if (val > _max[threadIdx.x]) {
-          _max[threadIdx.x] = val;
-        }
-      }
-    }
-
-    int len = blockDim.x;
-    while (len != 1) {
-      __syncthreads();
-
-      int skip = (len + 1) >> 1;
-      if (threadIdx.x < (len >> 1)) {
-        if(_max[threadIdx.x + skip] > _max[threadIdx.x])
-          _max[threadIdx.x] = _max[threadIdx.x + skip];
-      }
-      len = (len + 1) >> 1;
-    }
-    __syncthreads();
-    float max = _max[0];
-    __syncthreads();
-
-    //float* _sum = _share;// + blockDim.x;
-    MatrixWrapper<float> _sum(_share, shareSize);
-
-    _sum[threadIdx.x] = 0.0f;
-    for (int tid = 0; tid < cols; tid += blockDim.x) {
-      int id = tid + threadIdx.x;
-      if (id < cols) {
-        //row[id] = exp(row[id] - max);
-        float &val = out(rowIdx, id, 0, 0);
-        val = __expf(val - max);
-        _sum[threadIdx.x] += val;
-      }
-    }
-
-    len = blockDim.x;
-    while (len != 1) {
-      __syncthreads();
-
-      int skip = (len + 1) >> 1;
-      if (threadIdx.x < (len >> 1)) {
-        _sum[threadIdx.x] += _sum[threadIdx.x + skip];
-      }
-      len = (len + 1) >> 1;
-    }
-
-    __syncthreads();
-
-    for (int tid = 0; tid < cols; tid += blockDim.x) {
-      int id = tid + threadIdx.x;
-      if (id < cols) {
-        //row[id] = log(row[id]/_sum[0]);
-        float &val = out(rowIdx, id, 0, 0);
-        val = __logf(val /_sum[0]);
-      }
-    }
-    __syncthreads();
-    rowIdx += gridDim.x;
-  }
-}
-
-
 Matrix& LogSoftmax(Matrix& Out)
 {
   /*
@@ -1205,16 +924,6 @@ void SetColumn(HalfMatrix& In, int noColumn, float value) {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
-__global__ void gSetColumn(MatrixWrapper<float> in, int noColumn, float value) {
-  int n_rows = in.dim(0);
-
-  int rowNumber = threadIdx.x  + blockDim.x * blockIdx.x;
-
-  if (rowNumber < n_rows) {
-    in(rowNumber, noColumn, 0, 0) = value;
-  }
-}
 
 void SetColumn(Matrix& In, int noColumn, float value) {
   /*
@@ -1267,13 +976,6 @@ void Fill(HalfMatrix& In, float value)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
-__global__ void gFill(MatrixWrapper<float> in, float val) {
-  int index = threadIdx.x + blockDim.x * blockIdx.x;
-  if (index < in.size()) {
-    in[index] = val;
-  }
-}
 
 void Fill(Matrix& In, float value)
 {
@@ -1353,22 +1055,6 @@ void MapMatrix(HalfMatrix& state, const mblas::IMatrix &sentencesMask, size_t i)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
-__global__
-void gMapMatrix(MatrixWrapper<float> in,
-                const MatrixWrapper<uint> sentencesMappingWrap,
-                int mappingCols, int i)
-{
-  int tid = threadIdx.x + blockIdx.x * blockDim.x;
-  if (tid < in.size()) {
-    int numCols = in.dim(1);
-    int batchIdx = tid / numCols;
-    int col = tid % numCols;
-
-    //in[tid] *= mappingWrap(i, batchIdx, 0, 0);
-    in(batchIdx, col, 0, 0) *= sentencesMappingWrap(i, batchIdx, 0, 0); // [mappingCols * batchIdx + i];
-  }
-}
 
 void MapMatrix(Matrix& state, const mblas::IMatrix &sentencesMask, size_t i)
 {
@@ -1524,83 +1210,6 @@ void Normalization(HalfMatrix &out,
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gLNormalization(MatrixWrapper<float> out,
-                                const MatrixWrapper<float> in,
-                                const MatrixWrapper<float> alphaWrap,
-                                const MatrixWrapper<float> betaWrap,
-                                float eps=0.00001)
-{
-  extern __shared__ float _share[];
-
-  //printf("blockDim.x=%d gridDim.x=%d \n", blockDim.x, gridDim.x);
-  // blockDim.x=512 gridDim.x=1
-
-  int cols = in.dim(1);
-
-  assert(blockIdx.x < in.dim(0));
-  assert(blockIdx.y < in.dim(2));
-  assert(blockIdx.z < in.dim(3));
-
-  float* _sum = _share + blockDim.x;
-  _sum[threadIdx.x] = 0.0f;
-  for (int tid = 0; tid < cols; tid += blockDim.x) {
-    int id = tid + threadIdx.x;
-    if (id < cols) {
-      _sum[threadIdx.x] += in(blockIdx.x, id, blockIdx.y, blockIdx.z);
-    }
-  }
-  __syncthreads();
-  int len = blockDim.x;
-  while(len != 1) {
-    __syncthreads();
-    int skip = (len + 1) >> 1;
-    if (threadIdx.x < (len >> 1)) {
-      _sum[threadIdx.x] += _sum[threadIdx.x + skip];
-    }
-    len = (len + 1) >> 1;
-  }
-  __syncthreads();
-  float mean = _sum[0] / cols;
-  __syncthreads();
-
-  float* _sqSum = _share + blockDim.x;
-
-  _sqSum[threadIdx.x] = 0.0;
-  for (int tid = 0; tid < cols; tid += blockDim.x) {
-    int id = tid + threadIdx.x;
-    if(id < cols) {
-      float ex = in(blockIdx.x, id, blockIdx.y, blockIdx.z) - mean;
-      out(blockIdx.x, id, blockIdx.y, blockIdx.z) = ex;
-      _sqSum[threadIdx.x] += ex * ex;
-    }
-  }
-  __syncthreads();
-  len = blockDim.x;
-  while(len != 1) {
-    __syncthreads();
-    int skip = (len + 1) >> 1;
-    if(threadIdx.x < (len >> 1))
-      _sqSum[threadIdx.x] += _sqSum[threadIdx.x + skip];
-    len = (len + 1) >> 1;
-  }
-  __syncthreads();
-  float sigma = sqrtf(eps + (_sqSum[0] / cols));
-  __syncthreads();
-
-  for (int tid = 0; tid < cols; tid += blockDim.x) {
-    int id = tid + threadIdx.x;
-    if(id < cols) {
-      float &val = out(blockIdx.x, id, blockIdx.y, blockIdx.z);
-      if (betaWrap.size()) {
-        val = alphaWrap[id] * (val / sigma) + betaWrap[id];
-      } else {
-        val = alphaWrap[id] * (val / sigma);
-      }
-    }
-  }
-
-}
-
 void Normalization(Matrix &out,
                   const Matrix &in,
                   const Matrix &alpha,
@@ -1664,23 +1273,6 @@ void Normalization(Matrix& out, const Matrix& in, const Matrix& alpha, float eps
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gRandomizeMemory(int *data)
-{
-  clock_t start = clock();
-
-}
-
-void RandomizeMemory()
-{
-  int *data;
-  HANDLE_ERROR( cudaMalloc((void**)&data, 8 * 1024 ^ 3) );
-
-  uint threads = 1024;
-  uint blocks = 8 * 1024 ^ 3 / threads;
-  gRandomizeMemory<<<blocks, threads>>>(data);
-}
-
-/////////////////////////////////////////////////////////////////////////////
 
 }  // namespace mblas
 }  // namespace GPU
