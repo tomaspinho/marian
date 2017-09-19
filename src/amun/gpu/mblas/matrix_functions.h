@@ -523,7 +523,7 @@ Matrix& BroadcastVec(Functor functor, Matrix& Out, const Matrix& In)
 
 template <class Functor>
 __global__ void gElement(Functor functor,
-                         MatrixWrapper<float> outWrap)
+                         MatrixWrapper<half> outWrap)
 {
   size_t ind = blockIdx.x * blockDim.x + threadIdx.x;
   if (ind < outWrap.size()) {
@@ -532,9 +532,28 @@ __global__ void gElement(Functor functor,
 }
 
 template <class Functor>
+HalfMatrix& Element(Functor functor,
+                HalfMatrix& Out)
+{
+  int threads = MAX_THREADS;
+  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
+  const cudaStream_t& stream = CudaStreamHandler::GetStream();
+
+  MatrixWrapper<half> outWrap(Out);
+
+  gElement<<<blocks, threads, 0, stream>>>
+    (functor, outWrap);
+
+  return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+template <class Functor>
 Matrix& Element(Functor functor,
                 Matrix& Out)
 {
+  /*
   int threads = MAX_THREADS;
   int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
   const cudaStream_t& stream = CudaStreamHandler::GetStream();
@@ -543,6 +562,14 @@ Matrix& Element(Functor functor,
 
   gElement<<<blocks, threads, 0, stream>>>
     (functor, outWrap);
+  */
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  Element(functor, halfOut);
+
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
+  CopyMatrix(Out, halfOut);
 
   return Out;
 }
