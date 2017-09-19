@@ -131,6 +131,43 @@ void CopyMatrix(TMatrix<Tout> &out, const TMatrix<Tin> &in)
 
 /////////////////////////////////////////////////////////////////////////////
 
+template<typename Tout, typename Tin>
+__global__ void gCopyVector(Tout *out,
+                            const Tin *in,
+                            size_t size)
+{
+  int id = threadIdx.x + blockIdx.x * blockDim.x;
+  if (id < size) {
+    out[id] = in[id];
+  }
+
+}
+
+template<typename Tout, typename Tin>
+void CopyVector(DeviceVector<Tout> &out, const DeviceVector<Tin> &in)
+{
+  if (in.size() == 0) {
+    return;
+  }
+  //cerr << "out=" << out.Debug(0) << endl;
+  //cerr << "in=" << in.Debug(0) << endl;
+
+  assert(out.size() == in.size());
+
+  uint size = in.size();
+  uint threads = std::min(size, (uint) MAX_THREADS);
+  uint blocks  = (size / threads) + 1;
+
+  const cudaStream_t &stream = CudaStreamHandler::GetStream();
+
+  gCopyVector<<<blocks, threads, 0, stream>>>(
+      thrust::raw_pointer_cast(out.data()),
+      thrust::raw_pointer_cast(in.data()),
+      size);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 
 template<typename T>
 void copy(const T *in, size_t count, T *out,  cudaMemcpyKind kind) {
@@ -324,14 +361,15 @@ Matrix& Broadcast(Functor functor,
 
 template <class Functor>
 __global__ void gBroadcastVecColumn(Functor functor,
-                                    MatrixWrapper<float> outWrap,
-                                    const MatrixWrapper<float> inWrap) {
-  extern __shared__ float sdataOrig[];
+                                    MatrixWrapper<half> outWrap,
+                                    const MatrixWrapper<half> inWrap)
+{
+  extern __shared__ half sdataOrigHalf[];
 
   size_t rows  = outWrap.dim(0);
   size_t cols = outWrap.dim(1);
 
-  MatrixWrapper<float> sdata(sdataOrig, rows);
+  MatrixWrapper<half> sdata(sdataOrigHalf, rows);
 
   if (threadIdx.x == 0) {
     for (int i = 0; i < rows; ++i)
@@ -342,14 +380,40 @@ __global__ void gBroadcastVecColumn(Functor functor,
   int noColumn = threadIdx.x + blockDim.x * blockIdx.x;
   if (noColumn < cols) {
     for (int noRow = 0; noRow < rows; ++noRow) {
-      float &val = outWrap(noRow, noColumn, 0, 0);
+      half &val = outWrap(noRow, noColumn, 0, 0);
       val = functor(val, sdata[noRow]);
     }
   }
 }
 
 template <class Functor>
-Matrix& BroadcastVecColumn(Functor functor, Matrix& Out, const DeviceVector<float>& In) {
+HalfMatrix& BroadcastVecColumn(Functor functor,
+                              HalfMatrix& Out,
+                              const DeviceVector<half>& In)
+{
+  size_t rows  = Out.dim(0);
+  size_t cols = Out.dim(1);
+
+  MatrixWrapper<half> outWrap(Out);
+  const MatrixWrapper<half> inWrap(In);
+
+  int threads = std::min(MAX_THREADS, (int)cols);
+  int blocks  = cols / threads  + ((cols % threads == 0) ?  0 : 1);
+
+  gBroadcastVecColumn<<<blocks, threads, rows * sizeof(half), CudaStreamHandler::GetStream()>>>
+    (functor, outWrap, inWrap);
+
+  return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+template <class Functor>
+Matrix& BroadcastVecColumn(Functor functor,
+                          Matrix& Out,
+                          const DeviceVector<float>& In)
+{
+  /*
   size_t rows  = Out.dim(0);
   size_t cols = Out.dim(1);
 
@@ -361,6 +425,17 @@ Matrix& BroadcastVecColumn(Functor functor, Matrix& Out, const DeviceVector<floa
 
   gBroadcastVecColumn<<<blocks, threads, rows * sizeof(float), CudaStreamHandler::GetStream()>>>
     (functor, outWrap, inWrap);
+  */
+
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  DeviceVector<half> halfIn(In.size());
+  CopyVector(halfIn, In);
+
+  BroadcastVecColumn(functor, halfOut, halfIn);
+
+  CopyMatrix(Out, halfOut);
 
   return Out;
 }
