@@ -192,9 +192,9 @@ Matrix& LogSoftmax(Matrix& Out);
 
 template <class Functor>
 __global__ void gBroadcast(Functor functor,
-                           MatrixWrapper<float> outWrap,
-                           const MatrixWrapper<float> in1Wrap,
-                           const MatrixWrapper<float> in2Wrap,
+                           MatrixWrapper<half> outWrap,
+                           const MatrixWrapper<half> in1Wrap,
+                           const MatrixWrapper<half> in2Wrap,
                            const MatrixWrapper<uint> batchMappingWrap)
 {
   size_t srcSize = outWrap.dim(2);
@@ -231,18 +231,23 @@ __global__ void gBroadcast(Functor functor,
 }
 
 template <class Functor>
-Matrix& Broadcast(Functor functor, Matrix& OutOrig, const Matrix& In, const DeviceVector<uint>& batchMapping, size_t srcSize) {
+HalfMatrix& Broadcast(Functor functor,
+                      HalfMatrix& OutOrig,
+                      const HalfMatrix& In,
+                      const DeviceVector<uint>& batchMapping,
+                      size_t srcSize)
+{
   size_t sumOfBeamSizes = In.dim(0);
 
   //size_t rows = srcSize * sumOfBeamSizes;
   size_t cols  = OutOrig.dim(1);
 
-  thread_local static Matrix OutNew;
+  thread_local static HalfMatrix OutNew;
   OutNew.NewSize(sumOfBeamSizes, cols, srcSize);
 
-  MatrixWrapper<float> outWrap(OutNew);
-  const MatrixWrapper<float> in1Wrap(OutOrig);
-  const MatrixWrapper<float> in2Wrap(In);
+  MatrixWrapper<half> outWrap(OutNew);
+  const MatrixWrapper<half> in1Wrap(OutOrig);
+  const MatrixWrapper<half> in2Wrap(In);
   const MatrixWrapper<uint> batchMappingWrap(batchMapping);
 
   int threads = MAX_THREADS;
@@ -265,7 +270,52 @@ Matrix& Broadcast(Functor functor, Matrix& OutOrig, const Matrix& In, const Devi
   HANDLE_ERROR(cudaDeviceSynchronize());
   */
 
+  OutOrig.swap(OutNew);
+  return OutOrig;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+template <class Functor>
+Matrix& Broadcast(Functor functor,
+                  Matrix& OutOrig,
+                  const Matrix& In,
+                  const DeviceVector<uint>& batchMapping,
+                  size_t srcSize)
+{
+  /*
+  size_t sumOfBeamSizes = In.dim(0);
+
+  size_t cols  = OutOrig.dim(1);
+
+  thread_local static Matrix OutNew;
+  OutNew.NewSize(sumOfBeamSizes, cols, srcSize);
+
+  MatrixWrapper<float> outWrap(OutNew);
+  const MatrixWrapper<float> in1Wrap(OutOrig);
+  const MatrixWrapper<float> in2Wrap(In);
+  const MatrixWrapper<uint> batchMappingWrap(batchMapping);
+
+  int threads = MAX_THREADS;
+  int blocks  = (OutNew.size() / threads) + ((OutNew.size() % threads == 0) ?  0 : 1);
+
+  gBroadcast<<<blocks, threads, 0, CudaStreamHandler::GetStream()>>>
+    (functor, outWrap, in1Wrap, in2Wrap, batchMappingWrap);
+
+
   Swap(OutOrig, OutNew);
+  */
+
+  HalfMatrix halfOutOrig(OutOrig.dim(0), OutOrig.dim(1), OutOrig.dim(2), OutOrig.dim(3));
+  CopyMatrix(halfOutOrig, OutOrig);
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  Broadcast(functor, halfOutOrig, halfIn, batchMapping, srcSize);
+
+  CopyMatrix(OutOrig, halfOutOrig);
+
   return OutOrig;
 }
 
