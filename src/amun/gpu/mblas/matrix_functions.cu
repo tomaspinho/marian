@@ -1240,6 +1240,34 @@ void SetColumn(Matrix& In, int noColumn, float value) {
 
 /////////////////////////////////////////////////////////////////////////////
 
+__global__ void gFill(MatrixWrapper<half> in, float val) {
+  int index = threadIdx.x + blockDim.x * blockIdx.x;
+  if (index < in.size()) {
+    in[index] = val;
+  }
+}
+
+void Fill(HalfMatrix& In, float value)
+{
+  size_t size = In.size();
+
+  if (value) {
+    int nThreads = std::min(MAX_THREADS, (int)size);
+    int nBlocks = (size / nThreads) + ((size % nThreads == 0) ? 0 : 1);
+
+    MatrixWrapper<half> inWrap(In);
+
+    gFill<<<nBlocks, nThreads, 0, CudaStreamHandler::GetStream()>>>
+      (inWrap, value);
+  }
+  else {
+    HANDLE_ERROR(cudaMemsetAsync(In.data(), 0, size * sizeof(float), CudaStreamHandler::GetStream()));
+  }
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 __global__ void gFill(MatrixWrapper<float> in, float val) {
   int index = threadIdx.x + blockDim.x * blockIdx.x;
   if (index < in.size()) {
@@ -1249,6 +1277,7 @@ __global__ void gFill(MatrixWrapper<float> in, float val) {
 
 void Fill(Matrix& In, float value)
 {
+  /*
   size_t size = In.size();
 
   if (value) {
@@ -1263,8 +1292,19 @@ void Fill(Matrix& In, float value)
   else {
     HANDLE_ERROR(cudaMemsetAsync(In.data(), 0, size * sizeof(float), CudaStreamHandler::GetStream()));
   }
+  */
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  Fill(halfIn, value);
+
+  In.NewSize(halfIn.dim(0), halfIn.dim(1), halfIn.dim(2), halfIn.dim(3));
+  CopyMatrix(In, halfIn);
 
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 __global__
 void gMapMatrix(MatrixWrapper<float> in,
