@@ -324,6 +324,42 @@ Matrix& Copy(Matrix& Out, const Matrix& In) {
   return Out;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+__global__ void gPasteRows(  MatrixWrapper<half> out,
+                          const MatrixWrapper<half> in,
+                          int rowNo, int colNo)
+{
+  int inRows = in.dim(0);
+  int inCols = in.dim(1);
+
+  int id = threadIdx.x + blockIdx.x * blockDim.x;
+  if (id < inRows * inCols) {
+    int outCols = out.dim(1);
+
+    int inRow = id / inCols;
+    int inCol = id % inCols;
+
+    //out[outID] = in[id];
+    out(rowNo, inCol + colNo, 0, inRow) = in(inRow, inCol, 0, 0);
+  }
+}
+
+void PasteRows(HalfMatrix& Out, const HalfMatrix& In, const size_t rowNo, size_t colNo)
+{
+  MatrixWrapper<half> outWrap(Out);
+  MatrixWrapper<half> inWrap(In);
+
+  int nThreads = MAX_THREADS;
+  int nBlocks =  (In.size() / nThreads) + ((In.size() % nThreads == 0) ?  0 : 1);
+
+  gPasteRows<<<nBlocks, nThreads, 0, CudaStreamHandler::GetStream()>>>
+    (outWrap, inWrap, rowNo, colNo);
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 __global__ void gPasteRows(  MatrixWrapper<float> out,
                           const MatrixWrapper<float> in,
                           int rowNo, int colNo)
@@ -345,6 +381,7 @@ __global__ void gPasteRows(  MatrixWrapper<float> out,
 
 void PasteRows(Matrix& Out, const Matrix& In, const size_t rowNo, size_t colNo)
 {
+  /*
   MatrixWrapper<float> outWrap(Out);
   MatrixWrapper<float> inWrap(In);
 
@@ -353,8 +390,21 @@ void PasteRows(Matrix& Out, const Matrix& In, const size_t rowNo, size_t colNo)
 
   gPasteRows<<<nBlocks, nThreads, 0, CudaStreamHandler::GetStream()>>>
     (outWrap, inWrap, rowNo, colNo);
+  */
 
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  PasteRows(halfOut, halfIn, rowNo, colNo);
+
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
+  CopyMatrix(Out, halfOut);
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 Matrix& PasteRow(Matrix& Out,
                  const Matrix& In,
