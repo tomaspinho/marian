@@ -981,6 +981,102 @@ Matrix& Softmax(Matrix& Out,
 
 /////////////////////////////////////////////////////////////////////////////
 
+__global__ void gLogSoftMax(MatrixWrapper<half> out, uint shareSize)
+{
+  extern __shared__ half _shareHalf[];
+
+  size_t rows = out.dim(0);
+  size_t cols = out.dim(1);
+
+  int rowIdx =  blockIdx.x;
+
+  while (rowIdx < rows) {
+    //float* _max = _share;
+    MatrixWrapper<half> _max(_shareHalf, shareSize);
+
+    _max[threadIdx.x] = out(rowIdx, threadIdx.x, 0, 0);
+    for (int tid = 0; tid < cols; tid += blockDim.x) {
+      int id = tid + threadIdx.x;
+      if (id < cols) {
+        const half &val = out(rowIdx, id, 0, 0);
+        if (val > _max[threadIdx.x]) {
+          _max[threadIdx.x] = val;
+        }
+      }
+    }
+
+    int len = blockDim.x;
+    while (len != 1) {
+      __syncthreads();
+
+      int skip = (len + 1) >> 1;
+      if (threadIdx.x < (len >> 1)) {
+        if(_max[threadIdx.x + skip] > _max[threadIdx.x])
+          _max[threadIdx.x] = _max[threadIdx.x + skip];
+      }
+      len = (len + 1) >> 1;
+    }
+    __syncthreads();
+    half max = _max[0];
+    __syncthreads();
+
+    //float* _sum = _share;// + blockDim.x;
+    MatrixWrapper<half> _sum(_shareHalf, shareSize);
+
+    _sum[threadIdx.x] = 0.0f;
+    for (int tid = 0; tid < cols; tid += blockDim.x) {
+      int id = tid + threadIdx.x;
+      if (id < cols) {
+        //row[id] = exp(row[id] - max);
+        half &val = out(rowIdx, id, 0, 0);
+        val = __expf(val - max);
+        _sum[threadIdx.x] += val;
+      }
+    }
+
+    len = blockDim.x;
+    while (len != 1) {
+      __syncthreads();
+
+      int skip = (len + 1) >> 1;
+      if (threadIdx.x < (len >> 1)) {
+        _sum[threadIdx.x] += _sum[threadIdx.x + skip];
+      }
+      len = (len + 1) >> 1;
+    }
+
+    __syncthreads();
+
+    for (int tid = 0; tid < cols; tid += blockDim.x) {
+      int id = tid + threadIdx.x;
+      if (id < cols) {
+        //row[id] = log(row[id]/_sum[0]);
+        half &val = out(rowIdx, id, 0, 0);
+        val = __logf(val /_sum[0]);
+      }
+    }
+    __syncthreads();
+    rowIdx += gridDim.x;
+  }
+}
+
+HalfMatrix& LogSoftmax(HalfMatrix& Out)
+{
+  MatrixWrapper<half> outWrap(Out);
+
+  int blocks = std::min(MAX_BLOCKS, (int)Out.dim(0));
+  int threads = std::min(MAX_THREADS, (int)Out.dim(1));
+  int shared = sizeof(half) * threads;
+
+  gLogSoftMax<<<blocks, threads, shared, CudaStreamHandler::GetStream()>>>
+    (Out, threads);
+
+  return Out;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
 __global__ void gLogSoftMax(MatrixWrapper<float> out, uint shareSize)
 {
   extern __shared__ float _share[];
@@ -1063,6 +1159,7 @@ __global__ void gLogSoftMax(MatrixWrapper<float> out, uint shareSize)
 
 Matrix& LogSoftmax(Matrix& Out)
 {
+  /*
   MatrixWrapper<float> outWrap(Out);
 
   int blocks = std::min(MAX_BLOCKS, (int)Out.dim(0));
@@ -1071,9 +1168,20 @@ Matrix& LogSoftmax(Matrix& Out)
 
   gLogSoftMax<<<blocks, threads, shared, CudaStreamHandler::GetStream()>>>
     (Out, threads);
+  */
+
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  LogSoftmax(halfOut);
+
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
+  CopyMatrix(Out, halfOut);
 
   return Out;
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 __global__ void gSetColumn(MatrixWrapper<float> in, int noColumn, float value) {
   int n_rows = in.dim(0);
