@@ -1183,6 +1183,29 @@ Matrix& LogSoftmax(Matrix& Out)
 
 /////////////////////////////////////////////////////////////////////////////
 
+__global__ void gSetColumn(MatrixWrapper<half> in, int noColumn, float value) {
+  int n_rows = in.dim(0);
+
+  int rowNumber = threadIdx.x  + blockDim.x * blockIdx.x;
+
+  if (rowNumber < n_rows) {
+    in(rowNumber, noColumn, 0, 0) = value;
+  }
+}
+
+void SetColumn(HalfMatrix& In, int noColumn, float value) {
+  int nRows = In.dim(0);
+  int nBlocks = nRows / MAX_THREADS + ((nRows % MAX_THREADS == 0) ?  0 : 1);
+  int nThreads = std::min(MAX_THREADS, nRows);
+
+  MatrixWrapper<half> inWrap(In);
+
+  gSetColumn<<<nBlocks, nThreads, 0, mblas::CudaStreamHandler::GetStream()>>>
+    (inWrap, noColumn, value);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 __global__ void gSetColumn(MatrixWrapper<float> in, int noColumn, float value) {
   int n_rows = in.dim(0);
 
@@ -1194,6 +1217,7 @@ __global__ void gSetColumn(MatrixWrapper<float> in, int noColumn, float value) {
 }
 
 void SetColumn(Matrix& In, int noColumn, float value) {
+  /*
   int nRows = In.dim(0);
   int nBlocks = nRows / MAX_THREADS + ((nRows % MAX_THREADS == 0) ?  0 : 1);
   int nThreads = std::min(MAX_THREADS, nRows);
@@ -1202,7 +1226,19 @@ void SetColumn(Matrix& In, int noColumn, float value) {
 
   gSetColumn<<<nBlocks, nThreads, 0, mblas::CudaStreamHandler::GetStream()>>>
     (inWrap, noColumn, value);
+  */
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  SetColumn(halfIn, noColumn, value);
+
+  In.NewSize(halfIn.dim(0), halfIn.dim(1), halfIn.dim(2), halfIn.dim(3));
+  CopyMatrix(In, halfIn);
+
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 __global__ void gFill(MatrixWrapper<float> in, float val) {
   int index = threadIdx.x + blockDim.x * blockIdx.x;
