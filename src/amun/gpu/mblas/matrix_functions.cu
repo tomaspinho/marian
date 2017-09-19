@@ -157,6 +157,67 @@ void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentencesMask)
   CopyMatrix(Out, halfOut);
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+__global__ void gWeightedMean(MatrixWrapper<half> out,
+                              const MatrixWrapper<half> weights,
+                              const MatrixWrapper<half> in,
+                              const MatrixWrapper<uint> mapping
+                              )
+{
+  int numHypos = weights.dim(0);
+  int states = in.dim(1);
+  int srcLen = weights.dim(1);
+
+  int id = threadIdx.x + blockIdx.x * blockDim.x;
+  if (id < numHypos * states) {
+    int hypoInd = id / states;
+    int batchInd = mapping[hypoInd];
+    int stateInd = id % states;
+    //printf("hypoInd=%d batchInd=%d stateInd=%d \n", hypoInd, batchInd, stateInd);
+
+    half sum = 0.0f;
+    for (uint i = 0; i < srcLen; ++i) {
+      sum += weights(hypoInd, i, 0, 0) * in(i, stateInd, 0, batchInd);
+    }
+
+    out[id] = sum;
+  }
+}
+
+void WeightedMean(HalfMatrix& Out,const HalfMatrix& Weights, const HalfMatrix& In, const DeviceVector<uint>& mapping)
+{
+  int numHypos = Weights.dim(0);
+  int states = In.dim(1);
+
+  Out.NewSize(numHypos, states);
+
+  MatrixWrapper<half> outWrap(Out);
+  MatrixWrapper<half> weightsWrap(Weights);
+  MatrixWrapper<half> inWrap(In);
+  MatrixWrapper<uint> mappingWrap(mapping);
+
+  int nThreads = MAX_THREADS;
+  int nBlocks =  (Out.size() / nThreads) + ((Out.size() % nThreads == 0) ?  0 : 1);
+
+  gWeightedMean<<<nBlocks, nThreads, 0, CudaStreamHandler::GetStream()>>>
+    (outWrap, weightsWrap, inWrap, mappingWrap);
+  /*
+  cerr << "nBlocks=" << nBlocks << endl;
+
+  cerr << "Out=" << outWrap.Debug() << endl;
+  cerr << "Weights=" << weightsWrap.Debug() << endl;
+  cerr << "In=" << inWrap.Debug() << endl;
+  cerr << "mapping=" << mapping.size() << endl;
+  for (size_t i = 0; i < mapping.size(); ++i) {
+    cerr << mapping[i] << " ";
+  }
+  cerr << endl << endl;
+  */
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 __global__ void gWeightedMean(MatrixWrapper<float> out,
                               const MatrixWrapper<float> weights,
                               const MatrixWrapper<float> in,
@@ -183,7 +244,12 @@ __global__ void gWeightedMean(MatrixWrapper<float> out,
   }
 }
 
-void WeightedMean(Matrix& Out,const Matrix& Weights, const Matrix& In, const DeviceVector<uint>& mapping) {
+void WeightedMean(Matrix& Out,
+                  const Matrix& Weights,
+                  const Matrix& In,
+                  const DeviceVector<uint>& mapping)
+{
+  /*
   int numHypos = Weights.dim(0);
   int states = In.dim(1);
 
@@ -199,19 +265,24 @@ void WeightedMean(Matrix& Out,const Matrix& Weights, const Matrix& In, const Dev
 
   gWeightedMean<<<nBlocks, nThreads, 0, CudaStreamHandler::GetStream()>>>
     (outWrap, weightsWrap, inWrap, mappingWrap);
-  /*
-  cerr << "nBlocks=" << nBlocks << endl;
-
-  cerr << "Out=" << outWrap.Debug() << endl;
-  cerr << "Weights=" << weightsWrap.Debug() << endl;
-  cerr << "In=" << inWrap.Debug() << endl;
-  cerr << "mapping=" << mapping.size() << endl;
-  for (size_t i = 0; i < mapping.size(); ++i) {
-    cerr << mapping[i] << " ";
-  }
-  cerr << endl << endl;
   */
+
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  HalfMatrix halfWeights(Weights.dim(0), Weights.dim(1), Weights.dim(2), Weights.dim(3));
+  CopyMatrix(halfWeights, Weights);
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  WeightedMean(halfOut, halfWeights, halfIn, mapping);
+
+  CopyMatrix(Out, halfOut);
+
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 Matrix& Transpose(Matrix& Out, const Matrix& In) {
   size_t m = In.dim(0);
