@@ -278,6 +278,7 @@ void WeightedMean(Matrix& Out,
 
   WeightedMean(halfOut, halfWeights, halfIn, mapping);
 
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
   CopyMatrix(Out, halfOut);
 
 }
