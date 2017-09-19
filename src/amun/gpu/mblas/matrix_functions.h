@@ -535,7 +535,6 @@ template <class Functor>
 Matrix& Element(Functor functor,
                 Matrix& Out)
 {
-  /*
   int threads = MAX_THREADS;
   int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
   const cudaStream_t& stream = CudaStreamHandler::GetStream();
@@ -544,7 +543,6 @@ Matrix& Element(Functor functor,
 
   gElement<<<blocks, threads, 0, stream>>>
     (functor, outWrap);
-  */
 
   return Out;
 }
