@@ -314,6 +314,7 @@ Matrix& Broadcast(Functor functor,
 
   Broadcast(functor, halfOutOrig, halfIn, batchMapping, srcSize);
 
+  OutOrig.NewSize(halfOutOrig.dim(0), halfOutOrig.dim(1), halfOutOrig.dim(2), halfOutOrig.dim(3));
   CopyMatrix(OutOrig, halfOutOrig);
 
   return OutOrig;
