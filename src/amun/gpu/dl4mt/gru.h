@@ -105,6 +105,16 @@ __global__ void gElementwiseOps(mblas::MatrixWrapper<float> outWrap,
                                 const mblas::MatrixWrapper<float> bx1Wrap,
                                 const mblas::MatrixWrapper<float> bx2Wrap);
 
+__global__ void gElementwiseOps(mblas::MatrixWrapper<half> outWrap,
+                                const mblas::MatrixWrapper<half> stateWrap,
+                                const mblas::MatrixWrapper<half> ruhWrap,
+                                const mblas::MatrixWrapper<half> tempWrap,
+                                const mblas::MatrixWrapper<half> bWrap,
+                                const mblas::MatrixWrapper<half> bx1Wrap,
+                                const mblas::MatrixWrapper<half> bx2Wrap);
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 template <class Weights>
 class FastGRU {
 
