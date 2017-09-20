@@ -14,8 +14,6 @@ namespace GPU {
     } \
   }
 
-#define HANDLE_ERROR( err ) (HandleError( err, __FILE__, __LINE__ ))
-
 __global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
                             const mblas::MatrixWrapper<float> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
@@ -270,6 +268,84 @@ __global__ void gGetValueByKey(mblas::MatrixWrapper<float> out,
       indices[tid] = indices[tid + ( n ) ]; \
     } \
   }
+
+__global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
+                            const mblas::MatrixWrapper<half> probsWrap,
+                            const mblas::MatrixWrapper<uint> batchPositionWrap,
+                            uint numBatches) {
+  extern __shared__ half sdataHalf[];
+  __shared__ uint indices[SHARED_SIZE];
+
+  uint tid = threadIdx.x;
+
+  for (uint batchIdx = 0; batchIdx < numBatches; ++batchIdx) {
+    uint begin = batchPositionWrap[batchIdx];
+    uint end = batchPositionWrap[batchIdx + 1];
+
+    uint i = begin + blockIdx.x * (blockDim.x * 2) + tid;
+
+    sdataHalf[tid] = -3.40282e+38f;
+
+    if (i < end) {
+      sdataHalf[tid] = probsWrap[i];
+      indices[tid] = i;
+    }
+
+    if (i + blockDim.x < end) {
+      half a = probsWrap[i];
+      half b = probsWrap[i + blockDim.x];
+      if (a > b) {
+        sdataHalf[tid] = a;
+        indices[tid] = i;
+      } else {
+        sdataHalf[tid] = b;
+        indices[tid] = i + blockDim.x;
+      }
+    }
+
+    while (i + 2 * gridDim.x * blockDim.x < end) {
+      i += 2 * gridDim.x * blockDim.x;
+
+      half a = probsWrap[i];
+      if (a > sdataHalf[tid]) {
+        sdataHalf[tid] = a;
+        indices[tid] = i;
+      }
+
+      if (i + blockDim.x < end) {
+        half b = probsWrap[i + blockDim.x];
+        if (b > sdataHalf[tid]) {
+          sdataHalf[tid] = b;
+          indices[tid] = i + blockDim.x;
+        }
+      }
+    }
+
+    __syncthreads();
+
+    for (uint s = (blockDim.x >> 1); s > 32; s >>= 1) {
+      if (tid < s && tid + s < end) {
+        if (sdataHalf[tid + s] > sdataHalf[tid]) {
+          sdataHalf[tid] = sdataHalf[tid + s];
+          indices[tid] = indices[tid + s];
+        }
+      }
+      __syncthreads();
+    }
+
+    UNROLL_MAXARG_LOOP_HALF(32, end);
+    UNROLL_MAXARG_LOOP_HALF(16, end);
+    UNROLL_MAXARG_LOOP_HALF(8, end);
+    UNROLL_MAXARG_LOOP_HALF(4, end);
+    UNROLL_MAXARG_LOOP_HALF(2, end);
+    UNROLL_MAXARG_LOOP_HALF(1, end);
+
+    if (tid == 0) {
+      out[blockIdx.x + batchIdx * gridDim.x] = {indices[0], sdataHalf[0]};
+    }
+    __syncthreads();
+  }
+}
 
 __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut> out,
                                   mblas::MatrixWrapper<half> probsWrap,
