@@ -46,6 +46,20 @@ __global__ void gElementwiseOps(mblas::MatrixWrapper<float> outWrap,
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+__device__
+half htanh(const half x)
+{
+  //half ret = ((half)1.0f - hexp((half)-2.0f * x)) / ((half)1.0f + hexp((half)-2.0f * x));
+  //half ret = (hexp((half)2.0f * x) - (half)1.0f) / (hexp((half)2.0f * x) + (half)1.0f);
+  //half ret = (hexp(x) - hexp(-x)) / (hexp(x) + hexp(-x));
+  half ret = tanhf(x);
+
+  return ret;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 __global__ void gElementwiseOps(mblas::MatrixWrapper<half> outWrap,
                                 const mblas::MatrixWrapper<half> stateWrap,
                                 const mblas::MatrixWrapper<half> ruhWrap,
@@ -62,7 +76,7 @@ __global__ void gElementwiseOps(mblas::MatrixWrapper<half> outWrap,
   for(int tid = 0; tid < cols; tid += blockDim.x) {
     int i = tid + threadIdx.x;
     if(i < cols) {
-      half ev1 = expf(-(ruhWrap(blockIdx.x, i, 0, 0)
+      half ev1 = hexp(-(ruhWrap(blockIdx.x, i, 0, 0)
                          + bWrap[i]
                          + tempWrap(blockIdx.x, i, 0, 0)
                         )
@@ -70,7 +84,7 @@ __global__ void gElementwiseOps(mblas::MatrixWrapper<half> outWrap,
       half r = ((half)1.0f) / ((half)1.0f + ev1);
 
       int k = i + cols;
-      half ev2 = expf(-(ruhWrap(blockIdx.x, k, 0, 0)
+      half ev2 = hexp(-(ruhWrap(blockIdx.x, k, 0, 0)
                          + bWrap[k]
                          + tempWrap(blockIdx.x, k, 0, 0)
                         )
@@ -83,7 +97,8 @@ __global__ void gElementwiseOps(mblas::MatrixWrapper<half> outWrap,
       half t2v = tempWrap(blockIdx.x, 2*cols + i, 0, 0)
                 + bx2Wrap[i];
 
-      hv = tanhf(hv + r * t2v);
+      hv = htanh(hv + r * t2v);
+      //hv = tanhf(hv + r * t2v);
       outWrap(blockIdx.x, i, 0, 0) = ((half)1.0f - u) * hv + u * stateWrap(blockIdx.x, i, 0, 0);
     }
   }

@@ -185,13 +185,13 @@ class FastGRU {
     }
 
 
-    void ElementwiseOps(mblas::Matrix& NextState,
-                        const mblas::Matrix& State,
-                        const mblas::Matrix& RUH,
-                        const mblas::Matrix& Temp) const
+    void ElementwiseOps(mblas::HalfMatrix& NextState,
+                        const mblas::HalfMatrix& State,
+                        const mblas::HalfMatrix& RUH,
+                        const mblas::HalfMatrix& Temp) const
     {
       //BEGIN_TIMER("ElementwiseOps");
-
+      //std::cerr << "half ElementwiseOps" << std::endl;
       assert(State.dim(2) == 1);
       assert(State.dim(3) == 1);
       assert(RUH.dim(2) == 1);
@@ -202,13 +202,23 @@ class FastGRU {
       NextState.NewSize(State.dim(0), State.dim(1), 1, 1);
       //std::cerr << "NextState=" << NextState.Debug() << std::endl;
 
-      mblas::MatrixWrapper<float> nextWrap(NextState);
-      const mblas::MatrixWrapper<float> stateWrap(State);
-      const mblas::MatrixWrapper<float> ruhWrap(RUH);
-      const mblas::MatrixWrapper<float> tempWrap(Temp);
-      const mblas::MatrixWrapper<float> bWrap(*w_.B_);
-      const mblas::MatrixWrapper<float> bx1Wrap(*w_.Bx1_);
-      const mblas::MatrixWrapper<float> bx2Wrap(*w_.Bx2_);
+      mblas::MatrixWrapper<half> nextWrap(NextState);
+      const mblas::MatrixWrapper<half> stateWrap(State);
+      const mblas::MatrixWrapper<half> ruhWrap(RUH);
+      const mblas::MatrixWrapper<half> tempWrap(Temp);
+
+      mblas::HalfMatrix halfB(w_.B_->dim(0), w_.B_->dim(1), w_.B_->dim(2), w_.B_->dim(3));
+      mblas::CopyMatrix(halfB, *w_.B_);
+
+      mblas::HalfMatrix halfBx1(w_.Bx1_->dim(0), w_.Bx1_->dim(1), w_.Bx1_->dim(2), w_.Bx1_->dim(3));
+      mblas::CopyMatrix(halfBx1, *w_.Bx1_);
+
+      mblas::HalfMatrix halfBx2(w_.Bx2_->dim(0), w_.Bx2_->dim(1), w_.Bx2_->dim(2), w_.Bx2_->dim(3));
+      mblas::CopyMatrix(halfBx1, *w_.Bx2_);
+
+      const mblas::MatrixWrapper<half> bWrap(halfB);
+      const mblas::MatrixWrapper<half> bx1Wrap(halfBx1);
+      const mblas::MatrixWrapper<half> bx2Wrap(halfBx2);
 
       /*
       std::cerr << "nextWrap=" << nextWrap.Debug() << std::endl;
@@ -229,6 +239,63 @@ class FastGRU {
       gElementwiseOps<<<blocks, threads, 0, mblas::CudaStreamHandler::GetStream()>>>
         (nextWrap, stateWrap, ruhWrap, tempWrap,
             bWrap, bx1Wrap, bx2Wrap);
+
+      //PAUSE_TIMER("ElementwiseOps");
+
+    }
+
+    void ElementwiseOps(mblas::Matrix& NextState,
+                        const mblas::Matrix& State,
+                        const mblas::Matrix& RUH,
+                        const mblas::Matrix& Temp) const
+    {
+      //BEGIN_TIMER("ElementwiseOps");
+      /*
+      assert(State.dim(2) == 1);
+      assert(State.dim(3) == 1);
+      assert(RUH.dim(2) == 1);
+      assert(RUH.dim(3) == 1);
+      assert(Temp.dim(2) == 1);
+      assert(Temp.dim(3) == 1);
+
+      NextState.NewSize(State.dim(0), State.dim(1), 1, 1);
+      //std::cerr << "NextState=" << NextState.Debug() << std::endl;
+
+      mblas::MatrixWrapper<float> nextWrap(NextState);
+      const mblas::MatrixWrapper<float> stateWrap(State);
+      const mblas::MatrixWrapper<float> ruhWrap(RUH);
+      const mblas::MatrixWrapper<float> tempWrap(Temp);
+      const mblas::MatrixWrapper<float> bWrap(*w_.B_);
+      const mblas::MatrixWrapper<float> bx1Wrap(*w_.Bx1_);
+      const mblas::MatrixWrapper<float> bx2Wrap(*w_.Bx2_);
+
+      const size_t cols = State.dim(1);
+      const size_t rows = State.dim(0);
+
+      int threads = std::min(MAX_THREADS, (int)cols);
+      int blocks  = rows;
+
+      gElementwiseOps<<<blocks, threads, 0, mblas::CudaStreamHandler::GetStream()>>>
+        (nextWrap, stateWrap, ruhWrap, tempWrap,
+            bWrap, bx1Wrap, bx2Wrap);
+      */
+
+      mblas::HalfMatrix halfNextState(NextState.dim(0), NextState.dim(1), NextState.dim(2), NextState.dim(3));
+      mblas::CopyMatrix(halfNextState, NextState);
+
+      mblas::HalfMatrix halfState(State.dim(0), State.dim(1), State.dim(2), State.dim(3));
+      mblas::CopyMatrix(halfState, State);
+
+      mblas::HalfMatrix halfRUH(RUH.dim(0), RUH.dim(1), RUH.dim(2), RUH.dim(3));
+      mblas::CopyMatrix(halfRUH, RUH);
+
+      mblas::HalfMatrix halfTemp(Temp.dim(0), Temp.dim(1), Temp.dim(2), Temp.dim(3));
+      mblas::CopyMatrix(halfTemp, Temp);
+
+      ElementwiseOps(halfNextState, halfState, halfRUH, halfTemp);
+
+      NextState.NewSize(halfNextState.dim(0), halfNextState.dim(1), halfNextState.dim(2), halfNextState.dim(3));
+      CopyMatrix(NextState, halfNextState);
 
       //PAUSE_TIMER("ElementwiseOps");
 
