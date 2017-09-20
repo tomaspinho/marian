@@ -269,7 +269,7 @@ __global__ void gGetValueByKey(mblas::MatrixWrapper<float> out,
     } \
   }
 
-__global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
+__global__ void gMaxElement(mblas::MatrixWrapper<NthOutHalf> out,
                             const mblas::MatrixWrapper<half> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
                             uint numBatches) {
@@ -347,10 +347,10 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
   }
 }
 
-__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut> out,
+__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOutHalf> out,
                                   mblas::MatrixWrapper<half> probsWrap,
                                   mblas::MatrixWrapper<uint> batchPositionWrap,
-                                  mblas::MatrixWrapper<NthOut> resNewWrap,
+                                  mblas::MatrixWrapper<NthOutHalf> resNewWrap,
                                   mblas::MatrixWrapper<uint> cumBeamSizesWrap,
                                   uint numBlocks) {
   extern __shared__ half sdataHalf[];

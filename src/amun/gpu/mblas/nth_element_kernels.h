@@ -23,8 +23,39 @@ struct NthOut
   ,score(vScore)
   {}
 
-  __device__ __host__
+  __device__
   NthOut& operator+=(const NthOut& rhs)
+  {
+    ind += rhs.ind;
+    score += rhs.score;
+    return *this;
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+struct NthOutHalf
+{
+  uint ind;
+  half score;
+
+  __device__ __host__
+  NthOutHalf() {}
+
+  __device__ __host__
+  NthOutHalf(uint init)
+  :ind(init)
+  ,score(init)
+  {}
+
+  __device__ __host__
+  NthOutHalf(uint &vInd, half vScore)
+  :ind(vInd)
+  ,score(vScore)
+  {}
+
+  __device__
+  NthOutHalf& operator+=(const NthOutHalf& rhs)
   {
     ind += rhs.ind;
     score += rhs.score;
@@ -37,6 +68,12 @@ struct NthOut
 inline std::ostream& operator<<(std::ostream &out, const NthOut &obj)
 {
   out << "(" << obj.ind << "," << obj.score << ")";
+  return out;
+}
+
+inline std::ostream& operator<<(std::ostream &out, const NthOutHalf &obj)
+{
+  out << "(" << obj.ind << "," << "obj.score" << ")";
   return out;
 }
 
