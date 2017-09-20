@@ -32,6 +32,9 @@ __global__ void gElementwiseOps(mblas::MatrixWrapper<float> outWrap,
                          + tempWrap(blockIdx.x, k, 0, 0)
                         )
                       );
+      //assert(ev2 <= 65536);
+      //assert(ev2 >= -65536);
+
       float u = 1.0f / (1.0f + ev2);
 
       float hv = ruhWrap(blockIdx.x, 2*cols + i, 0, 0)
