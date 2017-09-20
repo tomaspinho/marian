@@ -1,8 +1,55 @@
 #include "npz_converter.h"
 #include "common/exception.h"
 
+using namespace std;
+
 namespace amunmt {
 namespace GPU {
+
+NpzConverter::NpyMatrixWrapper::NpyMatrixWrapper(const cnpy::NpyArray& npy)
+: npy_(npy)
+{
+  string before = Debug();
+  Clip(-1, 1);
+  string after = Debug();
+  cerr << "before=" << before << " after=" << after << endl;
+}
+
+void NpzConverter::NpyMatrixWrapper::Clip(float minVal, float maxVal)
+{
+  float *d = data();
+  size_t size = size1() * size2();
+  for (size_t i = 0; i < size; ++i) {
+    float &val = d[i];
+    if (val < minVal) {
+      val = minVal;
+    }
+    else if (val > maxVal) {
+      val = maxVal;
+    }
+  }
+}
+
+std::string NpzConverter::NpyMatrixWrapper::Debug(size_t verbosity) const
+{
+  float min = 2423432;
+  float max = -454534534;
+  float *d = data();
+  size_t size = size1() * size2();
+  for (size_t i = 0; i < size; ++i) {
+    float val = d[i];
+    if (val < min) {
+      min = val;
+    }
+    if (val > max) {
+      max = val;
+    }
+  }
+
+  std::stringstream strm;
+  strm << "min/max=" << min << "/"  << max;
+  return strm.str();
+}
 
 NpzConverter::NpzConverter(const std::string& file)
   : model_(cnpy::npz_load(file)),

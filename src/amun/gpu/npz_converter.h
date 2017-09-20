@@ -10,8 +10,7 @@ class NpzConverter {
   private:
     class NpyMatrixWrapper {
       public:
-        NpyMatrixWrapper(const cnpy::NpyArray& npy)
-        : npy_(npy) {}
+        NpyMatrixWrapper(const cnpy::NpyArray& npy);
 
         size_t size() const {
           return size1() * size2();
@@ -35,6 +34,10 @@ class NpzConverter {
           else
             return npy_.shape[1];
         }
+
+        void Clip(float minVal, float maxVal);
+
+        virtual std::string Debug(size_t verbosity = 1) const;
 
       private:
         const cnpy::NpyArray& npy_;
