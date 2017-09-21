@@ -106,11 +106,11 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
   mblas::MatrixWrapper<NthOut<float> > resWrap(d_res, false);
   mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
 
-  mblas::TMatrix<NthOut<half>> outHalf;
+  mblas::TMatrix<NthOut<half>> outHalf(d_out.dim(0), d_out.dim(1), d_out.dim(2), d_out.dim(3));
   CopyMatrix(outHalf, d_out);
   mblas::MatrixWrapper<NthOut<half>> outWrapHalf(outHalf);
 
-  mblas::TMatrix<NthOut<half>> resHalf;
+  mblas::TMatrix<NthOut<half>> resHalf(d_res.dim(0), d_res.dim(1), d_res.dim(2), d_res.dim(3));
   CopyMatrix(resHalf, d_res);
   mblas::MatrixWrapper<NthOut<half>> resWrapHalf(resHalf, false);
 
@@ -194,7 +194,7 @@ void NthElement::getNBestList(mblas::Matrix &probs,
      numBlocks);
   */
 
-  mblas::HalfMatrix probsHalf;
+  mblas::HalfMatrix probsHalf(probs.dim(0), probs.dim(1), probs.dim(2), probs.dim(3));
   CopyMatrix(probsHalf, probs);
 
   getNBestList(probsHalf, batchFirstElementIdxs, cummulatedBeamSizes);
