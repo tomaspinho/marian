@@ -155,6 +155,7 @@ void NthElement::getNBestList(mblas::Matrix &probs,
                               const HostVector<uint>& batchFirstElementIdxs,
                               const HostVector<uint>& cummulatedBeamSizes)
 {
+  /*
   const uint vocabSize = probs.dim(1);
   const uint numBlocks = uint(maxBeamSize_ * vocabSize / (2 * BLOCK_SIZE)) + uint(maxBeamSize_ * vocabSize % (2 * BLOCK_SIZE) != 0);
   const uint numBatches = batchFirstElementIdxs.size() - 1;
@@ -191,27 +192,14 @@ void NthElement::getNBestList(mblas::Matrix &probs,
      batchPositionWrap,
      cumBeamSizesWrap,
      numBlocks);
-
-  /*
-  cerr << "numBlocks=" << numBlocks << endl;
-  cerr << "numBatches=" << numBatches << endl;
-  cerr << "threads=" << BLOCK_SIZE << endl;
-
-  cerr << "outWrap=" << outWrap.Debug() << endl;
-
-  cerr << "probsWrap=" << probsWrap.Debug() << endl;
-
-  cerr << "batchPositionWrap=" << batchPositionWrap.Debug() << endl;
-  cerr << mblas::Debug(d_batchPosition, 2) << endl;
-
-  cerr << "resWrap=" << resWrap.Debug() << endl;
-  cerr << mblas::Debug(d_res, 2) << endl;
-
-  cerr << "cumBeamSizesWrap=" << cumBeamSizesWrap.Debug() << endl;
-  //cerr << mblas::Debug(d_cumBeamSizes, 2) << endl;
-
-  cerr << endl;
   */
+
+  mblas::HalfMatrix probsHalf;
+  CopyMatrix(probsHalf, probs);
+
+  getNBestList(probsHalf, batchFirstElementIdxs, cummulatedBeamSizes);
+
+  CopyMatrix(probs, probsHalf);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
