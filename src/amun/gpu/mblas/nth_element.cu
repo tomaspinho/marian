@@ -106,13 +106,13 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
   mblas::MatrixWrapper<NthOut<float> > resWrap(d_res, false);
   mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
 
-  mblas::TMatrix<NthOutHalf> outHalf;
+  mblas::TMatrix<NthOut<half>> outHalf;
   CopyMatrix(outHalf, d_out);
-  mblas::MatrixWrapper<NthOutHalf> outWrapHalf(outHalf);
+  mblas::MatrixWrapper<NthOut<half>> outWrapHalf(outHalf);
 
-  mblas::TMatrix<NthOutHalf> resHalf;
+  mblas::TMatrix<NthOut<half>> resHalf;
   CopyMatrix(resHalf, d_res);
-  mblas::MatrixWrapper<NthOutHalf> resWrapHalf(resHalf, false);
+  mblas::MatrixWrapper<NthOut<half>> resWrapHalf(resHalf, false);
 
   gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
     (outWrapHalf, probsWrap, batchPositionWrap, numBatches);

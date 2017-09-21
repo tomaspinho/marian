@@ -31,56 +31,22 @@ struct NthOut
     score += rhs.score;
     return *this;
   }
-};
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-struct NthOutHalf
-{
-  uint ind;
-  half score;
-
-  __device__ __host__
-  NthOutHalf() {}
-
-  __device__ __host__
-  NthOutHalf(uint init)
-  :ind(init)
-  ,score(init)
-  {}
-
-  __device__ __host__
-  NthOutHalf(uint &vInd, half vScore)
-  :ind(vInd)
-  ,score(vScore)
-  {}
-
+  template<typename T2>
   __device__
-  NthOutHalf& operator+=(const NthOutHalf& rhs)
-  {
-    ind += rhs.ind;
-    score += rhs.score;
-    return *this;
-  }
-
-  __device__
-  NthOutHalf& operator=(const NthOut<float>& rhs)
+  NthOut<T>& operator=(const NthOut<T2>& rhs)
   {
     ind = rhs.ind;
     score = rhs.score;
     return *this;
   }
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-inline std::ostream& operator<<(std::ostream &out, const NthOut<float> &obj)
-{
-  out << "(" << obj.ind << "," << obj.score << ")";
-  return out;
-}
-
-inline std::ostream& operator<<(std::ostream &out, const NthOutHalf &obj)
+template<typename T>
+inline std::ostream& operator<<(std::ostream &out, const NthOut<T> &obj)
 {
   out << "(" << obj.ind << "," << "obj.score" << ")";
   return out;
@@ -106,14 +72,14 @@ __global__ void gGetValueByKey(mblas::MatrixWrapper<float> out,
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void gMaxElement(mblas::MatrixWrapper<NthOutHalf> out,
+__global__ void gMaxElement(mblas::MatrixWrapper<NthOut<half>> out,
                             const mblas::MatrixWrapper<half> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
                             uint numBatches);
 
-__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOutHalf> out,
+__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
                                   mblas::MatrixWrapper<half> probsWrap,
-                                  mblas::MatrixWrapper<NthOutHalf> resNewWrap,
+                                  mblas::MatrixWrapper<NthOut<half>> resNewWrap,
                                   const mblas::MatrixWrapper<uint> batchPositionWrap,
                                   const mblas::MatrixWrapper<uint> cumBeamSizesWrap,
                                   uint numBlocks);
