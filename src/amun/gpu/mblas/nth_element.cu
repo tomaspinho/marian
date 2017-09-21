@@ -125,6 +125,9 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
        cumBeamSizesWrap,
        numBlocks);
 
+  CopyMatrix(d_out, outHalf);
+  CopyMatrix(d_res, resHalf);
+
   /*
   cerr << "numBlocks=" << numBlocks << endl;
   cerr << "numBatches=" << numBatches << endl;
