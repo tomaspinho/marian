@@ -47,6 +47,11 @@ class NthElement {
                       const HostVector<uint>& batchFirstElementIdxs,
                       const HostVector<uint>& cummulatedBeamSizes);
 
+
+    void getNBestList(mblas::HalfMatrix &probs,
+                      const HostVector<uint>& batchFirstElementIdxs,
+                      const HostVector<uint>& cummulatedBeamSizes);
+
 };
 
 }  // namespace GPU

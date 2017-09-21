@@ -61,6 +61,14 @@ struct NthOutHalf
     score += rhs.score;
     return *this;
   }
+
+  __device__
+  NthOutHalf& operator=(const NthOut& rhs)
+  {
+    ind = rhs.ind;
+    score = rhs.score;
+    return *this;
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -94,6 +102,26 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut> out,
 __global__ void gGetValueByKey(mblas::MatrixWrapper<float> out,
                               const   mblas::MatrixWrapper<float> in,
                               uint* indices, uint n);
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+__global__ void gMaxElement(mblas::MatrixWrapper<NthOutHalf> out,
+                            const mblas::MatrixWrapper<half> probsWrap,
+                            const mblas::MatrixWrapper<uint> batchPositionWrap,
+                            uint numBatches);
+
+__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOutHalf> out,
+                                  mblas::MatrixWrapper<half> probsWrap,
+                                  mblas::MatrixWrapper<uint> batchPositionWrap,
+                                  mblas::MatrixWrapper<NthOutHalf> resNewWrap,
+                                  mblas::MatrixWrapper<uint> cumBeamSizesWrap,
+                                  uint numBlocks);
+
+__global__ void gGetValueByKey(mblas::MatrixWrapper<half> out,
+                              const   mblas::MatrixWrapper<half> in,
+                              uint* indices, uint n);
+
+
 
 }
 }

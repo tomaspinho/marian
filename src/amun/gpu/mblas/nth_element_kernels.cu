@@ -17,7 +17,8 @@ namespace GPU {
 __global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
                             const mblas::MatrixWrapper<float> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
-                            uint numBatches) {
+                            uint numBatches)
+{
   extern __shared__ float sdata[];
   __shared__ uint indices[SHARED_SIZE];
 
@@ -97,7 +98,8 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut> out,
                                   mblas::MatrixWrapper<uint> batchPositionWrap,
                                   mblas::MatrixWrapper<NthOut> resNewWrap,
                                   mblas::MatrixWrapper<uint> cumBeamSizesWrap,
-                                  uint numBlocks) {
+                                  uint numBlocks)
+{
   extern __shared__ float sdata[];
   __shared__ uint indices[SHARED_SIZE];
   __shared__ float bestBinCost;
@@ -272,7 +274,8 @@ __global__ void gGetValueByKey(mblas::MatrixWrapper<float> out,
 __global__ void gMaxElement(mblas::MatrixWrapper<NthOutHalf> out,
                             const mblas::MatrixWrapper<half> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
-                            uint numBatches) {
+                            uint numBatches)
+{
   extern __shared__ half sdataHalf[];
   __shared__ uint indices[SHARED_SIZE];
 
@@ -352,7 +355,8 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOutHalf> out,
                                   mblas::MatrixWrapper<uint> batchPositionWrap,
                                   mblas::MatrixWrapper<NthOutHalf> resNewWrap,
                                   mblas::MatrixWrapper<uint> cumBeamSizesWrap,
-                                  uint numBlocks) {
+                                  uint numBlocks)
+{
   extern __shared__ half sdataHalf[];
   __shared__ uint indices[SHARED_SIZE];
   __shared__ half bestBinCostHalf;
