@@ -150,6 +150,7 @@ void NthElement::getValueByKey(std::vector<float>& out, const mblas::Matrix &d_i
 {
   // need a model with multiple scorers to test this method
   assert(false);
+  cerr << "d_in=" << d_in.Debug(0) << endl;
 
   mblas::MatrixWrapper<float> breakdownWrap(d_breakdown);
   const mblas::MatrixWrapper<float> inWrap(d_in);
