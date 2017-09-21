@@ -31,11 +31,11 @@ class NthElement {
   private:
     const uint BLOCK_SIZE = 512;
 
-    mblas::TMatrix<NthOut> d_out;
+    mblas::TMatrix<NthOut<float> > d_out;
 
-    mblas::TMatrix<NthOut> d_res;
+    mblas::TMatrix<NthOut<float> > d_res;
     //HostVector<NthOut> h_res;
-    std::vector<NthOut> h_res;
+    std::vector<NthOut<float> > h_res;
 
     mblas::TMatrix<float> d_breakdown;
     mblas::TMatrix<uint> d_batchPosition;

@@ -3,10 +3,11 @@
 namespace amunmt {
 namespace GPU {
 
+template<typename T>
 struct NthOut
 {
   uint ind;
-  float score;
+  T score;
 
   __device__ __host__
   NthOut() {}
@@ -63,7 +64,7 @@ struct NthOutHalf
   }
 
   __device__
-  NthOutHalf& operator=(const NthOut& rhs)
+  NthOutHalf& operator=(const NthOut<float>& rhs)
   {
     ind = rhs.ind;
     score = rhs.score;
@@ -73,7 +74,7 @@ struct NthOutHalf
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-inline std::ostream& operator<<(std::ostream &out, const NthOut &obj)
+inline std::ostream& operator<<(std::ostream &out, const NthOut<float> &obj)
 {
   out << "(" << obj.ind << "," << obj.score << ")";
   return out;
@@ -87,14 +88,14 @@ inline std::ostream& operator<<(std::ostream &out, const NthOutHalf &obj)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
+__global__ void gMaxElement(mblas::MatrixWrapper<NthOut<float> > out,
                             const mblas::MatrixWrapper<float> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
                             uint numBatches);
 
-__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut> out,
+__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<float> > out,
                                   mblas::MatrixWrapper<float> probsWrap,
-                                  mblas::MatrixWrapper<NthOut> resNewWrap,
+                                  mblas::MatrixWrapper<NthOut<float> > resNewWrap,
                                   const mblas::MatrixWrapper<uint> batchPositionWrap,
                                   const mblas::MatrixWrapper<uint> cumBeamSizesWrap,
                                   uint numBlocks);

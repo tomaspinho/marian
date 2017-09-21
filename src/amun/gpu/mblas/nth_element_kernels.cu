@@ -14,7 +14,7 @@ namespace GPU {
     } \
   }
 
-__global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
+__global__ void gMaxElement(mblas::MatrixWrapper<NthOut<float> > out,
                             const mblas::MatrixWrapper<float> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
                             uint numBatches)
@@ -93,9 +93,9 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut> out,
   }
 }
 
-__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut> out,
+__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<float> > out,
                                   mblas::MatrixWrapper<float> probsWrap,
-                                  mblas::MatrixWrapper<NthOut> resNewWrap,
+                                  mblas::MatrixWrapper<NthOut<float> > resNewWrap,
                                   const mblas::MatrixWrapper<uint> batchPositionWrap,
                                   const mblas::MatrixWrapper<uint> cumBeamSizesWrap,
                                   uint numBlocks)
