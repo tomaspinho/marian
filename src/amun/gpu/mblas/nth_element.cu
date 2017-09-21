@@ -118,8 +118,12 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
     (outWrapHalf, probsWrap, batchPositionWrap, numBatches);
 
   gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
-    (outWrapHalf, probsWrap, batchPositionWrap, resWrapHalf, cumBeamSizesWrap,
-     numBlocks);
+      (outWrapHalf,
+       probsWrap,
+       resWrapHalf,
+       batchPositionWrap,
+       cumBeamSizesWrap,
+       numBlocks);
 
   /*
   cerr << "numBlocks=" << numBlocks << endl;

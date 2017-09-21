@@ -352,9 +352,9 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOutHalf> out,
 
 __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOutHalf> out,
                                   mblas::MatrixWrapper<half> probsWrap,
-                                  mblas::MatrixWrapper<uint> batchPositionWrap,
                                   mblas::MatrixWrapper<NthOutHalf> resNewWrap,
-                                  mblas::MatrixWrapper<uint> cumBeamSizesWrap,
+                                  const mblas::MatrixWrapper<uint> batchPositionWrap,
+                                  const mblas::MatrixWrapper<uint> cumBeamSizesWrap,
                                   uint numBlocks)
 {
   extern __shared__ half sdataHalf[];
