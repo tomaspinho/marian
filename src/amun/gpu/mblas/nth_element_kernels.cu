@@ -287,7 +287,7 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut<half>> out,
 
     uint i = begin + blockIdx.x * (blockDim.x * 2) + tid;
 
-    sdataHalf[tid] = -3.40282e+38f;
+    sdataHalf[tid] = -65504;
 
     if (i < end) {
       sdataHalf[tid] = probsWrap[i];
@@ -373,7 +373,7 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
   for (uint pos = cumBeamSizesWrap[batchIdx]; pos < cumBeamSizesWrap[batchIdx + 1]; ++pos) {
     uint i = tid;
 
-    sdataHalf[tid] = -3.40282e+38f;
+    sdataHalf[tid] = -65504;
 
     if (i < num_bins) {
       sdataHalf[tid] = out[batchIdx * numBlocks + i].score;
@@ -444,7 +444,7 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
     i = batchPositionWrap[batchIdx] + (bestBinCostIdx - batchIdx * numBlocks) * (blockDim.x * 2) + tid;
     const uint dist = num_bins * 2 * blockDim.x;
 
-    sdataHalf[tid] = -3.40282e+38f;
+    sdataHalf[tid] = -65504;
 
     if (i < batchPositionWrap[batchIdx + 1]) {
       sdataHalf[tid] = probsWrap[i];
