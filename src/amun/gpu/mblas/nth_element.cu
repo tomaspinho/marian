@@ -115,6 +115,7 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
   gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
     (outWrapHalf, probsWrapHalf, batchPositionWrap, numBatches);
 
+
   gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
       (outWrapHalf,
        probsWrapHalf,
@@ -123,8 +124,28 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
        cumBeamSizesWrap,
        numBlocks);
 
+   CopyMatrix(d_out, outHalf);
+   CopyMatrix(d_res, resHalf);
+
+  /*
   CopyMatrix(d_out, outHalf);
+  mblas::MatrixWrapper<NthOut<float>> outWrap(d_out);
+
+  mblas::TMatrix<float> probsFloat(probs.dim(0), probs.dim(1), probs.dim(2), probs.dim(3));
+  CopyMatrix(probsFloat, probs);
+  mblas::MatrixWrapper<float> probsWrap(probsFloat);
+
   CopyMatrix(d_res, resHalf);
+  mblas::MatrixWrapper<NthOut<float>> resWrap(d_res);
+
+  gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
+    (outWrap,
+     probsWrap,
+     resWrap,
+     batchPositionWrap,
+     cumBeamSizesWrap,
+     numBlocks);
+  */
 
   /*
   cerr << "numBlocks=" << numBlocks << endl;

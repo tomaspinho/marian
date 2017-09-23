@@ -433,7 +433,7 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
       bestBinCostHalf = sdataHalf[0];
       bestBinCostIdx = batchIdx * numBlocks + indices[0];
 
-      probsWrap[ out[bestBinCostIdx].ind ] = -3.40282e+38f;
+      probsWrap[ out[bestBinCostIdx].ind ] = -65504;
 
       resNewWrap[pos].ind = out[bestBinCostIdx].ind;
       resNewWrap[pos].score = bestBinCostHalf;
