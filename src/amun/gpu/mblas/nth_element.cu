@@ -100,7 +100,7 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
               d_cumBeamSizes.data(),
               cudaMemcpyHostToDevice);
 
-  mblas::MatrixWrapper<half> probsWrap(probs);
+  mblas::MatrixWrapper<half> probsWrapHalf(probs);
   mblas::MatrixWrapper<uint> batchPositionWrap(d_batchPosition);
   mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
 
@@ -113,11 +113,11 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
   mblas::MatrixWrapper<NthOut<half>> resWrapHalf(resHalf, false);
 
   gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
-    (outWrapHalf, probsWrap, batchPositionWrap, numBatches);
+    (outWrapHalf, probsWrapHalf, batchPositionWrap, numBatches);
 
   gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
       (outWrapHalf,
-       probsWrap,
+       probsWrapHalf,
        resWrapHalf,
        batchPositionWrap,
        cumBeamSizesWrap,
