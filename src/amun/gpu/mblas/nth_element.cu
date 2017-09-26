@@ -115,7 +115,19 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
   gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
     (outWrapHalf, probsWrapHalf, batchPositionWrap, numBatches);
 
+  /*
+  CopyMatrix(d_out, outHalf);
+  mblas::MatrixWrapper<NthOut<float>> outWrap(d_out);
 
+  mblas::TMatrix<float> probsFloat(probs.dim(0), probs.dim(1), probs.dim(2), probs.dim(3));
+  CopyMatrix(probsFloat, probs);
+  mblas::MatrixWrapper<float> probsWrap(probsFloat);
+
+  gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
+    (outWrap, probsWrap, batchPositionWrap, numBatches);
+
+  CopyMatrix(outHalf, d_out);
+  */
   gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
       (outWrapHalf,
        probsWrapHalf,
