@@ -245,8 +245,8 @@ HalfMatrix& Transpose(HalfMatrix& Out, const HalfMatrix& In)
   size_t n = In.dim(1);
 
   Out.NewSize(n, m);
-  cerr << "In=" << In.Debug(0) << endl;
-  cerr << "Out=" << Out.Debug(0) << endl;
+  //cerr << "In=" << In.Debug(0) << endl;
+  //cerr << "Out=" << Out.Debug(0) << endl;
 
   MatrixWrapper<half> outWrap(Out);
   MatrixWrapper<half> inWrap(In);
