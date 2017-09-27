@@ -224,18 +224,70 @@ void WeightedMean(Matrix& Out,
 }
 
 /////////////////////////////////////////////////////////////////////////////
+__global__ void gTranspose(MatrixWrapper<half> out, const MatrixWrapper<half> in)
+{
+  int id = threadIdx.x + blockIdx.x * blockDim.x;
+  //printf("id = %d in = %lu %lu %lu %lu = %lu %lu \n", id, in.dim(0), in.dim(1), in.dim(2), in.dim(3), in.size(), sizeof(in));
 
-Matrix& Transpose(Matrix& Out, const Matrix& In) {
+  if (id < in.size()) {
+    uint indices[SHAPE_SIZE];
+    in.id2Indices(id, indices);
+
+    out(indices[1], indices[0], 0, 0) = in(indices[0], indices[1], 0, 0);
+  }
+}
+
+HalfMatrix& Transpose(HalfMatrix& Out, const HalfMatrix& In)
+{
+  assert(In.dim(2) == 1);
+  assert(In.dim(3) == 1);
   size_t m = In.dim(0);
   size_t n = In.dim(1);
 
   Out.NewSize(n, m);
+  cerr << "In=" << In.Debug(0) << endl;
+  cerr << "Out=" << Out.Debug(0) << endl;
+
+  MatrixWrapper<half> outWrap(Out);
+  MatrixWrapper<half> inWrap(In);
+
+  int nThreads = MAX_THREADS;
+  int nBlocks =  (In.size() / nThreads) + ((In.size() % nThreads == 0) ?  0 : 1);
+
+  gTranspose<<<nBlocks, nThreads, 0, CudaStreamHandler::GetStream()>>>(outWrap, inWrap);
+
+  return Out;
+}
+
+Matrix& Transpose(Matrix& Out, const Matrix& In)
+{
+  /*
+  assert(In.dim(2) == 1);
+  assert(In.dim(3) == 1);
+  size_t m = In.dim(0);
+  size_t n = In.dim(1);
+
+  Out.NewSize(n, m);
+  cerr << "In=" << In.Debug(0) << endl;
+  cerr << "Out=" << Out.Debug(0) << endl;
 
   float alpha = 1.0;
   float beta  = 0.0;
 
   cublasSgeam(CublasHandler::GetHandle(), CUBLAS_OP_T, CUBLAS_OP_T, m, n, &alpha, In.data(), n,
               &beta, In.data(), n, Out.data(), m);
+  */
+
+  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
+  CopyMatrix(halfOut, Out);
+
+  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
+  CopyMatrix(halfIn, In);
+
+  Transpose(halfOut, halfIn);
+
+  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
+  CopyMatrix(Out, halfOut);
 
   return Out;
 }
