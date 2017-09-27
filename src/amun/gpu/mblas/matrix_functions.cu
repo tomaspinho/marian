@@ -1,5 +1,6 @@
 #include "gpu/mblas/matrix_functions.h"
 #include "gpu/mblas/handles.h"
+#include "half.h"
 
 using namespace std;
 
@@ -547,6 +548,81 @@ Matrix& Slice(Matrix& Out,
   CopyMatrix(Out, halfOut);
 
   return Out;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+HalfMatrix& Prod(cublasHandle_t handle, HalfMatrix& C, const HalfMatrix& A, const HalfMatrix& B,
+             bool transA, bool transB)
+{
+  assert((A.dim(2) == A.dim(3) == 1) || (B.dim(2) == B.dim(3) == 1));
+
+  HalfMatrix::value_type alpha = float2half_rn(1.0);
+  HalfMatrix::value_type beta = float2half_rn(0.0);
+
+  size_t m = A.dim(0) * A.dim(2) * A.dim(3);
+  size_t k = A.dim(1);
+  size_t mOut = A.dim(0);
+  size_t kOut = A.dim(1);
+  if(transA) {
+    std::swap(m, k);
+    std::swap(mOut, kOut);
+  }
+
+  size_t l = B.dim(0) * B.dim(2) * B.dim(3);
+  size_t n = B.dim(1);
+  size_t lOut = B.dim(0);
+  size_t nOut = B.dim(1);
+  if(transB) {
+    std::swap(l, n);
+    std::swap(lOut, nOut);
+    }
+
+  assert(k == l);
+
+  size_t lda = A.dim(1);
+  size_t ldb = B.dim(1);
+  size_t ldc = transB ? B.dim(0) * B.dim(2) * B.dim(3) : B.dim(1);
+
+  size_t dim2 = A.dim(2);
+  if (!transA && transB) {
+    // for GetAlignedSourceContext()
+    assert((A.dim(2) == A.dim(3) == 1));
+    C.NewSize(nOut, B.dim(2), 1, 1);
+  }
+  else {
+    C.NewSize(mOut, nOut, A.dim(2) * B.dim(2), A.dim(3) * B.dim(3));
+  }
+
+  /*
+  cerr << "C=" << C.Debug(0) << endl;
+  cerr << "A=" << A.Debug(0) << endl;
+  cerr << "B=" << B.Debug(0) << endl;
+  cerr << "transA=" << transA << endl;
+  cerr << "transB=" << transB << endl;
+  cerr << endl;
+  */
+  cublasOperation_t opA = transA ? CUBLAS_OP_T : CUBLAS_OP_N;
+  cublasOperation_t opB = transB ? CUBLAS_OP_T : CUBLAS_OP_N;
+
+  /*
+   cublasStatus_t cublasSgemm(cublasHandle_t handle,
+                           cublasOperation_t transa, cublasOperation_t transb,
+                           int m, int n, int k,
+                           const float           *alpha,
+                           const float           *A, int lda,
+                           const float           *B, int ldb,
+                           const float           *beta,
+                           float           *C, int ldc)
+   */
+  cublasHgemm(handle, opB, opA,
+              n, m, k,
+              &alpha,
+              B.data(), ldb,
+              A.data(), lda,
+              &beta,
+              C.data(), ldc);
+  return C;
 }
 
 /////////////////////////////////////////////////////////////////////////////
