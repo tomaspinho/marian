@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdlib.h>
 #include "half.h"
 
 /*

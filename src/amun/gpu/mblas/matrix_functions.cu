@@ -555,6 +555,7 @@ Matrix& Slice(Matrix& Out,
 HalfMatrix& Prod(cublasHandle_t handle, HalfMatrix& C, const HalfMatrix& A, const HalfMatrix& B,
              bool transA, bool transB)
 {
+  //cerr << "half Prod" << endl;
   assert((A.dim(2) == A.dim(3) == 1) || (B.dim(2) == B.dim(3) == 1));
 
   HalfMatrix::value_type alpha = float2half_rn(1.0);
@@ -630,6 +631,7 @@ HalfMatrix& Prod(cublasHandle_t handle, HalfMatrix& C, const HalfMatrix& A, cons
 Matrix& Prod(cublasHandle_t handle, Matrix& C, const Matrix& A, const Matrix& B,
              bool transA, bool transB)
 {
+  /*
   assert((A.dim(2) == A.dim(3) == 1) || (B.dim(2) == B.dim(3) == 1));
 
   Matrix::value_type alpha = 1.0;
@@ -669,27 +671,9 @@ Matrix& Prod(cublasHandle_t handle, Matrix& C, const Matrix& A, const Matrix& B,
     C.NewSize(mOut, nOut, A.dim(2) * B.dim(2), A.dim(3) * B.dim(3));
   }
 
-  /*
-  cerr << "C=" << C.Debug(0) << endl;
-  cerr << "A=" << A.Debug(0) << endl;
-  cerr << "B=" << B.Debug(0) << endl;
-  cerr << "transA=" << transA << endl;
-  cerr << "transB=" << transB << endl;
-  cerr << endl;
-  */
   cublasOperation_t opA = transA ? CUBLAS_OP_T : CUBLAS_OP_N;
   cublasOperation_t opB = transB ? CUBLAS_OP_T : CUBLAS_OP_N;
 
-  /*
-   cublasStatus_t cublasSgemm(cublasHandle_t handle,
-                           cublasOperation_t transa, cublasOperation_t transb,
-                           int m, int n, int k,
-                           const float           *alpha,
-                           const float           *A, int lda,
-                           const float           *B, int ldb,
-                           const float           *beta,
-                           float           *C, int ldc)
-   */
   cublasSgemm(handle, opB, opA,
               n, m, k,
               &alpha,
@@ -697,6 +681,23 @@ Matrix& Prod(cublasHandle_t handle, Matrix& C, const Matrix& A, const Matrix& B,
               A.data(), lda,
               &beta,
               C.data(), ldc);
+  */
+
+  HalfMatrix halfC(C.dim(0), C.dim(1), C.dim(2), C.dim(3));
+  CopyMatrix(halfC, C);
+
+  HalfMatrix halfA(A.dim(0), A.dim(1), A.dim(2), A.dim(3));
+  CopyMatrix(halfA, A);
+
+  HalfMatrix halfB(B.dim(0), B.dim(1), B.dim(2), B.dim(3));
+  CopyMatrix(halfB, B);
+
+  Prod(handle, halfC, halfA, halfB,
+               transA, transB);
+
+  C.NewSize(halfC.dim(0), halfC.dim(1), halfC.dim(2), halfC.dim(3));
+  CopyMatrix(C, halfC);
+
   return C;
 }
 
