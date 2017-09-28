@@ -14,6 +14,7 @@
 #include "gpu/mblas/matrix.h"
 #include "gpu/mblas/matrix_wrapper.h"
 #include "gpu/mblas/handles.h"
+#include "gpu/mblas/half.h"
 
 namespace amunmt {
 namespace GPU {
@@ -173,31 +174,24 @@ template<typename T>
 void copy(const T *in, size_t count, T *out,  cudaMemcpyKind kind)
 {
   HANDLE_ERROR( cudaMemcpyAsync(out, in, count * sizeof(T), kind, CudaStreamHandler::GetStream()) );
-  HANDLE_ERROR( cudaStreamSynchronize(CudaStreamHandler::GetStream()));
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-template<typename Tin, typename Tout>
-void copy(const Tin *in, size_t count, Tout *out,  cudaMemcpyKind kind)
+inline void copy(const float *in, size_t count, half *out,  cudaMemcpyKind kind)
 {
   assert(kind == cudaMemcpyHostToDevice);
 
-  HostVector<Tin> hostVec(count);
+  HostVector<half> hostVec(count);
   for (size_t i = 0; i < count; ++i) {
-    hostVec[i] = in[i];
+    hostVec[i] = float2half_rn(in[i]);
   }
-  DeviceVector<Tin> deviceVec(hostVec);
 
-  uint threads = std::min((uint)count, (uint) MAX_THREADS);
-  uint blocks  = (count / threads) + 1;
-
-  const cudaStream_t &stream = CudaStreamHandler::GetStream();
-
-  gCopyVector<<<blocks, threads, 0, stream>>>(
-      out,
-      thrust::raw_pointer_cast(deviceVec.data()),
-      count);
+  HANDLE_ERROR( cudaMemcpyAsync(out,
+                                thrust::raw_pointer_cast(hostVec.data()),
+                                count * sizeof(half),
+                                kind,
+                                CudaStreamHandler::GetStream()) );
 }
 
 /////////////////////////////////////////////////////////////////////////////

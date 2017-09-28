@@ -38,12 +38,16 @@ std::vector<SoftAlignmentPtr> BestHyps::GetAlignments(const std::vector<ScorerPt
 
       SoftAlignment *softAlignment = new SoftAlignment(attLength);
 
+      assert(false);
+      /*
       mblas::copy(
           attention.data() + hypIndex * attLength,
           attLength,
           thrust::raw_pointer_cast(softAlignment->data()),
           cudaMemcpyDeviceToHost
       );
+      */
+      //mblas::copy()
 
       alignments.emplace_back(softAlignment);
     } else {
