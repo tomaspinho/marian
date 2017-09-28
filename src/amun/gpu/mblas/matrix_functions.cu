@@ -23,8 +23,8 @@ Matrix& Swap(Matrix& Out, Matrix& In) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gMean(MatrixWrapper<half> out,
-                      const MatrixWrapper<half> in,
+__global__ void gMean(MatrixWrapper<FLOAT> out,
+                      const MatrixWrapper<FLOAT> in,
                       const MatrixWrapper<uint>  mapping)
 {
   // out = batches * states
@@ -42,7 +42,7 @@ __global__ void gMean(MatrixWrapper<half> out,
     size_t batch = indices[0];
     size_t state = indices[1];
 
-    half sum = 0.0f;
+    FLOAT sum = 0.0f;
     int counter = 0;
     for (size_t row = 0; row < in.dim(0); ++row) {
       int isWord = mapping(row, batch, 0, 0);
@@ -58,7 +58,7 @@ __global__ void gMean(MatrixWrapper<half> out,
   }
 }
 
-void Mean(HalfMatrix& Out, const HalfMatrix& In, const IMatrix &sentencesMask)
+void Mean(Matrix& Out, const Matrix& In, const IMatrix &sentencesMask)
 {
   assert(Out.dim(2) == 1);
   assert(Out.dim(3) == 1);
@@ -71,8 +71,8 @@ void Mean(HalfMatrix& Out, const HalfMatrix& In, const IMatrix &sentencesMask)
   size_t stateLength = Out.dim(1);
   size_t sentenceLength = (In.dim(0) * In.dim(2) * In.dim(3)) / batchNum;
 
-  MatrixWrapper<half> outWrap(Out);
-  MatrixWrapper<half> inWrap(In);
+  MatrixWrapper<FLOAT> outWrap(Out);
+  MatrixWrapper<FLOAT> inWrap(In);
 
   MatrixWrapper<uint> mappingWrap(sentencesMask, false);
 
@@ -86,9 +86,9 @@ void Mean(HalfMatrix& Out, const HalfMatrix& In, const IMatrix &sentencesMask)
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gWeightedMean(MatrixWrapper<half> out,
-                              const MatrixWrapper<half> weights,
-                              const MatrixWrapper<half> in,
+__global__ void gWeightedMean(MatrixWrapper<FLOAT> out,
+                              const MatrixWrapper<FLOAT> weights,
+                              const MatrixWrapper<FLOAT> in,
                               const MatrixWrapper<uint> mapping
                               )
 {
@@ -103,7 +103,7 @@ __global__ void gWeightedMean(MatrixWrapper<half> out,
     int stateInd = id % states;
     //printf("hypoInd=%d batchInd=%d stateInd=%d \n", hypoInd, batchInd, stateInd);
 
-    half sum = 0.0f;
+    FLOAT sum = 0.0f;
     for (uint i = 0; i < srcLen; ++i) {
       sum += weights(hypoInd, i, 0, 0) * in(i, stateInd, 0, batchInd);
     }
@@ -112,16 +112,16 @@ __global__ void gWeightedMean(MatrixWrapper<half> out,
   }
 }
 
-void WeightedMean(HalfMatrix& Out,const HalfMatrix& Weights, const HalfMatrix& In, const DeviceVector<uint>& mapping)
+void WeightedMean(Matrix& Out,const Matrix& Weights, const Matrix& In, const DeviceVector<uint>& mapping)
 {
   int numHypos = Weights.dim(0);
   int states = In.dim(1);
 
   Out.NewSize(numHypos, states);
 
-  MatrixWrapper<half> outWrap(Out);
-  MatrixWrapper<half> weightsWrap(Weights);
-  MatrixWrapper<half> inWrap(In);
+  MatrixWrapper<FLOAT> outWrap(Out);
+  MatrixWrapper<FLOAT> weightsWrap(Weights);
+  MatrixWrapper<FLOAT> inWrap(In);
   MatrixWrapper<uint> mappingWrap(mapping);
 
   int nThreads = MAX_THREADS;
@@ -144,7 +144,7 @@ void WeightedMean(HalfMatrix& Out,const HalfMatrix& Weights, const HalfMatrix& I
 }
 
 /////////////////////////////////////////////////////////////////////////////
-__global__ void gTranspose(MatrixWrapper<half> out, const MatrixWrapper<half> in)
+__global__ void gTranspose(MatrixWrapper<FLOAT> out, const MatrixWrapper<FLOAT> in)
 {
   int id = threadIdx.x + blockIdx.x * blockDim.x;
   //printf("id = %d in = %lu %lu %lu %lu = %lu %lu \n", id, in.dim(0), in.dim(1), in.dim(2), in.dim(3), in.size(), sizeof(in));
@@ -157,7 +157,7 @@ __global__ void gTranspose(MatrixWrapper<half> out, const MatrixWrapper<half> in
   }
 }
 
-HalfMatrix& Transpose(HalfMatrix& Out, const HalfMatrix& In)
+Matrix& Transpose(Matrix& Out, const Matrix& In)
 {
   assert(In.dim(2) == 1);
   assert(In.dim(3) == 1);
@@ -168,8 +168,8 @@ HalfMatrix& Transpose(HalfMatrix& Out, const HalfMatrix& In)
   //cerr << "In=" << In.Debug(0) << endl;
   //cerr << "Out=" << Out.Debug(0) << endl;
 
-  MatrixWrapper<half> outWrap(Out);
-  MatrixWrapper<half> inWrap(In);
+  MatrixWrapper<FLOAT> outWrap(Out);
+  MatrixWrapper<FLOAT> inWrap(In);
 
   int nThreads = MAX_THREADS;
   int nBlocks =  (In.size() / nThreads) + ((In.size() % nThreads == 0) ?  0 : 1);
@@ -205,8 +205,8 @@ Matrix& Copy(Matrix& Out, const Matrix& In) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gPasteRows(  MatrixWrapper<half> out,
-                          const MatrixWrapper<half> in,
+__global__ void gPasteRows(  MatrixWrapper<FLOAT> out,
+                          const MatrixWrapper<FLOAT> in,
                           int rowNo, int colNo)
 {
   int inRows = in.dim(0);
@@ -224,10 +224,10 @@ __global__ void gPasteRows(  MatrixWrapper<half> out,
   }
 }
 
-void PasteRows(HalfMatrix& Out, const HalfMatrix& In, const size_t rowNo, size_t colNo)
+void PasteRows(Matrix& Out, const Matrix& In, const size_t rowNo, size_t colNo)
 {
-  MatrixWrapper<half> outWrap(Out);
-  MatrixWrapper<half> inWrap(In);
+  MatrixWrapper<FLOAT> outWrap(Out);
+  MatrixWrapper<FLOAT> inWrap(In);
 
   int nThreads = MAX_THREADS;
   int nBlocks =  (In.size() / nThreads) + ((In.size() % nThreads == 0) ?  0 : 1);
@@ -266,8 +266,8 @@ Matrix& CopyRow(Matrix& Out,
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gCopyRows(MatrixWrapper<half> out,
-                          const MatrixWrapper<half> in,
+__global__ void gCopyRows(MatrixWrapper<FLOAT> out,
+                          const MatrixWrapper<FLOAT> in,
                           const MatrixWrapper<uint> indicesWrap)
 {
   int id = threadIdx.x + blockIdx.x * blockDim.x;
@@ -284,8 +284,8 @@ __global__ void gCopyRows(MatrixWrapper<half> out,
   }
 }
 
-HalfMatrix& CopyRows(HalfMatrix& Out,
-                 const HalfMatrix& In,
+Matrix& CopyRows(Matrix& Out,
+                 const Matrix& In,
                  const DeviceVector<uint>& indices)
 {
   assert(In.dim(1) == Out.dim(1));
@@ -307,8 +307,8 @@ HalfMatrix& CopyRows(HalfMatrix& Out,
 
   size_t numPairs = indices.size();
 
-  MatrixWrapper<half> outWrap(Out);
-  const MatrixWrapper<half> inWrap(In);
+  MatrixWrapper<FLOAT> outWrap(Out);
+  const MatrixWrapper<FLOAT> inWrap(In);
   const MatrixWrapper<uint> indicesWrap(indices);
   //cerr << "size=" << size << endl;
 
@@ -335,8 +335,8 @@ Matrix& Assemble(Matrix& Out,
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gSlice(MatrixWrapper<half> out,
-                      const MatrixWrapper<half> in,
+__global__ void gSlice(MatrixWrapper<FLOAT> out,
+                      const MatrixWrapper<FLOAT> in,
                        size_t n, size_t dim)
 {
   size_t row = blockIdx.x;
@@ -353,8 +353,8 @@ __global__ void gSlice(MatrixWrapper<half> out,
 
 }
 
-HalfMatrix& Slice(HalfMatrix& Out,
-              const HalfMatrix& In,
+Matrix& Slice(Matrix& Out,
+              const Matrix& In,
               size_t n, size_t dim)
 {
   assert(In.dim(2) == 1);
@@ -362,8 +362,8 @@ HalfMatrix& Slice(HalfMatrix& Out,
 
   Out.NewSize(In.dim(0), dim);
 
-  MatrixWrapper<half> outWrap(Out);
-  const MatrixWrapper<half> inWrap(In);
+  MatrixWrapper<FLOAT> outWrap(Out);
+  const MatrixWrapper<FLOAT> inWrap(In);
 
   /*
   cerr << "outWrap=" << outWrap.Debug() << endl;
@@ -383,14 +383,14 @@ HalfMatrix& Slice(HalfMatrix& Out,
 
 /////////////////////////////////////////////////////////////////////////////
 
-HalfMatrix& Prod(cublasHandle_t handle, HalfMatrix& C, const HalfMatrix& A, const HalfMatrix& B,
+Matrix& Prod(cublasHandle_t handle, Matrix& C, const Matrix& A, const Matrix& B,
              bool transA, bool transB)
 {
-  //cerr << "half Prod" << endl;
+  //cerr << "FLOAT Prod" << endl;
   assert((A.dim(2) == A.dim(3) == 1) || (B.dim(2) == B.dim(3) == 1));
 
-  HalfMatrix::value_type alpha = float2half_rn(1.0);
-  HalfMatrix::value_type beta = float2half_rn(0.0);
+  Matrix::value_type alpha = float2half_rn(1.0);
+  Matrix::value_type beta = float2half_rn(0.0);
 
   size_t m = A.dim(0) * A.dim(2) * A.dim(3);
   size_t k = A.dim(1);
@@ -472,12 +472,12 @@ Matrix& Prod(Matrix& C, const Matrix& A, const Matrix& B,
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gSoftMax(MatrixWrapper<half> out,
+__global__ void gSoftMax(MatrixWrapper<FLOAT> out,
                          const MatrixWrapper<uint> batchIdsWrap,
                          const MatrixWrapper<uint> sentencesMappingWrap,
                          uint shareSize)
 {
-  extern __shared__ half _shareHalf[];
+  extern __shared__ FLOAT _shareHalf[];
 
   size_t numHypos = out.dim(0);
   size_t srcLen = out.dim(1);
@@ -486,12 +486,12 @@ __global__ void gSoftMax(MatrixWrapper<half> out,
   int origSrcPos = threadIdx.x;
 
   while (hypoInd < numHypos) {
-    MatrixWrapper<half> _max(_shareHalf, shareSize);
+    MatrixWrapper<FLOAT> _max(_shareHalf, shareSize);
     _max[origSrcPos] = out(hypoInd, origSrcPos, 0, 0);
     for (int tid = 0; tid < srcLen; tid += blockDim.x) {
       int srcPos = tid + origSrcPos;
       if (srcPos < srcLen) {
-        half value = out(hypoInd, srcPos, 0, 0);
+        FLOAT value = out(hypoInd, srcPos, 0, 0);
 
         int batch = batchIdsWrap[hypoInd];
         value *= sentencesMappingWrap(srcPos, batch, 0, 0);
@@ -513,11 +513,11 @@ __global__ void gSoftMax(MatrixWrapper<half> out,
       len = (len + 1) >> 1;
     }
     __syncthreads();
-    half max = _max[0];
+    FLOAT max = _max[0];
     __syncthreads();
 
     //float* _sum = _share;// + blockDim.x;
-    MatrixWrapper<half> _sum(_shareHalf, shareSize);
+    MatrixWrapper<FLOAT> _sum(_shareHalf, shareSize);
 
     _sum[origSrcPos] = 0.0f;
     for (int tid = 0; tid < srcLen; tid += blockDim.x) {
@@ -557,20 +557,20 @@ __global__ void gSoftMax(MatrixWrapper<half> out,
   }
 }
 
-HalfMatrix& Softmax(HalfMatrix& Out,
+Matrix& Softmax(Matrix& Out,
                 const DeviceVector<uint>& batchIds,
                 const mblas::IMatrix &sentencesMask,
                 size_t batchSize)
 {
   size_t srcSize = Out.dim(1);
 
-  MatrixWrapper<half> outWrap(Out);
+  MatrixWrapper<FLOAT> outWrap(Out);
   const MatrixWrapper<uint> batchIdsWrap(batchIds);
   const MatrixWrapper<uint> sentencesMappingWrap(sentencesMask, false);
 
   int blocks = batchSize;
   int threads = std::min(MAX_THREADS, (int)srcSize);
-  int shared = sizeof(half) * threads;
+  int shared = sizeof(FLOAT) * threads;
 
   gSoftMax<<<blocks, threads, shared, CudaStreamHandler::GetStream()>>>
     (outWrap, batchIdsWrap, sentencesMappingWrap, threads);
@@ -580,9 +580,9 @@ HalfMatrix& Softmax(HalfMatrix& Out,
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gLogSoftMax(MatrixWrapper<half> out, uint shareSize)
+__global__ void gLogSoftMax(MatrixWrapper<FLOAT> out, uint shareSize)
 {
-  extern __shared__ half _shareHalf[];
+  extern __shared__ FLOAT _shareHalf[];
 
   size_t rows = out.dim(0);
   size_t cols = out.dim(1);
@@ -591,13 +591,13 @@ __global__ void gLogSoftMax(MatrixWrapper<half> out, uint shareSize)
 
   while (rowIdx < rows) {
     //float* _max = _share;
-    MatrixWrapper<half> _max(_shareHalf, shareSize);
+    MatrixWrapper<FLOAT> _max(_shareHalf, shareSize);
 
     _max[threadIdx.x] = out(rowIdx, threadIdx.x, 0, 0);
     for (int tid = 0; tid < cols; tid += blockDim.x) {
       int id = tid + threadIdx.x;
       if (id < cols) {
-        const half &val = out(rowIdx, id, 0, 0);
+        const FLOAT &val = out(rowIdx, id, 0, 0);
         if (val > _max[threadIdx.x]) {
           _max[threadIdx.x] = val;
         }
@@ -616,18 +616,18 @@ __global__ void gLogSoftMax(MatrixWrapper<half> out, uint shareSize)
       len = (len + 1) >> 1;
     }
     __syncthreads();
-    half max = _max[0];
+    FLOAT max = _max[0];
     __syncthreads();
 
     //float* _sum = _share;// + blockDim.x;
-    MatrixWrapper<half> _sum(_shareHalf, shareSize);
+    MatrixWrapper<FLOAT> _sum(_shareHalf, shareSize);
 
     _sum[threadIdx.x] = 0.0f;
     for (int tid = 0; tid < cols; tid += blockDim.x) {
       int id = tid + threadIdx.x;
       if (id < cols) {
         //row[id] = exp(row[id] - max);
-        half &val = out(rowIdx, id, 0, 0);
+        FLOAT &val = out(rowIdx, id, 0, 0);
         val = __expf(val - max);
         _sum[threadIdx.x] += val;
       }
@@ -650,7 +650,7 @@ __global__ void gLogSoftMax(MatrixWrapper<half> out, uint shareSize)
       int id = tid + threadIdx.x;
       if (id < cols) {
         //row[id] = log(row[id]/_sum[0]);
-        half &val = out(rowIdx, id, 0, 0);
+        FLOAT &val = out(rowIdx, id, 0, 0);
         val = __logf(val /_sum[0]);
       }
     }
@@ -659,13 +659,13 @@ __global__ void gLogSoftMax(MatrixWrapper<half> out, uint shareSize)
   }
 }
 
-HalfMatrix& LogSoftmax(HalfMatrix& Out)
+Matrix& LogSoftmax(Matrix& Out)
 {
-  MatrixWrapper<half> outWrap(Out);
+  MatrixWrapper<FLOAT> outWrap(Out);
 
   int blocks = std::min(MAX_BLOCKS, (int)Out.dim(0));
   int threads = std::min(MAX_THREADS, (int)Out.dim(1));
-  int shared = sizeof(half) * threads;
+  int shared = sizeof(FLOAT) * threads;
 
   gLogSoftMax<<<blocks, threads, shared, CudaStreamHandler::GetStream()>>>
     (Out, threads);
@@ -675,7 +675,7 @@ HalfMatrix& LogSoftmax(HalfMatrix& Out)
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gSetColumn(MatrixWrapper<half> in, int noColumn, float value) {
+__global__ void gSetColumn(MatrixWrapper<FLOAT> in, int noColumn, float value) {
   int n_rows = in.dim(0);
 
   int rowNumber = threadIdx.x  + blockDim.x * blockIdx.x;
@@ -685,12 +685,12 @@ __global__ void gSetColumn(MatrixWrapper<half> in, int noColumn, float value) {
   }
 }
 
-void SetColumn(HalfMatrix& In, int noColumn, float value) {
+void SetColumn(Matrix& In, int noColumn, float value) {
   int nRows = In.dim(0);
   int nBlocks = nRows / MAX_THREADS + ((nRows % MAX_THREADS == 0) ?  0 : 1);
   int nThreads = std::min(MAX_THREADS, nRows);
 
-  MatrixWrapper<half> inWrap(In);
+  MatrixWrapper<FLOAT> inWrap(In);
 
   gSetColumn<<<nBlocks, nThreads, 0, mblas::CudaStreamHandler::GetStream()>>>
     (inWrap, noColumn, value);
@@ -698,14 +698,14 @@ void SetColumn(HalfMatrix& In, int noColumn, float value) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gFill(MatrixWrapper<half> in, float val) {
+__global__ void gFill(MatrixWrapper<FLOAT> in, float val) {
   int index = threadIdx.x + blockDim.x * blockIdx.x;
   if (index < in.size()) {
     in[index] = val;
   }
 }
 
-void Fill(HalfMatrix& In, float value)
+void Fill(Matrix& In, float value)
 {
   size_t size = In.size();
 
@@ -713,13 +713,13 @@ void Fill(HalfMatrix& In, float value)
     int nThreads = std::min(MAX_THREADS, (int)size);
     int nBlocks = (size / nThreads) + ((size % nThreads == 0) ? 0 : 1);
 
-    MatrixWrapper<half> inWrap(In);
+    MatrixWrapper<FLOAT> inWrap(In);
 
     gFill<<<nBlocks, nThreads, 0, CudaStreamHandler::GetStream()>>>
       (inWrap, value);
   }
   else {
-    HANDLE_ERROR(cudaMemsetAsync(In.data(), 0, size * sizeof(half), CudaStreamHandler::GetStream()));
+    HANDLE_ERROR(cudaMemsetAsync(In.data(), 0, size * sizeof(FLOAT), CudaStreamHandler::GetStream()));
   }
 
 }
@@ -727,7 +727,7 @@ void Fill(HalfMatrix& In, float value)
 /////////////////////////////////////////////////////////////////////////////
 
 __global__
-void gMapMatrix(MatrixWrapper<half> in,
+void gMapMatrix(MatrixWrapper<FLOAT> in,
                 const MatrixWrapper<uint> sentencesMappingWrap,
                 int mappingCols, int i)
 {
@@ -742,7 +742,7 @@ void gMapMatrix(MatrixWrapper<half> in,
   }
 }
 
-void MapMatrix(HalfMatrix& state, const mblas::IMatrix &sentencesMask, size_t i)
+void MapMatrix(Matrix& state, const mblas::IMatrix &sentencesMask, size_t i)
 {
   // blank out rows in the state matrix where the word position i does not exist
   // mapping is a concatenated array of 1 & 0 of each sentence in the batch to say whether word exists or not.
@@ -754,7 +754,7 @@ void MapMatrix(HalfMatrix& state, const mblas::IMatrix &sentencesMask, size_t i)
   int numThreads = std::min((int)state.size(), MAX_THREADS);
   int numBlocks = (state.size() / numThreads) + ((state.size() % numThreads == 0) ? 0 : 1);
 
-  MatrixWrapper<half> stateWrap(state);
+  MatrixWrapper<FLOAT> stateWrap(state);
   MatrixWrapper<uint> sentencesMappingWrap(sentencesMask, false);
 
   gMapMatrix<<<numBlocks, numThreads, 0, CudaStreamHandler::GetStream()>>>
@@ -782,13 +782,13 @@ __device__ uint getIndex(const dim3 &dim, const dim3 &val)
 
 /////////////////////////////////////////////////////////////////////////////
 
-__global__ void gLNormalization(MatrixWrapper<half> out,
-                                const MatrixWrapper<half> in,
-                                const MatrixWrapper<half> alphaWrap,
-                                const MatrixWrapper<half> betaWrap,
+__global__ void gLNormalization(MatrixWrapper<FLOAT> out,
+                                const MatrixWrapper<FLOAT> in,
+                                const MatrixWrapper<FLOAT> alphaWrap,
+                                const MatrixWrapper<FLOAT> betaWrap,
                                 float eps=0.00001)
 {
-  extern __shared__ half _shareHalf[];
+  extern __shared__ FLOAT _shareHalf[];
 
   //printf("blockDim.x=%d gridDim.x=%d \n", blockDim.x, gridDim.x);
   // blockDim.x=512 gridDim.x=1
@@ -799,7 +799,7 @@ __global__ void gLNormalization(MatrixWrapper<half> out,
   assert(blockIdx.y < in.dim(2));
   assert(blockIdx.z < in.dim(3));
 
-  half* _sum = _shareHalf + blockDim.x;
+  FLOAT* _sum = _shareHalf + blockDim.x;
   _sum[threadIdx.x] = 0.0f;
   for (int tid = 0; tid < cols; tid += blockDim.x) {
     int id = tid + threadIdx.x;
@@ -818,16 +818,16 @@ __global__ void gLNormalization(MatrixWrapper<half> out,
     len = (len + 1) >> 1;
   }
   __syncthreads();
-  half mean = _sum[0] / (half) cols;
+  FLOAT mean = _sum[0] / (FLOAT) cols;
   __syncthreads();
 
-  half* _sqSum = _shareHalf + blockDim.x;
+  FLOAT* _sqSum = _shareHalf + blockDim.x;
 
   _sqSum[threadIdx.x] = 0.0;
   for (int tid = 0; tid < cols; tid += blockDim.x) {
     int id = tid + threadIdx.x;
     if(id < cols) {
-      half ex = in(blockIdx.x, id, blockIdx.y, blockIdx.z) - mean;
+      FLOAT ex = in(blockIdx.x, id, blockIdx.y, blockIdx.z) - mean;
       out(blockIdx.x, id, blockIdx.y, blockIdx.z) = ex;
       _sqSum[threadIdx.x] += ex * ex;
     }
@@ -842,13 +842,13 @@ __global__ void gLNormalization(MatrixWrapper<half> out,
     len = (len + 1) >> 1;
   }
   __syncthreads();
-  half sigma = hsqrt((half) eps + (_sqSum[0] / (half) cols));
+  FLOAT sigma = hsqrt((FLOAT) eps + (_sqSum[0] / (FLOAT) cols));
   __syncthreads();
 
   for (int tid = 0; tid < cols; tid += blockDim.x) {
     int id = tid + threadIdx.x;
     if(id < cols) {
-      half &val = out(blockIdx.x, id, blockIdx.y, blockIdx.z);
+      FLOAT &val = out(blockIdx.x, id, blockIdx.y, blockIdx.z);
       if (betaWrap.size()) {
         val = alphaWrap[id] * (val / sigma) + betaWrap[id];
       } else {
@@ -859,10 +859,10 @@ __global__ void gLNormalization(MatrixWrapper<half> out,
 
 }
 
-void Normalization(HalfMatrix &out,
-                  const HalfMatrix &in,
-                  const HalfMatrix &alpha,
-                  const HalfMatrix *beta,
+void Normalization(Matrix &out,
+                  const Matrix &in,
+                  const Matrix &alpha,
+                  const Matrix *beta,
                   float eps)
 {
   assert(in.dim(0) < MAX_BLOCKS);
@@ -873,12 +873,12 @@ void Normalization(HalfMatrix &out,
 
   int numThreads = std::min((uint) in.dim(1), (uint) MAX_THREADS);
   dim3 numBlocks(in.dim(0), in.dim(2), in.dim(3));
-  int shared = numThreads * sizeof(half) * 2;
+  int shared = numThreads * sizeof(FLOAT) * 2;
 
-  MatrixWrapper<half> outWrap(out);
-  const MatrixWrapper<half> inWrap(in);
-  const MatrixWrapper<half> alphaWrap(alpha);
-  MatrixWrapper<half> *betaWrap = beta ? new MatrixWrapper<half>(*beta) : new MatrixWrapper<half>();
+  MatrixWrapper<FLOAT> outWrap(out);
+  const MatrixWrapper<FLOAT> inWrap(in);
+  const MatrixWrapper<FLOAT> alphaWrap(alpha);
+  MatrixWrapper<FLOAT> *betaWrap = beta ? new MatrixWrapper<FLOAT>(*beta) : new MatrixWrapper<FLOAT>();
 
   gLNormalization<<<numBlocks, numThreads, shared, CudaStreamHandler::GetStream()>>>
     (outWrap, inWrap, alphaWrap, *betaWrap, eps);
