@@ -85,7 +85,7 @@ std::string Debug(const HostVector<T> &vec, size_t verbosity = 1)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
+/*
 template<typename Tout, typename Tin>
 __global__ void gCopyMatrix(MatrixWrapper<Tout> out,
                                 const MatrixWrapper<Tin> in)
@@ -125,9 +125,9 @@ void CopyMatrix(TMatrix<Tout> &out, const TMatrix<Tin> &in)
 
   gCopyMatrix<<<blocks, threads, 0, stream>>>(outWrap, inWrap);
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////
-
+/*
 template<typename Tout, typename Tin>
 __global__ void gCopyVector(Tout *out,
                             const Tin *in,
@@ -162,7 +162,7 @@ void CopyVector(DeviceVector<Tout> &out, const DeviceVector<Tin> &in)
       thrust::raw_pointer_cast(in.data()),
       size);
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////
 
 
