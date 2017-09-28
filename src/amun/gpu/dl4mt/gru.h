@@ -185,10 +185,10 @@ class FastGRU {
     }
 
 
-    void ElementwiseOps(mblas::HalfMatrix& NextState,
-                        const mblas::HalfMatrix& State,
-                        const mblas::HalfMatrix& RUH,
-                        const mblas::HalfMatrix& Temp) const
+    void ElementwiseOps(mblas::Matrix& NextState,
+                        const mblas::Matrix& State,
+                        const mblas::Matrix& RUH,
+                        const mblas::Matrix& Temp) const
     {
       //BEGIN_TIMER("ElementwiseOps");
       //std::cerr << "half ElementwiseOps" << std::endl;
@@ -202,23 +202,13 @@ class FastGRU {
       NextState.NewSize(State.dim(0), State.dim(1), 1, 1);
       //std::cerr << "NextState=" << NextState.Debug() << std::endl;
 
-      mblas::MatrixWrapper<half> nextWrap(NextState);
-      const mblas::MatrixWrapper<half> stateWrap(State);
-      const mblas::MatrixWrapper<half> ruhWrap(RUH);
-      const mblas::MatrixWrapper<half> tempWrap(Temp);
-
-      mblas::HalfMatrix halfB(w_.B_->dim(0), w_.B_->dim(1), w_.B_->dim(2), w_.B_->dim(3));
-      mblas::CopyMatrix(halfB, *w_.B_);
-
-      mblas::HalfMatrix halfBx1(w_.Bx1_->dim(0), w_.Bx1_->dim(1), w_.Bx1_->dim(2), w_.Bx1_->dim(3));
-      mblas::CopyMatrix(halfBx1, *w_.Bx1_);
-
-      mblas::HalfMatrix halfBx2(w_.Bx2_->dim(0), w_.Bx2_->dim(1), w_.Bx2_->dim(2), w_.Bx2_->dim(3));
-      mblas::CopyMatrix(halfBx1, *w_.Bx2_);
-
-      const mblas::MatrixWrapper<half> bWrap(halfB);
-      const mblas::MatrixWrapper<half> bx1Wrap(halfBx1);
-      const mblas::MatrixWrapper<half> bx2Wrap(halfBx2);
+      mblas::MatrixWrapper<FLOAT> nextWrap(NextState);
+      const mblas::MatrixWrapper<FLOAT> stateWrap(State);
+      const mblas::MatrixWrapper<FLOAT> ruhWrap(RUH);
+      const mblas::MatrixWrapper<FLOAT> tempWrap(Temp);
+      const mblas::MatrixWrapper<FLOAT> bWrap(*w_.B_);
+      const mblas::MatrixWrapper<FLOAT> bx1Wrap(*w_.Bx1_);
+      const mblas::MatrixWrapper<FLOAT> bx2Wrap(*w_.Bx2_);
 
       /*
       std::cerr << "nextWrap=" << nextWrap.Debug() << std::endl;
