@@ -100,7 +100,7 @@ void NthElement::getNBestList(mblas::Matrix &probs,
               d_cumBeamSizes.data(),
               cudaMemcpyHostToDevice);
 
-  mblas::MatrixWrapper<half> probsWrap(probs);
+  mblas::MatrixWrapper<FLOAT> probsWrap(probs);
   mblas::MatrixWrapper<uint> batchPositionWrap(d_batchPosition);
   mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
   mblas::MatrixWrapper<NthOut<FLOAT>> outWrap(d_out);
