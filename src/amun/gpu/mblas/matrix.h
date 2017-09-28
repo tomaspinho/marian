@@ -279,7 +279,7 @@ class TMatrix : public BaseMatrix {
     T *data_;
 };
 
-typedef TMatrix<float> Matrix;
+typedef TMatrix<FLOAT> Matrix;
 typedef TMatrix<uint> IMatrix;
 typedef TMatrix<half> HalfMatrix;
 

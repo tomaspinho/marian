@@ -182,57 +182,6 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
 
 }
 
-void NthElement::getNBestList(mblas::Matrix &probs,
-                              const HostVector<uint>& batchFirstElementIdxs,
-                              const HostVector<uint>& cummulatedBeamSizes)
-{
-  /*
-  const uint vocabSize = probs.dim(1);
-  const uint numBlocks = uint(maxBeamSize_ * vocabSize / (2 * BLOCK_SIZE)) + uint(maxBeamSize_ * vocabSize % (2 * BLOCK_SIZE) != 0);
-  const uint numBatches = batchFirstElementIdxs.size() - 1;
-
-  d_out.NewSize(maxBatchSize_ * numBlocks, 1, 1, 1);
-
-  //cerr << "cummulatedBeamSizes=" << cummulatedBeamSizes.size() << endl;
-  d_batchPosition.NewSize(batchFirstElementIdxs.size(), 1, 1, 1);
-  d_cumBeamSizes.NewSize(cummulatedBeamSizes.size(), 1, 1, 1);
-  assert(d_batchPosition.size() == d_cumBeamSizes.size());
-
-  mblas::copy(thrust::raw_pointer_cast(batchFirstElementIdxs.data()),
-              batchFirstElementIdxs.size(),
-              d_batchPosition.data(),
-              cudaMemcpyHostToDevice);
-  mblas::copy(thrust::raw_pointer_cast(cummulatedBeamSizes.data()),
-              cummulatedBeamSizes.size(),
-              d_cumBeamSizes.data(),
-              cudaMemcpyHostToDevice);
-
-  mblas::MatrixWrapper<NthOut<float> > outWrap(d_out);
-  mblas::MatrixWrapper<float> probsWrap(probs);
-  mblas::MatrixWrapper<uint> batchPositionWrap(d_batchPosition);
-  mblas::MatrixWrapper<NthOut<float> > resWrap(d_res, false);
-  mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
-
-  gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
-    (outWrap, probsWrap, batchPositionWrap, numBatches);
-
-  gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
-    (outWrap,
-     probsWrap,
-     resWrap,
-     batchPositionWrap,
-     cumBeamSizesWrap,
-     numBlocks);
-  */
-
-  mblas::HalfMatrix probsHalf(probs.dim(0), probs.dim(1), probs.dim(2), probs.dim(3));
-  CopyMatrix(probsHalf, probs);
-
-  getNBestList(probsHalf, batchFirstElementIdxs, cummulatedBeamSizes);
-
-  CopyMatrix(probs, probsHalf);
-}
-
 /////////////////////////////////////////////////////////////////////////////////////
 
 void NthElement::GetPairs(uint number,
@@ -253,8 +202,8 @@ void NthElement::getValueByKey(std::vector<float>& out, const mblas::Matrix &d_i
   // need a model with multiple scorers to test this method
   assert(false);
 
-  mblas::MatrixWrapper<float> breakdownWrap(d_breakdown);
-  const mblas::MatrixWrapper<float> inWrap(d_in);
+  mblas::MatrixWrapper<FLOAT> breakdownWrap(d_breakdown);
+  const mblas::MatrixWrapper<FLOAT> inWrap(d_in);
 
   //gGetValueByKey<<<1, lastN_, 0, stream_>>>
   //  (breakdownWrap, inWrap, h_res_idx, lastN_);

@@ -37,6 +37,7 @@ std::vector<SoftAlignmentPtr> BestHyps::GetAlignments(const std::vector<ScorerPt
       size_t attLength = attention.dim(1);
 
       SoftAlignment *softAlignment = new SoftAlignment(attLength);
+
       mblas::copy(
           attention.data() + hypIndex * attLength,
           attLength,

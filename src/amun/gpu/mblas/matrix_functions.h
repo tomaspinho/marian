@@ -170,10 +170,37 @@ void CopyVector(DeviceVector<Tout> &out, const DeviceVector<Tin> &in)
 
 
 template<typename T>
-void copy(const T *in, size_t count, T *out,  cudaMemcpyKind kind) {
+void copy(const T *in, size_t count, T *out,  cudaMemcpyKind kind)
+{
   HANDLE_ERROR( cudaMemcpyAsync(out, in, count * sizeof(T), kind, CudaStreamHandler::GetStream()) );
   HANDLE_ERROR( cudaStreamSynchronize(CudaStreamHandler::GetStream()));
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+template<typename Tin, typename Tout>
+void copy(const Tin *in, size_t count, Tout *out,  cudaMemcpyKind kind)
+{
+  assert(kind == cudaMemcpyHostToDevice);
+
+  HostVector<Tin> hostVec(count);
+  for (size_t i = 0; i < count; ++i) {
+    hostVec[i] = in[i];
+  }
+  DeviceVector<Tin> deviceVec(hostVec);
+
+  uint threads = std::min((uint)count, (uint) MAX_THREADS);
+  uint blocks  = (count / threads) + 1;
+
+  const cudaStream_t &stream = CudaStreamHandler::GetStream();
+
+  gCopyVector<<<blocks, threads, 0, stream>>>(
+      out,
+      thrust::raw_pointer_cast(deviceVec.data()),
+      count);
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 void Fill(Matrix& In, float value=0.0f);
 
@@ -314,52 +341,6 @@ HalfMatrix& Broadcast(Functor functor,
 /////////////////////////////////////////////////////////////////////////////
 
 template <class Functor>
-Matrix& Broadcast(Functor functor,
-                  Matrix& OutOrig,
-                  const Matrix& In,
-                  const DeviceVector<uint>& batchMapping,
-                  size_t srcSize)
-{
-  /*
-  size_t sumOfBeamSizes = In.dim(0);
-
-  size_t cols  = OutOrig.dim(1);
-
-  thread_local static Matrix OutNew;
-  OutNew.NewSize(sumOfBeamSizes, cols, srcSize);
-
-  MatrixWrapper<float> outWrap(OutNew);
-  const MatrixWrapper<float> in1Wrap(OutOrig);
-  const MatrixWrapper<float> in2Wrap(In);
-  const MatrixWrapper<uint> batchMappingWrap(batchMapping);
-
-  int threads = MAX_THREADS;
-  int blocks  = (OutNew.size() / threads) + ((OutNew.size() % threads == 0) ?  0 : 1);
-
-  gBroadcast<<<blocks, threads, 0, CudaStreamHandler::GetStream()>>>
-    (functor, outWrap, in1Wrap, in2Wrap, batchMappingWrap);
-
-
-  Swap(OutOrig, OutNew);
-  */
-
-  HalfMatrix halfOutOrig(OutOrig.dim(0), OutOrig.dim(1), OutOrig.dim(2), OutOrig.dim(3));
-  CopyMatrix(halfOutOrig, OutOrig);
-
-  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
-  CopyMatrix(halfIn, In);
-
-  Broadcast(functor, halfOutOrig, halfIn, batchMapping, srcSize);
-
-  OutOrig.NewSize(halfOutOrig.dim(0), halfOutOrig.dim(1), halfOutOrig.dim(2), halfOutOrig.dim(3));
-  CopyMatrix(OutOrig, halfOutOrig);
-
-  return OutOrig;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-template <class Functor>
 __global__ void gBroadcastVecColumn(Functor functor,
                                     MatrixWrapper<half> outWrap,
                                     const MatrixWrapper<half> inWrap)
@@ -489,39 +470,6 @@ HalfMatrix& BroadcastVec(Functor functor, HalfMatrix& Out, const HalfMatrix& In)
 /////////////////////////////////////////////////////////////////////////////
 
 template <class Functor>
-Matrix& BroadcastVec(Functor functor, Matrix& Out, const Matrix& In)
-{
-  /*
-  size_t cols = Out.dim(1);
-
-  MatrixWrapper<float> outWrap(Out);
-  const MatrixWrapper<float> inWrap(In);
-
-  int threads = std::min(MAX_THREADS, (int)cols);
-  int blocks  = cols / threads  + ((cols % threads == 0) ?  0 : 1);
-  const cudaStream_t& stream = CudaStreamHandler::GetStream();
-
-  gBroadcastVec<<<blocks, threads, 0, stream>>>
-    (functor, outWrap, inWrap);
-  */
-
-  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
-  CopyMatrix(halfOut, Out);
-
-  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
-  CopyMatrix(halfIn, In);
-
-  BroadcastVec(functor, halfOut, halfIn);
-
-  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
-  CopyMatrix(Out, halfOut);
-
-  return Out;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-template <class Functor>
 __global__ void gElement(Functor functor,
                          MatrixWrapper<half> outWrap)
 {
@@ -543,33 +491,6 @@ HalfMatrix& Element(Functor functor,
 
   gElement<<<blocks, threads, 0, stream>>>
     (functor, outWrap);
-
-  return Out;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-template <class Functor>
-Matrix& Element(Functor functor,
-                Matrix& Out)
-{
-  /*
-  int threads = MAX_THREADS;
-  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
-  const cudaStream_t& stream = CudaStreamHandler::GetStream();
-
-  MatrixWrapper<float> outWrap(Out);
-
-  gElement<<<blocks, threads, 0, stream>>>
-    (functor, outWrap);
-  */
-  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
-  CopyMatrix(halfOut, Out);
-
-  Element(functor, halfOut);
-
-  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
-  CopyMatrix(Out, halfOut);
 
   return Out;
 }
@@ -602,40 +523,6 @@ HalfMatrix& Element(Functor functor,
 
   gElement<<<blocks, threads, 0, stream>>>
     (functor, outWrap, inWrap);
-
-  return Out;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-template <class Functor>
-Matrix& Element(Functor functor,
-                Matrix& Out, const Matrix& In)
-{
-  /*
-  assert(Out.size() == In.size());
-
-  int threads = MAX_THREADS;
-  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
-  const cudaStream_t& stream = CudaStreamHandler::GetStream();
-
-  MatrixWrapper<float> outWrap(Out);
-  const MatrixWrapper<float> inWrap(In);
-
-  gElement<<<blocks, threads, 0, stream>>>
-    (functor, outWrap, inWrap);
-  */
-  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
-  CopyMatrix(halfOut, Out);
-
-  HalfMatrix halfIn(In.dim(0), In.dim(1), In.dim(2), In.dim(3));
-  CopyMatrix(halfIn, In);
-
-  Element(functor, halfOut, halfIn);
-
-  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
-  CopyMatrix(Out, halfOut);
 
   return Out;
 }
@@ -673,46 +560,6 @@ HalfMatrix& Element(Functor functor,
 
   gElement<<<blocks, threads, 0, stream>>>
     (functor, outWrap, in1Wrap, in2Wrap);
-
-  return Out;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-template <class Functor>
-Matrix& Element(Functor functor,
-                Matrix& Out,
-                const Matrix& In1,
-                const Matrix& In2)
-{
-  /*
-  assert(Out.size() == In1.size());
-  assert(Out.size() == In2.size());
-
-  int threads = MAX_THREADS;
-  int blocks  = Out.size() / threads + ((Out.size() % threads == 0) ?  0 : 1);
-  const cudaStream_t& stream = CudaStreamHandler::GetStream();
-
-  MatrixWrapper<float> outWrap(Out);
-  const MatrixWrapper<float> in1Wrap(In1);
-  const MatrixWrapper<float> in2Wrap(In2);
-
-  gElement<<<blocks, threads, 0, stream>>>
-    (functor, outWrap, in1Wrap, in2Wrap);
-  */
-  HalfMatrix halfOut(Out.dim(0), Out.dim(1), Out.dim(2), Out.dim(3));
-  CopyMatrix(halfOut, Out);
-
-  HalfMatrix halfIn1(In1.dim(0), In1.dim(1), In1.dim(2), In1.dim(3));
-  CopyMatrix(halfIn1, In1);
-
-  HalfMatrix halfIn2(In2.dim(0), In2.dim(1), In2.dim(2), In2.dim(3));
-  CopyMatrix(halfIn2, In2);
-
-  Element(functor, halfOut, halfIn1, halfIn2);
-
-  Out.NewSize(halfOut.dim(0), halfOut.dim(1), halfOut.dim(2), halfOut.dim(3));
-  CopyMatrix(Out, halfOut);
 
   return Out;
 }
