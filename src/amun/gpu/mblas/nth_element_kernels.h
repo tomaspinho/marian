@@ -52,23 +52,6 @@ inline std::ostream& operator<<(std::ostream &out, const NthOut<T> &obj)
   return out;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-__global__ void gMaxElement(mblas::MatrixWrapper<NthOut<float> > out,
-                            const mblas::MatrixWrapper<float> probsWrap,
-                            const mblas::MatrixWrapper<uint> batchPositionWrap,
-                            uint numBatches);
-
-__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<float> > out,
-                                  mblas::MatrixWrapper<float> probsWrap,
-                                  mblas::MatrixWrapper<NthOut<float> > resNewWrap,
-                                  const mblas::MatrixWrapper<uint> batchPositionWrap,
-                                  const mblas::MatrixWrapper<uint> cumBeamSizesWrap,
-                                  uint numBlocks);
-
-__global__ void gGetValueByKey(mblas::MatrixWrapper<float> out,
-                              const   mblas::MatrixWrapper<float> in,
-                              uint* indices, uint n);
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

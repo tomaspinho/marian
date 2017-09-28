@@ -104,9 +104,7 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
   mblas::MatrixWrapper<uint> batchPositionWrap(d_batchPosition);
   mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
 
-  mblas::TMatrix<NthOut<half>> outHalf(d_out.dim(0), d_out.dim(1), d_out.dim(2), d_out.dim(3));
-  CopyMatrix(outHalf, d_out);
-  mblas::MatrixWrapper<NthOut<half>> outWrapHalf(outHalf);
+  mblas::MatrixWrapper<NthOut<FLOAT>> outWrapHalf(d_out);
 
   mblas::TMatrix<NthOut<half>> resHalf(d_res.dim(0), d_res.dim(1), d_res.dim(2), d_res.dim(3));
   CopyMatrix(resHalf, d_res);
@@ -136,7 +134,6 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
        cumBeamSizesWrap,
        numBlocks);
 
-   CopyMatrix(d_out, outHalf);
    CopyMatrix(d_res, resHalf);
 
   /*

@@ -31,7 +31,7 @@ class NthElement {
   private:
     const uint BLOCK_SIZE = 512;
 
-    mblas::TMatrix<NthOut<float> > d_out;
+    mblas::TMatrix<NthOut<FLOAT> > d_out;
 
     mblas::TMatrix<NthOut<float> > d_res;
     //HostVector<NthOut> h_res;
