@@ -55,20 +55,20 @@ inline std::ostream& operator<<(std::ostream &out, const NthOut<T> &obj)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-__global__ void gMaxElement(mblas::MatrixWrapper<NthOut<half>> out,
-                            const mblas::MatrixWrapper<half> probsWrap,
+__global__ void gMaxElement(mblas::MatrixWrapper<NthOut<FLOAT>> out,
+                            const mblas::MatrixWrapper<FLOAT> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
                             uint numBatches);
 
-__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
-                                  mblas::MatrixWrapper<half> probsWrap,
+__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<FLOAT>> out,
+                                  mblas::MatrixWrapper<FLOAT> probsWrap,
                                   mblas::MatrixWrapper<NthOut<float>> resNewWrap,
                                   const mblas::MatrixWrapper<uint> batchPositionWrap,
                                   const mblas::MatrixWrapper<uint> cumBeamSizesWrap,
                                   uint numBlocks);
 
-__global__ void gGetValueByKey(mblas::MatrixWrapper<half> out,
-                              const   mblas::MatrixWrapper<half> in,
+__global__ void gGetValueByKey(mblas::MatrixWrapper<FLOAT> out,
+                              const   mblas::MatrixWrapper<FLOAT> in,
                               uint* indices, uint n);
 
 

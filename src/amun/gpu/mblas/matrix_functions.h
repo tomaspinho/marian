@@ -86,10 +86,6 @@ std::string Debug(const HostVector<T> &vec, size_t verbosity = 1)
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<<(std::ostream& os, const half &val);
-
-/////////////////////////////////////////////////////////////////////////////
-
 template<typename Tout, typename Tin>
 __global__ void gCopyMatrix(MatrixWrapper<Tout> out,
                                 const MatrixWrapper<Tin> in)

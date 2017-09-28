@@ -29,6 +29,12 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+std::ostream& operator<<(std::ostream& os, const half &val)
+{
+  os << "half";
+  return os;
+}
+
 __fp16 uint16_as_fp16 (uint16_t a)
 {
     __fp16 res;

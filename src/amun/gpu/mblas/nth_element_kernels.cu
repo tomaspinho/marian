@@ -16,12 +16,12 @@ namespace GPU {
     } \
   }
 
-__global__ void gMaxElement(mblas::MatrixWrapper<NthOut<half>> out,
-                            const mblas::MatrixWrapper<half> probsWrap,
+__global__ void gMaxElement(mblas::MatrixWrapper<NthOut<FLOAT>> out,
+                            const mblas::MatrixWrapper<FLOAT> probsWrap,
                             const mblas::MatrixWrapper<uint> batchPositionWrap,
                             uint numBatches)
 {
-  extern __shared__ half sdataHalf[];
+  extern __shared__ FLOAT sdataHalf[];
   __shared__ uint indices[SHARED_SIZE];
 
   uint tid = threadIdx.x;
@@ -40,8 +40,8 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut<half>> out,
     }
 
     if (i + blockDim.x < end) {
-      half a = probsWrap[i];
-      half b = probsWrap[i + blockDim.x];
+      FLOAT a = probsWrap[i];
+      FLOAT b = probsWrap[i + blockDim.x];
       if (a > b) {
         sdataHalf[tid] = a;
         indices[tid] = i;
@@ -54,14 +54,14 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut<half>> out,
     while (i + 2 * gridDim.x * blockDim.x < end) {
       i += 2 * gridDim.x * blockDim.x;
 
-      half a = probsWrap[i];
+      FLOAT a = probsWrap[i];
       if (a > sdataHalf[tid]) {
         sdataHalf[tid] = a;
         indices[tid] = i;
       }
 
       if (i + blockDim.x < end) {
-        half b = probsWrap[i + blockDim.x];
+        FLOAT b = probsWrap[i + blockDim.x];
         if (b > sdataHalf[tid]) {
           sdataHalf[tid] = b;
           indices[tid] = i + blockDim.x;
@@ -95,16 +95,16 @@ __global__ void gMaxElement(mblas::MatrixWrapper<NthOut<half>> out,
   }
 }
 
-__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
-                                  mblas::MatrixWrapper<half> probsWrap,
+__global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<FLOAT>> out,
+                                  mblas::MatrixWrapper<FLOAT> probsWrap,
                                   mblas::MatrixWrapper<NthOut<float>> resNewWrap,
                                   const mblas::MatrixWrapper<uint> batchPositionWrap,
                                   const mblas::MatrixWrapper<uint> cumBeamSizesWrap,
                                   uint numBlocks)
 {
-  extern __shared__ half sdataHalf[];
+  extern __shared__ FLOAT sdataHalf[];
   __shared__ uint indices[SHARED_SIZE];
-  __shared__ half bestBinCostHalf;
+  __shared__ FLOAT bestBinCostHalf;
   __shared__ uint bestBinCostIdx;
 
   const uint tid = threadIdx.x;
@@ -126,8 +126,8 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
     }
 
     if (i + blockDim.x < num_bins) {
-      half a = out[batchIdx * numBlocks + i].score;
-      half b = out[batchIdx * numBlocks + i + blockDim.x].score;
+      FLOAT a = out[batchIdx * numBlocks + i].score;
+      FLOAT b = out[batchIdx * numBlocks + i + blockDim.x].score;
       if (a > b) {
         sdataHalf[tid] = a;
         indices[tid] = i;
@@ -140,14 +140,14 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
     while (i + 2 * blockDim.x < num_bins) {
       i += 2 * blockDim.x;
 
-      half a = out[batchIdx * numBlocks + i].score;
+      FLOAT a = out[batchIdx * numBlocks + i].score;
       if (a > sdataHalf[tid]) {
         sdataHalf[tid] = a;
         indices[tid] = i;
       }
 
       if (i + blockDim.x < num_bins) {
-        half b = out[batchIdx * numBlocks + i + blockDim.x].score;
+        FLOAT b = out[batchIdx * numBlocks + i + blockDim.x].score;
         if (b > sdataHalf[tid]) {
           sdataHalf[tid] = b;
           indices[tid] = i + blockDim.x;
@@ -197,8 +197,8 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
     }
 
     if (i + blockDim.x < batchPositionWrap[batchIdx + 1]) {
-      half a = probsWrap[i];
-      half b = probsWrap[i+blockDim.x];
+      FLOAT a = probsWrap[i];
+      FLOAT b = probsWrap[i+blockDim.x];
       if (a > b) {
         sdataHalf[tid] = a;
         indices[tid] = i;
@@ -211,14 +211,14 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
     while (i + dist < batchPositionWrap[batchIdx + 1]) {
       i += dist;
 
-      half a = probsWrap[i];
+      FLOAT a = probsWrap[i];
       if (a > sdataHalf[tid]) {
         sdataHalf[tid] = a;
         indices[tid] = i;
       }
 
       if (i + blockDim.x < batchPositionWrap[batchIdx + 1]) {
-        half b = probsWrap[i + blockDim.x];
+        FLOAT b = probsWrap[i + blockDim.x];
         if (b > sdataHalf[tid]) {
           sdataHalf[tid] = b;
           indices[tid] = i + blockDim.x;
@@ -252,8 +252,8 @@ __global__ void gMaxElementUpdate(mblas::MatrixWrapper<NthOut<half>> out,
   }
 }
 
-__global__ void gGetValueByKey(mblas::MatrixWrapper<half> out,
-                              const   mblas::MatrixWrapper<half> in,
+__global__ void gGetValueByKey(mblas::MatrixWrapper<FLOAT> out,
+                              const   mblas::MatrixWrapper<FLOAT> in,
                               uint* indices, uint n)
 {
   uint tid = threadIdx.x  + blockDim.x * blockIdx.x;

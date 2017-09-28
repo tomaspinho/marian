@@ -9,6 +9,7 @@
 #include "common/base_matrix.h"
 #include "gpu/types-gpu.h"
 #include "handles.h"
+#include "half.h"
 
 namespace amunmt {
 namespace GPU {
@@ -17,8 +18,6 @@ namespace mblas {
 using namespace thrust::placeholders;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::ostream& operator<<(std::ostream& os, const half &val);
 
 template<typename T>
 __global__ void gSum(const T *data, size_t count, T &ret)
