@@ -19,7 +19,7 @@ struct NthOut
   {}
 
   __device__ __host__
-  NthOut(uint &vInd, float vScore)
+  NthOut(uint &vInd, T vScore)
   :ind(vInd)
   ,score(vScore)
   {}
