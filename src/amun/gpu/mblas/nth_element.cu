@@ -76,7 +76,7 @@ void NthElement::getNBestList(const std::vector<uint>& beamSizes, mblas::Matrix&
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void NthElement::getNBestList(mblas::HalfMatrix &probs,
+void NthElement::getNBestList(mblas::Matrix &probs,
                               const HostVector<uint>& batchFirstElementIdxs,
                               const HostVector<uint>& cummulatedBeamSizes)
 {
@@ -100,18 +100,14 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
               d_cumBeamSizes.data(),
               cudaMemcpyHostToDevice);
 
-  mblas::MatrixWrapper<half> probsWrapHalf(probs);
+  mblas::MatrixWrapper<half> probsWrap(probs);
   mblas::MatrixWrapper<uint> batchPositionWrap(d_batchPosition);
   mblas::MatrixWrapper<uint> cumBeamSizesWrap(d_cumBeamSizes);
-
-  mblas::MatrixWrapper<NthOut<FLOAT>> outWrapHalf(d_out);
-
-  mblas::TMatrix<NthOut<half>> resHalf(d_res.dim(0), d_res.dim(1), d_res.dim(2), d_res.dim(3));
-  CopyMatrix(resHalf, d_res);
-  mblas::MatrixWrapper<NthOut<half>> resWrapHalf(resHalf, false);
+  mblas::MatrixWrapper<NthOut<FLOAT>> outWrap(d_out);
+  mblas::MatrixWrapper<NthOut<float>> resWrap(d_res, false);
 
   gMaxElement<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
-    (outWrapHalf, probsWrapHalf, batchPositionWrap, numBatches);
+    (outWrap, probsWrap, batchPositionWrap, numBatches);
 
   /*
   CopyMatrix(d_out, outHalf);
@@ -127,14 +123,12 @@ void NthElement::getNBestList(mblas::HalfMatrix &probs,
   CopyMatrix(outHalf, d_out);
   */
   gMaxElementUpdate<<<numBatches, BLOCK_SIZE, BLOCK_SIZE * sizeof(float), mblas::CudaStreamHandler::GetStream()>>>
-      (outWrapHalf,
-       probsWrapHalf,
-       resWrapHalf,
+      (outWrap,
+       probsWrap,
+       resWrap,
        batchPositionWrap,
        cumBeamSizesWrap,
        numBlocks);
-
-   CopyMatrix(d_res, resHalf);
 
   /*
   CopyMatrix(d_out, outHalf);

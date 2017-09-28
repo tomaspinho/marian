@@ -281,7 +281,6 @@ class TMatrix : public BaseMatrix {
 
 typedef TMatrix<FLOAT> Matrix;
 typedef TMatrix<uint> IMatrix;
-typedef TMatrix<half> HalfMatrix;
 
 
 }  // namespace mblas
