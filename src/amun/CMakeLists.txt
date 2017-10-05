@@ -70,7 +70,7 @@ if (MARIAN)
    #execute_process(COMMAND git submodule update --init --recursive
 #                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 #   add_subdirectory(marian)
-endif(MARIAN)  
+endif(MARIAN)
 
 set_source_files_properties( common/loader_factory.cpp
   PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ )
@@ -97,6 +97,27 @@ cuda_add_executable(
   $<TARGET_OBJECTS:cpumode>
   $<TARGET_OBJECTS:libyaml-cpp-amun>
   $<TARGET_OBJECTS:libcnpy>
+)
+
+cuda_add_library(go SHARED
+  golang/amunmt.cpp
+  gpu/decoder/best_hyps.cu
+  gpu/decoder/encoder_decoder.cu
+  gpu/decoder/encoder_decoder_loader.cu
+  gpu/decoder/encoder_decoder_state.cu
+  gpu/mblas/matrix.cu
+  gpu/mblas/matrix_functions.cu
+  gpu/mblas/nth_element.cu
+  gpu/mblas/nth_element_kernels.cu
+  gpu/dl4mt/encoder.cu
+  gpu/dl4mt/gru.cu
+  gpu/npz_converter.cu
+  gpu/types-gpu.cu
+  common/loader_factory.cpp
+  $<TARGET_OBJECTS:libcommon>
+  $<TARGET_OBJECTS:libcnpy>
+  $<TARGET_OBJECTS:cpumode>
+  $<TARGET_OBJECTS:libyaml-cpp-amun>
 )
 
 if(PYTHONLIBS_FOUND)
@@ -161,6 +182,15 @@ add_executable(
   $<TARGET_OBJECTS:libyaml-cpp-amun>
 )
 
+add_library(go SHARED
+  golang/amunmt.cpp
+  common/loader_factory.cpp
+  $<TARGET_OBJECTS:libcnpy>
+  $<TARGET_OBJECTS:cpumode>
+  $<TARGET_OBJECTS:libcommon>
+  $<TARGET_OBJECTS:libyaml-cpp-amun>
+)
+
 if(PYTHONLIBS_FOUND)
 add_library(python SHARED
   python/amunmt.cpp
@@ -172,10 +202,13 @@ add_library(python SHARED
 )
 set_target_properties("python" PROPERTIES EXCLUDE_FROM_ALL 1)
 set_target_properties("python" PROPERTIES OUTPUT_NAME "amunmt")
+
+set_target_properties("go" PROPERTIES EXCLUDE_FROM_ALL 1)
+set_target_properties("go" PROPERTIES OUTPUT_NAME "amunmt")
 endif(PYTHONLIBS_FOUND)
 endif(CUDA_FOUND)
 
-SET(EXES "amun")
+SET(EXES "amun" "go")
 
 if(PYTHONLIBS_FOUND)
 SET(EXES ${EXES} "python")
