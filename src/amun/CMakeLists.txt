@@ -100,6 +100,7 @@ cuda_add_executable(
 )
 
 cuda_add_library(go SHARED
+  EXCLUDE_FROM_ALL
   golang/amunmt.cpp
   gpu/decoder/best_hyps.cu
   gpu/decoder/encoder_decoder.cu
@@ -183,6 +184,7 @@ add_executable(
 )
 
 add_library(go SHARED
+  EXCLUDE_FROM_ALL
   golang/amunmt.cpp
   common/loader_factory.cpp
   $<TARGET_OBJECTS:libcnpy>
@@ -203,12 +205,15 @@ add_library(python SHARED
 set_target_properties("python" PROPERTIES EXCLUDE_FROM_ALL 1)
 set_target_properties("python" PROPERTIES OUTPUT_NAME "amunmt")
 
-set_target_properties("go" PROPERTIES EXCLUDE_FROM_ALL 1)
-set_target_properties("go" PROPERTIES OUTPUT_NAME "amunmt")
 endif(PYTHONLIBS_FOUND)
 endif(CUDA_FOUND)
 
 SET(EXES "amun" "go")
+
+install(TARGETS "amun" RUNTIME DESTINATION bin)
+
+install(TARGETS "go" LIBRARY DESTINATION lib OPTIONAL)
+set_target_properties("python" PROPERTIES OUTPUT_NAME "amunmt")
 
 if(PYTHONLIBS_FOUND)
 SET(EXES ${EXES} "python")
