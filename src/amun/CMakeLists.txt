@@ -214,6 +214,7 @@ install(TARGETS "amun" RUNTIME DESTINATION bin)
 
 install(TARGETS "go" LIBRARY DESTINATION lib OPTIONAL)
 set_target_properties("python" PROPERTIES OUTPUT_NAME "amunmt")
+set_target_properties("go" PROPERTIES OUTPUT_NAME "amunmt")
 
 if(PYTHONLIBS_FOUND)
 SET(EXES ${EXES} "python")
