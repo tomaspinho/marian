@@ -29,7 +29,10 @@ extern "C" void init(char* options) {
   god_.Init(optionss);
 }
 
-
+/**
+* Takes a NULL-terminated array of char arrays (source strings)
+* Returns a NULL-terminated array of char arrays (target strings)
+*/
 extern "C" char** translate(char** in)
 {
   size_t miniSize = god_.Get<size_t>("mini-batch");
@@ -91,8 +94,12 @@ extern "C" char** translate(char** in)
     Printer(god_, history, ss);
     string str = ss.str();
 
-    output[i] = &str[0];
+    char *buffer = new char[str.size() + 1];   //we need extra char for NULL
+    memcpy(buffer, str.c_str(), str.size() + 1);
+
+    output[i] = buffer;
   }
 
+  output[allHistories.size()] = NULL;
   return output;
 }
